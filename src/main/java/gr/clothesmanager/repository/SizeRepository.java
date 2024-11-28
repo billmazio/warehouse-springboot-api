@@ -10,8 +10,5 @@ import java.util.List;
 @Repository
 public interface SizeRepository extends JpaRepository<Size, Long> {
 
-    Size findById(int id);
-
-    List<Size> findAll();
-
+    boolean existsByName(String name);
 }
