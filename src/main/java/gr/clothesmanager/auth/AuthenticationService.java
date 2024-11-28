@@ -20,17 +20,18 @@ public class AuthenticationService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Authenticates the user based on the username and password.
-     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws UserNotAuthorizedException {
         try {
-            // Fetch the user by username
+            LOGGER.debug("Attempting to authenticate user: {}", request.getUsername());
             UserDTO userDTO = userService.findUserByUsername(request.getUsername())
                     .orElseThrow(() -> new UserNotAuthorizedException("Invalid username or password"));
 
-            // Validate the password
+            LOGGER.debug("User found: {}", userDTO);
+            LOGGER.debug("Stored password hash: {}", userDTO.getPassword());
+            LOGGER.debug("Provided password: {}", request.getPassword());
+
             if (!passwordEncoder.matches(request.getPassword(), userDTO.getPassword())) {
+                LOGGER.debug("Password mismatch for user: {}", request.getUsername());
                 throw new UserNotAuthorizedException("Invalid username or password");
             }
 

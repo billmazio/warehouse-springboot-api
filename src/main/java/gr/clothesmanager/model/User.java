@@ -29,18 +29,13 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Order> orders;
 
-    @Getter(AccessLevel.PRIVATE)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<UserRole> roles;
-
-    public Set<UserRole> getRoles() {
-        return roles;
-    }
+    private Set<UserRole> roles;  // Default Lombok getter will be public
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", referencedColumnName = "id")
@@ -69,9 +64,4 @@ public class User {
     public int hashCode() {
         return Objects.hash(id, password, username, enable);
     }
-
 }
-
-
-
-

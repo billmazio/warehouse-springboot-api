@@ -8,11 +8,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.List;
 
@@ -22,13 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-   // private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // Disable CSRF protection
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/resources/**",
@@ -40,19 +38,15 @@ public class SecurityConfiguration {
                                 "/lineicons/**",
                                 "/img/**"
                         ).permitAll()
-                        .requestMatchers("/orders/new").hasAnyAuthority("LocalAdmin")
-                        .requestMatchers("/materials/new").hasAnyAuthority("SuperAdmin")
-                        .requestMatchers("/materials/edit/{id}").hasAnyAuthority("SuperAdmin")
-                        .requestMatchers("/materials/viewStore/{id}").hasAnyAuthority("SuperAdmin")
-                        .requestMatchers("/materials/materialsByStore").hasAnyAuthority("LocalAdmin")
-                        .requestMatchers("**/users/change/**").hasAnyAuthority("SuperAdmin", "LocalAdmin")
-                        .requestMatchers("**/users/**").hasAnyAuthority("SuperAdmin")
+                        .requestMatchers("/api/auth/**").permitAll()  // Allow public access to auth endpoints
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedPage("/error"))
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard")  // Redirect to the new page
+                        .failureUrl("/login?error=true")
                         .permitAll())
                 .logout(logout -> logout
                         .invalidateHttpSession(true)
@@ -61,8 +55,7 @@ public class SecurityConfiguration {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll())
                 .authenticationProvider(authenticationProvider)
-              //  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));  // Apply CORS configuration
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
     }
@@ -70,12 +63,12 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://yourfrontenddomain.com", "http://localhost:4200")); // Define allowed origins for CORS
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH")); // Define allowed methods
-        configuration.setAllowedHeaders(List.of("*")); // Allow all headers
-        configuration.setAllowCredentials(true); // Allow credentials to be sent
+        configuration.setAllowedOrigins(List.of("https://yourfrontenddomain.com", "http://localhost:4200"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Apply configuration to all routes
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
