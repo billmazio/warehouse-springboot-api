@@ -8,6 +8,6 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login() {
-        return "index";
+        return "login";  // This serves the static login.html file from src/main/resources/static
     }
 }

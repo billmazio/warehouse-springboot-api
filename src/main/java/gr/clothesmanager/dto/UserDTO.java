@@ -39,10 +39,11 @@ public class UserDTO {
                 .password(user.getPassword())
                 .enable(user.getEnable())
                 .store(user.getStore() != null ? StoreDTO.fromModel(user.getStore()) : null)
-                .roles(user.getRoles())
+                .roles(user.getRoles()) // This expects `user.getRoles()` to return a Set<UserRole>
                 .orderIds(user.getOrders() != null ? user.getOrders().stream().map(order -> order.getId()).collect(Collectors.toList()) : null)
                 .build();
     }
+
 
     public boolean hasRole(UserRole userRole) {
         return roles != null && roles.contains(userRole.getName());
