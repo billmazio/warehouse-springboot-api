@@ -21,7 +21,7 @@ public class UserDTO {
     private String password;
     private Integer enable;
     private StoreDTO store; // Assuming a StoreDTO exists
-    private List<String> roles; // List of role names
+    private Set<UserRole> roles;
     private List<Long> orderIds; // List of Order IDs
 
 
@@ -39,7 +39,7 @@ public class UserDTO {
                 .password(user.getPassword())
                 .enable(user.getEnable())
                 .store(user.getStore() != null ? StoreDTO.fromModel(user.getStore()) : null)
-                .roles(user.getRoles() != null ? user.getRoles().stream().map(UserRole::getName).collect(Collectors.toList()) : null)
+                .roles(user.getRoles())
                 .orderIds(user.getOrders() != null ? user.getOrders().stream().map(order -> order.getId()).collect(Collectors.toList()) : null)
                 .build();
     }

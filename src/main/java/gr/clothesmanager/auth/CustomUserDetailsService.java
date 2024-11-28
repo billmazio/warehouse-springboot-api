@@ -1,0 +1,22 @@
+package gr.clothesmanager.auth;
+
+
+import gr.clothesmanager.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        return (UserDetails) userRepository.findById(Long.parseLong(id)).orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+    }
+}

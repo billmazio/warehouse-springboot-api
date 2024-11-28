@@ -3,16 +3,17 @@ package gr.clothesmanager.service;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.UserService;
 import gr.clothesmanager.model.User;
+import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.UserRepository;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
+    private final RoleServiceImpl roleService;
 
     @Override
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
@@ -30,7 +32,12 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("User with username '" + userDTO.getUsername() + "' already exists");
         }
 
+        // Assign roles to the user
+        Set<UserRole> roles = assignRoles(userDTO.getRoles());
+
         User user = userDTO.toModel();
+        user.setRoles(roles);
+
         User savedUser = userRepository.save(user);
         LOGGER.info("User saved with ID: {}", savedUser.getId());
         return UserDTO.fromModel(savedUser);
@@ -65,5 +72,43 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
+    }
+
+
+    @Transactional
+    public void assignRoleToUser(Long userId, String roleTag) throws UserNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        UserRole role = roleService.getRoleByTag(roleTag);
+        if (role == null) {
+            throw new IllegalArgumentException("Role with tag '" + roleTag + "' does not exist");
+        }
+
+        user.getRoles().add(role);
+        userRepository.save(user);
+    }
+
+
+    private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
+        if (roleNames == null || roleNames.isEmpty()) {
+            throw new IllegalArgumentException("Roles cannot be null or empty");
+        }
+
+        return roleNames.stream()
+                .map(role -> {
+                    String roleName = role.getName().toUpperCase(); // Convert role name to upper case
+                    switch (roleName) {
+                        case "SUPER_ADMIN":
+                            return roleService.getOrCreateRole("Super Admin", "SUPER_ADMIN");
+                        case "LOCAL_ADMIN":
+                            return roleService.getOrCreateRole("Local Admin", "LOCAL_ADMIN");
+                        default:
+                            LOGGER.warn("Unknown role '{}', skipping...", roleName);
+                            return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 }
