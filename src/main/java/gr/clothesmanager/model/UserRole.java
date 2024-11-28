@@ -1,10 +1,7 @@
 package gr.clothesmanager.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 import java.util.Set;
@@ -14,6 +11,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "roles")
 public class UserRole extends AbstractEntity{
     @Id
@@ -23,11 +21,17 @@ public class UserRole extends AbstractEntity{
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
+    private String tag;
+
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
-
-
+    public UserRole(Long id, String name, String tag) {
+        this.id = id;
+        this.name = name;
+        this.tag = tag;
+    }
 
 
 }

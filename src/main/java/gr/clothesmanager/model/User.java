@@ -17,15 +17,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "comments")
-    private String comments;
-
-    @Column(name = "lastname")
-    private String lastname;
-
-    @Column(name = "firstname")
-    private String firstname;
-
     @Column(name = "password")
     private String password;
 
@@ -47,15 +38,16 @@ public class User {
     )
     private Set<UserRole> roles;
 
+    public Set<UserRole> getRoles() {
+        return roles;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;
 
-    public User(Long id, String comments, String lastname, String firstname, String password, String username, Integer enable, Store store) {
+    public User(Long id, String password, String username, Integer enable, Store store) {
         this.id = id;
-        this.comments = comments;
-        this.lastname = lastname;
-        this.firstname = firstname;
         this.password = password;
         this.username = username;
         this.enable = enable;
@@ -68,9 +60,6 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(comments, user.comments) &&
-                Objects.equals(lastname, user.lastname) &&
-                Objects.equals(firstname, user.firstname) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(username, user.username) &&
                 Objects.equals(enable, user.enable);
@@ -78,7 +67,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, comments, lastname, firstname, password, username, enable);
+        return Objects.hash(id, password, username, enable);
     }
 
 }

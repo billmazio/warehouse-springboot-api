@@ -1,0 +1,18 @@
+package gr.clothesmanager.repository;
+
+
+
+import gr.clothesmanager.model.Store;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface StoreRepository extends JpaRepository<Store, Long> {
+
+    Store findById(int id);
+
+    List<Store> findAll();
+
+}
