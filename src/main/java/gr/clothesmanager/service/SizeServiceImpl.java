@@ -5,6 +5,7 @@ import gr.clothesmanager.model.Size;
 import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.service.exceptions.SizeAlreadyExistsException;
 import gr.clothesmanager.interfaces.SizeService;
+import gr.clothesmanager.service.exceptions.SizeNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,12 @@ public class SizeServiceImpl implements SizeService {
     private final SizeRepository sizeRepository;
 
     @Transactional
-    public SizeDTO findById(Long id) throws SizeAlreadyExistsException {
+    public SizeDTO findById(Long id) throws SizeNotFoundException {
         Optional<Size> size = sizeRepository.findById(id);
         if (size.isPresent()) {
             return SizeDTO.fromModel(size.get());
         }
-        throw new SizeAlreadyExistsException("Size with ID " + id + " not found.");
+        throw new SizeNotFoundException("Size with ID " + id + " not found.");
     }
 
     @Transactional

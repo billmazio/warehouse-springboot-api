@@ -7,6 +7,7 @@ import gr.clothesmanager.model.Size;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
+import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -45,10 +46,10 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public MaterialDTO findById(Long id) throws MaterialAlreadyExistsException {
+    public MaterialDTO findById(Long id) throws MaterialNotFoundException {
         LOGGER.info("Finding material with ID: {}", id);
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Material not found with ID: " + id));
+                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
 
         return MaterialDTO.fromModel(material);
     }
@@ -63,11 +64,11 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
+    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException {
         LOGGER.info("Editing material with ID: {}", id);
 
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Material not found with ID: " + id));
+                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
 
         material.setText(materialDTO.getText());
         material.setQuantity(materialDTO.getQuantity());
@@ -77,7 +78,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
 
         Size size = sizeRepository.findById(materialDTO.getSizeId())
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Size not found with ID: " + materialDTO.getSizeId()));
+                .orElseThrow(() -> new MaterialNotFoundException("Size not found with ID: " + materialDTO.getSizeId()));
         material.setSize(size);
 
         material = materialRepository.save(material);
@@ -86,10 +87,10 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     @Override
-    public void delete(Long id) throws MaterialAlreadyExistsException {
+    public void delete(Long id) throws MaterialNotFoundException {
         LOGGER.info("Deleting material with ID: {}", id);
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Material not found with ID: " + id));
+                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
 
         materialRepository.delete(material);
     }
