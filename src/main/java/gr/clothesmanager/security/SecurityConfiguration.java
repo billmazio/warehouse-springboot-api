@@ -16,49 +16,39 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
-                                "/resources/**",
-                                "/static/**",
-                                "/js/**",
-                                "/css/**",
-                                "/font-awesome/**",
-                                "/fonts/**",
-                                "/lineicons/**",
-                                "/img/**"
-                        ).permitAll()
-                        .requestMatchers("/api/auth/login/*").permitAll()  // Allow public access to auth endpoints
-                        .anyRequest().authenticated()
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for API
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/static/**", "/api/auth/**").permitAll() // Allow access to static files and login
+                        .requestMatchers("/api/dashboard").authenticated() // Protect the dashboard API
+                        .anyRequest().authenticated() // Protect all other routes
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .accessDeniedPage("/error"))
-                .formLogin(formLogin -> formLogin
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard")  // Redirect to the new page
-                        .failureUrl("/login?error=true")
-                        .permitAll())
+                .formLogin(form -> form
+                        .loginPage("/login") // Custom login page
+                        .defaultSuccessUrl("/dashboard", true) // Redirect after successful login
+                        .permitAll()
+                )
                 .logout(logout -> logout
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
-                        .permitAll())
-                .authenticationProvider(authenticationProvider)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                        .permitAll()
+                )
+                .authenticationProvider(authenticationProvider);
 
         return http.build();
     }
+
+
 
 
     @Bean
