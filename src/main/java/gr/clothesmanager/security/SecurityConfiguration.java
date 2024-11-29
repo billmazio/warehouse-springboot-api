@@ -38,14 +38,14 @@ public class SecurityConfiguration {
                                 "/lineicons/**",
                                 "/img/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/login/**").permitAll()  // Allow public access to auth endpoints
+                        .requestMatchers("/api/auth/login/*").permitAll()  // Allow public access to auth endpoints
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedPage("/error"))
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
-                        .defaultSuccessUrl("/index")  // Redirect to the new page
+                        .defaultSuccessUrl("/dashboard")  // Redirect to the new page
                         .failureUrl("/login?error=true")
                         .permitAll())
                 .logout(logout -> logout

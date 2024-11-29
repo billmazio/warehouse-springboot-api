@@ -36,7 +36,7 @@ public class MainController {
         this.materialService = materialService;
     }
 
-    @GetMapping("/index")
+    @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboardData() {
         List<UserDTO> users = userService.findAllUsers().stream()
                 .map((UserDTO user) -> UserDTO.fromModel(user.toModel())) // Convert each User to UserDTO
