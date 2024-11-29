@@ -1,0 +1,72 @@
+package gr.clothesmanager.controller;
+
+import gr.clothesmanager.dto.OrderDTO;
+import gr.clothesmanager.interfaces.OrderService;
+import gr.clothesmanager.service.exceptions.OrderAlreadyExistsException;
+import gr.clothesmanager.service.exceptions.OrderNotFoundException;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/orders")
+@RequiredArgsConstructor
+public class OrderController {
+
+    private final OrderService orderService;
+
+    @PostMapping
+    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) throws OrderAlreadyExistsException {
+        OrderDTO savedOrder = orderService.save(orderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
+        try {
+            OrderDTO order = orderService.findById(id);
+            return ResponseEntity.ok(order);
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderDTO>> findAll() {
+        return ResponseEntity.ok(orderService.findAll());
+    }
+
+    @PatchMapping("/{id}/accept")
+    public ResponseEntity<Void> accept(@PathVariable Long id) {
+        try {
+            orderService.accept(id);
+            return ResponseEntity.noContent().build();
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PatchMapping("/{id}/deny")
+    public ResponseEntity<Void> deny(@PathVariable Long id) {
+        try {
+            orderService.deny(id);
+            return ResponseEntity.noContent().build();
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        try {
+            orderService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+}
