@@ -1,12 +1,10 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.MaterialService;
-import gr.clothesmanager.interfaces.OrderService;
-import gr.clothesmanager.interfaces.RoleService;
-import gr.clothesmanager.interfaces.UserService;
+import gr.clothesmanager.interfaces.*;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,25 +26,39 @@ public class MainController {
     private final RoleService roleService;
     private final OrderService orderService;
     private final MaterialService materialService;
+    private final StoreService storeService;
 
-    public MainController(UserService userService, RoleService roleService, OrderService orderService, MaterialService materialService) {
+    public MainController(UserService userService, RoleService roleService, OrderService orderService, MaterialService materialService, StoreService storeService) {
         this.userService = userService;
         this.roleService = roleService;
         this.orderService = orderService;
         this.materialService = materialService;
+        this.storeService = storeService;
     }
-
     @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboardData() {
-        List<UserDTO> users = userService.findAllUsers().stream()
-                .map((UserDTO user) -> UserDTO.fromModel(user.toModel())) // Convert each User to UserDTO
-                .collect(Collectors.toList());
-
+        // Build and return JSON response
         Map<String, Object> response = new HashMap<>();
-        response.put("users", users);
-        response.put("userCount", users.size());
-        return ResponseEntity.ok(response);
-    }
+        response.put("key", "value");
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
 
+//        // Calculate counts and fetch additional info
+//        long userCount = userService.findAllUsers().stream().filter(u -> u.getEnable() == 1).count();
+//        long storageCount = storeService.findAll().stream().filter(s -> s.getEnable() == 1 && s.getId() != 1).count();
+//        long materialCount = materialService.findAll().size();
+//        long newOrdersCount = orderService.findAll().stream().filter(o -> o.getStatus() == 0).count();
+//        long ordersCount = orderService.findAll().size();
+//        String storeTitle = "My Store Name"; // Replace this with actual logic to fetch store title
+//
+//        // Build response
+//        response.put("userCount", userCount);
+//        response.put("storageCount", storageCount);
+//        response.put("materialCount", materialCount);
+//        response.put("newOrdersCount", newOrdersCount);
+//        response.put("ordersCount", ordersCount);
+//        response.put("storeTitle", storeTitle);
+//
+//        return ResponseEntity.ok(response);
+    }
 
 }

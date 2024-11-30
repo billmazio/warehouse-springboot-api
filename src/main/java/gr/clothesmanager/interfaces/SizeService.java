@@ -15,6 +15,5 @@ public interface SizeService {
 
     SizeDTO findById(Long id) throws  SizeNotFoundException;
 
-
     List<SizeDTO> findAll();
 }
