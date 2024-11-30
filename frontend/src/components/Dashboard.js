@@ -1,11 +1,14 @@
+import React from 'react';
+import axios from 'axios';
+
 const Dashboard = () => {
     const handleLogout = async () => {
         try {
-            await axios.post("/api/auth/logout");
-            console.log("Logout successful");
-            window.location.href = "/login"; // Redirect to login page
+            await axios.post('http://localhost:8080/api/auth/logout');
+            console.log('Logout successful');
+            window.location.href = '/login'; // Redirect to login page
         } catch (err) {
-            console.error("Logout failed", err);
+            console.error('Logout failed', err);
         }
     };
 

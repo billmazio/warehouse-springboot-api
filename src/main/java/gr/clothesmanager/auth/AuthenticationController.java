@@ -39,17 +39,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            // Perform logout logic (e.g., invalidate session, remove tokens)
-       //     authenticationService.logout(request);
-
-            LOGGER.info("User logged out successfully.");
-            return ResponseEntity.ok("Logout successful");
-        } catch (Exception e) {
-            LOGGER.error("Logout failed: {}", e.getMessage());
-            return ResponseEntity.status(500).body("Logout failed");
-        }
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        request.getSession().invalidate();
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     private String getClientIpAddress(HttpServletRequest request) {
