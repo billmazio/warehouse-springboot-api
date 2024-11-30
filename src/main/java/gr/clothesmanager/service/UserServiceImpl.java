@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +27,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleServiceImpl roleService;
 
-    @Override
+    @Transactional
+    public User getAuthenticatedUser() throws UserNotFoundException { Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username; if (principal instanceof UserDetails) { username = ((UserDetails) principal).getUsername();
+        } else { username = principal.toString(); } return userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username)); }
+
+    @Transactional
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
             LOGGER.error("User with username '{}' already exists", userDTO.getUsername());
@@ -43,28 +51,28 @@ public class UserServiceImpl implements UserService {
         return UserDTO.fromModel(savedUser);
     }
 
-    @Override
+    @Transactional
     public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
         return Optional.of(UserDTO.fromModel(user));
     }
 
-    @Override
+    @Transactional
     public Optional<UserDTO> findUserByUsername(String username) throws UserNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User with username '" + username + "' not found"));
         return Optional.of(UserDTO.fromModel(user));
     }
 
-    @Override
+    @Transactional
     public List<UserDTO> findAllUsers() {
         List<User> users = userRepository.findAll();
         LOGGER.info("Fetched {} users from the database", users.size());
         return users.stream().map(UserDTO::fromModel).collect(Collectors.toList());
     }
 
-    @Override
+    @Transactional
     public void deleteUserById(Long id) throws UserNotFoundException {
         if (!userRepository.existsById(id)) {
             LOGGER.error("User with ID '{}' does not exist", id);
@@ -73,7 +81,6 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
-
 
     @Transactional
     public void assignRoleToUser(Long userId, String roleTag) throws UserNotFoundException {
@@ -89,6 +96,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    public int getActiveUserCount() {
+        // Example query to fetch active users
+        return userRepository.countActiveUsersForDashboard();
+    }
 
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {

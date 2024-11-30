@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./Dashboard.css"; // Assume you have a CSS file for styling
+import "./Dashboard.css";
 
 const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState({
         user: 0,
-        storageCount: 0,
-        materialCount: 0,
-        newOrdersCount: 0,
-        ordersCount: 0,
-        storeTitle: "",
+        // Commenting out other fields
+        // storageCount: 0,
+        // materialCount: 0,
+        // newOrdersCount: 0,
+        // ordersCount: 0,
+        // storeTitle: "",
     });
     const [error, setError] = useState("");
 
     useEffect(() => {
-        // Fetch data from the backend
         const fetchDashboardData = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/dashboard");
-                setDashboardData(response.data); // Update the state with API data
+                const response = await axios.get("http://localhost:8080/api/dashboard", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                console.log("Fetched User Count:", response.data.user); // Debugging log for "user" field
+                setDashboardData({ user: response.data.user }); // Update only the "user" field
             } catch (err) {
                 setError("Failed to load dashboard data.");
-                console.error(err);
+                console.error("API Error:", err.response?.data || err.message);
             }
         };
 
@@ -55,36 +60,27 @@ const Dashboard = () => {
                     <p>Active Users: {dashboardData.user}</p>
                 </div>
 
-                {/* Storage Management */}
-                <div
-                    className="card storage-management"
-                    onClick={() => handleRedirect("/storage/stores")}
-                >
+                {/* Commenting out other sections */}
+                {/* <div className="card storage-management">
                     <h3>Storage Management</h3>
                     <p>Active Storages: {dashboardData.storageCount}</p>
                 </div>
 
-                {/* Material Management */}
-                <div
-                    className="card material-management"
-                    onClick={() => handleRedirect("/storage/materials")}
-                >
+                <div className="card material-management">
                     <h3>Material Management</h3>
                     <p>Total Materials: {dashboardData.materialCount}</p>
                 </div>
 
-                {/* Orders */}
                 <div className="card orders">
                     <h3>Orders</h3>
                     <p>New Orders: {dashboardData.newOrdersCount}</p>
                     <p>Total Orders: {dashboardData.ordersCount}</p>
                 </div>
 
-                {/* Store Info */}
                 <div className="card store-info">
                     <h3>Store</h3>
                     <p>{dashboardData.storeTitle}</p>
-                </div>
+                </div> */}
             </div>
         </div>
     );
