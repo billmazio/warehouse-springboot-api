@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { fetchDashboardData } from "../../services/api"; // Use the function
+import { fetchDashboardData } from "../../services/api";
 import "./Dashboard.css";
 
 const Dashboard = () => {
-    const [dashboardData, setDashboardData] = useState({ user: 0 });
+    const [dashboardData, setDashboardData] = useState({
+        user: 0,
+        materials: 0,
+        sizes: 0,
+        orders: 0,
+        stores: 0,
+    });
     const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await fetchDashboardData(); // Call API
+                const data = await fetchDashboardData();
                 setDashboardData({
-                    user: data.user,
-                    materials: data.materials,
-                    sizes: data.sizes,
-                    orders: data.orders,
-                    stores: data.stores,
+                    user: data.user || 0,
+                    materials: data.materials || 0,
+                    sizes: data.sizes || 0,
+                    orders: data.orders || 0,
+                    stores: data.stores || 0,
                 });
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
@@ -26,47 +32,88 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-
     const handleRedirect = (path) => {
-        window.location.href = path; // Redirect to the specified path
+        window.location.href = path;
     };
 
     return (
         <div className="dashboard-container">
-            <header className="dashboard-header">
-                <h1>Dashboard</h1>
-                <button
-                    className="logout-btn"
-                    onClick={() => handleRedirect("/logout")}
-                >
-                    Logout
-                </button>
-            </header>
-            {error && <p className="error-message">{error}</p>}
+            {/* Sidebar */}
+            <aside className="sidebar">
+                <div className="sidebar-header">
+                    <img src="/img/user.png" alt="User" />
+                    <h4>Admin Panel</h4>
+                    <span>[SuperAdmin]</span>
+                </div>
+                <ul className="menu">
+                    <li onClick={() => handleRedirect("/home")}>
+                        <i className="fa fa-home"></i> Αρχική
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/users")}>
+                        <i className="fa fa-users"></i> Χρήστες
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/materials")}>
+                        <i className="fa fa-tshirt"></i> Ενδύματα
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/sizes")}>
+                        <i className="fa fa-ruler"></i> Μεγέθη
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/orders")}>
+                        <i className="fa fa-shopping-cart"></i> Παραγγελίες
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/stores")}>
+                        <i className="fa fa-warehouse"></i> Αποθήκες
+                    </li>
+                    <li onClick={() => handleRedirect("/change-password")}>
+                        <i className="fa fa-key"></i> Αλλαγή Κωδικού
+                    </li>
+                </ul>
+            </aside>
 
-            <div className="cards">
-                <div className="card user-management">
-                    <h3>User Management</h3>
-                    <p>Active Users: {dashboardData.user}</p>
-                </div>
-                <div className="card materials-management">
-                    <h3>Materials</h3>
-                    <p>Total Materials: {dashboardData.materials}</p>
-                </div>
-                <div className="card sizes-management">
-                    <h3>Sizes</h3>
-                    <p>Total Sizes: {dashboardData.sizes}</p>
-                </div>
-                <div className="card orders-management">
-                    <h3>Orders</h3>
-                    <p>Total Orders: {dashboardData.orders}</p>
-                </div>
-                <div className="card stores-management">
-                    <h3>Stores</h3>
-                    <p>Total Stores: {dashboardData.stores}</p>
-                </div>
-            </div>
+            {/* Main Content */}
+            <main className="main-content">
+                <header className="header">
+                    <h1>Κεντρική Αποθήκη</h1>
+                    <button
+                        className="logout-btn"
+                        onClick={() => handleRedirect("/logout")}
+                    >
+                        Αποσύνδεση
+                    </button>
+                </header>
 
+                {/* Error Message */}
+                {error && <p className="error-message">{error}</p>}
+
+                {/* Cards */}
+                <section className="dashboard-cards">
+                    <div className="card card-users" onClick={() => handleRedirect("/storage/users")}>
+                        <i className="fa fa-users card-icon"></i>
+                        <h3>Διαχείριση Χρηστών</h3>
+                        <p>Ενεργοί Χρήστες: {dashboardData.user}</p>
+                    </div>
+                    <div className="card card-materials" onClick={() => handleRedirect("/storage/materials")}>
+                        <i className="fa fa-tshirt card-icon"></i>
+                        <h3>Διαχείριση Ενδυμάτων</h3>
+                        <p>Καταχωρημένα: {dashboardData.materials}</p>
+                    </div>
+                    <div className="card card-sizes" onClick={() => handleRedirect("/storage/sizes")}>
+                        <i className="fa fa-ruler card-icon"></i>
+                        <h3>Διαχείριση Μεγεθών</h3>
+                        <p>Συνολικά Μεγέθη: {dashboardData.sizes}</p>
+                    </div>
+                    <div className="card card-orders" onClick={() => handleRedirect("/storage/orders")}>
+                        <i className="fa fa-shopping-cart card-icon"></i>
+                        <h3>Παραγγελίες</h3>
+                        <p>Συνολικές Παραγγελίες: {dashboardData.orders}</p>
+                    </div>
+                    <div className="card card-stores" onClick={() => handleRedirect("/storage/stores")}>
+                        <i className="fa fa-warehouse card-icon"></i>
+                        <h3>Διαχείριση Αποθηκών</h3>
+                        <p>Ενεργές Αποθήκες: {dashboardData.stores}</p>
+                    </div>
+                </section>
+            </main>
         </div>
     );
 };
