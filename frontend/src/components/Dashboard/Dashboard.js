@@ -1,5 +1,7 @@
-import React, {useEffect, useState} from "react";
-import {fetchDashboardData} from "../../services/api";
+import React, { useEffect, useState } from "react";
+import { fetchDashboardData } from "../../services/api";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -11,6 +13,7 @@ const Dashboard = () => {
         stores: 0,
     });
     const [error, setError] = useState("");
+    const [calendarDate, setCalendarDate] = useState(new Date()); // State for calendar
 
     useEffect(() => {
         const fetchData = async () => {
@@ -41,7 +44,7 @@ const Dashboard = () => {
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
-                    <img src="/img/user.png" alt="User"/>
+                    <img src="/img/user.png" alt="User" />
                     <h4>Admin Panel</h4>
                     <span>[SuperAdmin]</span>
                 </div>
@@ -66,7 +69,6 @@ const Dashboard = () => {
                     </li>
                 </ul>
             </aside>
-
 
             {/* Main Content */}
             <main className="main-content">
@@ -112,10 +114,19 @@ const Dashboard = () => {
                     </div>
                 </section>
 
+                {/* Calendar */}
+                <section className="calendar-container">
+                    <h3>Ημερολόγιο</h3>
+                    <Calendar onChange={setCalendarDate} value={calendarDate} />
+                </section>
+
+                {/* Footer */}
+                <footer className="footer">
+                    <p>&copy; 2024 Storage Management. All Rights Reserved.</p>
+                </footer>
             </main>
         </div>
     );
 };
-
 
 export default Dashboard;
