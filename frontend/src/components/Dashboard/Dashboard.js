@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { fetchDashboardData } from "../../services/api";
+import React, {useEffect, useState} from "react";
+import {fetchDashboardData} from "../../services/api";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -41,34 +41,32 @@ const Dashboard = () => {
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
-                    <img src="/img/user.png" alt="User" />
+                    <img src="/img/user.png" alt="User"/>
                     <h4>Admin Panel</h4>
                     <span>[SuperAdmin]</span>
                 </div>
                 <ul className="menu">
                     <li onClick={() => handleRedirect("/home")}>
-                        <i className="fa fa-home"></i> Αρχική
-                    </li>
-                    <li onClick={() => handleRedirect("/storage/users")}>
-                        <i className="fa fa-users"></i> Χρήστες
-                    </li>
-                    <li onClick={() => handleRedirect("/storage/materials")}>
-                        <i className="fa fa-tshirt"></i> Ενδύματα
-                    </li>
-                    <li onClick={() => handleRedirect("/storage/sizes")}>
-                        <i className="fa fa-ruler"></i> Μεγέθη
-                    </li>
-                    <li onClick={() => handleRedirect("/storage/orders")}>
-                        <i className="fa fa-shopping-cart"></i> Παραγγελίες
+                        <i className="fa fa-palette"></i> Αρχική
                     </li>
                     <li onClick={() => handleRedirect("/storage/stores")}>
-                        <i className="fa fa-warehouse"></i> Αποθήκες
+                        <i className="fa fa-landmark"></i> Αποθήκες
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/materials")}>
+                        <i className="fa fa-child"></i> Ενδύματα
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/orders")}>
+                        <i className="fa fa-truck"></i> Παραγγελίες
+                    </li>
+                    <li onClick={() => handleRedirect("/storage/users")}>
+                        <i className="fa fa-book"></i> Διαχείριση Χρηστών
                     </li>
                     <li onClick={() => handleRedirect("/change-password")}>
-                        <i className="fa fa-key"></i> Αλλαγή Κωδικού
+                        <i className="fa fa-lock"></i> Αλλαγή Κωδικού
                     </li>
                 </ul>
             </aside>
+
 
             {/* Main Content */}
             <main className="main-content">
@@ -117,5 +115,6 @@ const Dashboard = () => {
         </div>
     );
 };
+
 
 export default Dashboard;
