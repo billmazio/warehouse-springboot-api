@@ -4,6 +4,7 @@ package gr.clothesmanager.auth;
 import gr.clothesmanager.auth.dto.AuthenticationRequest;
 import gr.clothesmanager.auth.dto.AuthenticationResponse;
 import gr.clothesmanager.auth.dto.LoginRequest;
+import gr.clothesmanager.security.TokenBlacklistService;
 import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +25,7 @@ public class AuthenticationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
     private final AuthenticationService authenticationService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -38,8 +40,11 @@ public class AuthenticationController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        request.getSession().invalidate();
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            String jwt = token.substring(7);
+            tokenBlacklistService.revokeToken(jwt);
+        }
         return ResponseEntity.ok("Logged out successfully");
     }
 

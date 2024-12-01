@@ -1,7 +1,7 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.repository.*;
-import gr.clothesmanager.service.UserServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class MainController {
@@ -37,10 +38,20 @@ public class MainController {
         this.storeRepository = storeRepository;
     }
 
+    /**
+     * Endpoint for fetching dashboard data.
+     * Requires authenticated access with either ROLE_USER or ROLE_ADMIN.
+     */
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping("/dashboard")
-    public ResponseEntity<?> getDashboardData() {
+    public ResponseEntity<?> getDashboardData(HttpServletRequest request) {
         try {
+            // Validate Authorization header
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Missing or invalid token");
+            }
+
             // Fetch counts for each entity
             int activeUserCount = userRepository.countActiveUsersForDashboard();
             int materialCount = materialRepository.countMaterials();

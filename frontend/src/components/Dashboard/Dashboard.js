@@ -39,6 +39,12 @@ const Dashboard = () => {
         window.location.href = path;
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("token"); // Remove the token from local storage
+        window.location.href = "/login"; // Redirect the user to the login page
+    };
+
+
     return (
         <div className="dashboard-container">
             {/* Sidebar */}
@@ -76,7 +82,7 @@ const Dashboard = () => {
                     <h1>Κεντρική Αποθήκη</h1>
                     <button
                         className="logout-btn"
-                        onClick={() => handleRedirect("/logout")}
+                        onClick={() => handleLogout("/logout")}
                     >
                         Αποσύνδεση
                     </button>
