@@ -9,18 +9,14 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    console.error("No token found in localStorage");
-                    setError("Authentication error: Token missing.");
-                    return;
-                }
-
-                // Use the imported fetchDashboardData function
-                const data = await fetchDashboardData(token);
-                console.log("Fetched Dashboard Data:", data);
-
-                setDashboardData({ user: data.user }); // Update state
+                const data = await fetchDashboardData(); // Call API
+                setDashboardData({
+                    user: data.user,
+                    materials: data.materials,
+                    sizes: data.sizes,
+                    orders: data.orders,
+                    stores: data.stores,
+                });
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
                 setError("Failed to load dashboard data.");
@@ -29,6 +25,7 @@ const Dashboard = () => {
 
         fetchData();
     }, []);
+
 
     const handleRedirect = (path) => {
         window.location.href = path; // Redirect to the specified path
@@ -48,14 +45,28 @@ const Dashboard = () => {
             {error && <p className="error-message">{error}</p>}
 
             <div className="cards">
-                <div
-                    className="card user-management"
-                    onClick={() => handleRedirect("/storage/users")}
-                >
+                <div className="card user-management">
                     <h3>User Management</h3>
                     <p>Active Users: {dashboardData.user}</p>
                 </div>
+                <div className="card materials-management">
+                    <h3>Materials</h3>
+                    <p>Total Materials: {dashboardData.materials}</p>
+                </div>
+                <div className="card sizes-management">
+                    <h3>Sizes</h3>
+                    <p>Total Sizes: {dashboardData.sizes}</p>
+                </div>
+                <div className="card orders-management">
+                    <h3>Orders</h3>
+                    <p>Total Orders: {dashboardData.orders}</p>
+                </div>
+                <div className="card stores-management">
+                    <h3>Stores</h3>
+                    <p>Total Stores: {dashboardData.stores}</p>
+                </div>
             </div>
+
         </div>
     );
 };

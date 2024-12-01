@@ -4,6 +4,7 @@ package gr.clothesmanager.repository;
 
 import gr.clothesmanager.model.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +16,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     List<Store> findAll();
 
+    @Query("SELECT COUNT(s) FROM Store s")
+    int countStores();
 }
+
