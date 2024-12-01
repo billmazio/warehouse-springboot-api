@@ -1,36 +1,33 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchDashboardData } from "../../services/api"; // Use the function
 import "./Dashboard.css";
 
 const Dashboard = () => {
-    const [dashboardData, setDashboardData] = useState({
-        user: 0,
-        // Commenting out other fields
-        // storageCount: 0,
-        // materialCount: 0,
-        // newOrdersCount: 0,
-        // ordersCount: 0,
-        // storeTitle: "",
-    });
+    const [dashboardData, setDashboardData] = useState({ user: 0 });
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/dashboard", {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
-                console.log("Fetched User Count:", response.data.user); // Debugging log for "user" field
-                setDashboardData({ user: response.data.user }); // Update only the "user" field
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.error("No token found in localStorage");
+                    setError("Authentication error: Token missing.");
+                    return;
+                }
+
+                // Use the imported fetchDashboardData function
+                const data = await fetchDashboardData(token);
+                console.log("Fetched Dashboard Data:", data);
+
+                setDashboardData({ user: data.user }); // Update state
             } catch (err) {
+                console.error("Error fetching dashboard data:", err);
                 setError("Failed to load dashboard data.");
-                console.error("API Error:", err.response?.data || err.message);
             }
         };
 
-        fetchDashboardData();
+        fetchData();
     }, []);
 
     const handleRedirect = (path) => {
@@ -51,7 +48,6 @@ const Dashboard = () => {
             {error && <p className="error-message">{error}</p>}
 
             <div className="cards">
-                {/* User Management */}
                 <div
                     className="card user-management"
                     onClick={() => handleRedirect("/storage/users")}
@@ -59,28 +55,6 @@ const Dashboard = () => {
                     <h3>User Management</h3>
                     <p>Active Users: {dashboardData.user}</p>
                 </div>
-
-                {/* Commenting out other sections */}
-                {/* <div className="card storage-management">
-                    <h3>Storage Management</h3>
-                    <p>Active Storages: {dashboardData.storageCount}</p>
-                </div>
-
-                <div className="card material-management">
-                    <h3>Material Management</h3>
-                    <p>Total Materials: {dashboardData.materialCount}</p>
-                </div>
-
-                <div className="card orders">
-                    <h3>Orders</h3>
-                    <p>New Orders: {dashboardData.newOrdersCount}</p>
-                    <p>Total Orders: {dashboardData.ordersCount}</p>
-                </div>
-
-                <div className="card store-info">
-                    <h3>Store</h3>
-                    <p>{dashboardData.storeTitle}</p>
-                </div> */}
             </div>
         </div>
     );
