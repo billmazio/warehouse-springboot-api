@@ -111,6 +111,7 @@ const Dashboard = () => {
                         <p>Ενεργές Αποθήκες: {dashboardData.stores}</p>
                     </div>
                 </section>
+
             </main>
         </div>
     );
