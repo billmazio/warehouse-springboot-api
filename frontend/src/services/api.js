@@ -57,17 +57,6 @@ export const fetchUsers = async () => {
     }
 };
 
-// Create a new user
-export const createUser = async (userData) => {
-    try {
-        const response = await api.post("/api/users", userData);
-        return response.data;
-    } catch (err) {
-        console.error("Error creating user:", err.response || err.message);
-        throw err;
-    }
-};
-
 
 export const updateUserRoles = async (userId, newRole) => {
     try {
@@ -102,6 +91,21 @@ export const fetchStores = async () => {
     }
 };
 
+export const createUser = async (userData) => {
+    try {
+        const response = await api.post("/api/users", {
+            username: userData.username,
+            password: userData.password,
+            enable: userData.enable ? 1 : 0, // Convert boolean to integer for 'enable'
+            store: { id: userData.storeId }, // Pass the store ID within a 'store' object
+            roles: [{ name: userData.role }] // Pass roles
+        });
+        return response.data;
+    } catch (err) {
+        console.error("Error creating user:", err.response || err.message);
+        throw err;
+    }
+};
 
 
 // Fetch dashboard data

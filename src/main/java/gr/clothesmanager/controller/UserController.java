@@ -50,14 +50,16 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
-        if (userDTO.getId() == null) { // Use storeId from UserDTO
+        if (userDTO.getStore() == null || userDTO.getStore().getId() == null) { // Check if store and its ID exist
             throw new IllegalArgumentException("Store ID is required.");
         }
 
-        var store = storeService.findById(userDTO.getId()); // Fetch the store entity
+        // Fetch the store entity using the store ID from UserDTO
+        var store = storeService.findById(userDTO.getStore().getId());
         UserDTO createdUser = userService.saveUser(userDTO, store.toModel());
         return ResponseEntity.ok(createdUser);
     }
+
 
 
     // Delete a user

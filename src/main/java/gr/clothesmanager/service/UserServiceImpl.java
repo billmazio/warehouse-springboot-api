@@ -28,14 +28,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleServiceImpl roleService;
-    private final StoreRepository storeRepository;
-
-    @Transactional
-    public User getAuthenticatedUser() throws UserNotFoundException { Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username; if (principal instanceof UserDetails) { username = ((UserDetails) principal).getUsername();
-        } else { username = principal.toString(); } return userRepository.findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username)); }
-
 
     @Transactional
     public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
