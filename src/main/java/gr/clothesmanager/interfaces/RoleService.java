@@ -10,9 +10,4 @@ public interface RoleService {
 
     UserRole getOrCreateRole(String name, String tag);
 
-
-    UserRole getOrCreateRole(UserRole userRole);
-
-
-    void getRolesPerView(String name);
 }

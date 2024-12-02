@@ -5,6 +5,7 @@ import gr.clothesmanager.interfaces.UserService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
+import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.repository.UserRepository;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleServiceImpl roleService;
+    private final StoreRepository storeRepository;
 
     @Transactional
     public User getAuthenticatedUser() throws UserNotFoundException { Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -34,23 +36,6 @@ public class UserServiceImpl implements UserService {
         } else { username = principal.toString(); } return userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username)); }
 
-//    @Transactional
-//    public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
-//        if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
-//            LOGGER.error("User with username '{}' already exists", userDTO.getUsername());
-//            throw new UserAlreadyExistsException("User with username '" + userDTO.getUsername() + "' already exists");
-//        }
-//
-//        // Assign roles to the user
-//        Set<UserRole> roles = assignRoles(userDTO.getRoles());
-//
-//        User user = userDTO.toModel();
-//        user.setRoles(roles);
-//
-//        User savedUser = userRepository.save(user);
-//        LOGGER.info("User saved with ID: {}", savedUser.getId());
-//        return UserDTO.fromModel(savedUser);
-//    }
 
     @Transactional
     public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
@@ -68,8 +53,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return UserDTO.fromModel(user);
     }
-
-
 
     @Transactional
     public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {
@@ -100,25 +83,6 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
-    }
-
-//    @Transactional
-//    public void assignRoleToUser(Long userId, String roleTag) throws UserNotFoundException {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
-//
-//        UserRole role = roleService.getRoleByTag(roleTag);
-//        if (role == null) {
-//            throw new IllegalArgumentException("Role with tag '" + roleTag + "' does not exist");
-//        }
-//
-//        user.getRoles().add(role);
-//        userRepository.save(user);
-//    }
-
-    public int getActiveUserCount() {
-        // Example query to fetch active users
-        return userRepository.countActiveUsersForDashboard();
     }
 
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {

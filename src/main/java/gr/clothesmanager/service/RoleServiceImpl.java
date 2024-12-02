@@ -17,10 +17,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RoleServiceImpl.class);
 
     private final UserRoleRepository roleRepository;
-    private final AppViewRepository appViewRepository;
 
     @Transactional
     public UserRole getRoleByTag(String tag) {
@@ -34,25 +32,4 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.save(new UserRole(null, name, tag, null));
     }
 
-    @Transactional
-    public UserRole getOrCreateRole(UserRole userRole) {
-        var role = roleRepository.findByTag(userRole.getTag()).orElse(null);
-        if (role != null) return role;
-        return roleRepository.save(userRole);
-    }
-
-    @Transactional
-    public List<String> findAllRoles() {
-        return roleRepository.findAll()
-                .stream()
-                .map(UserRole::getName)
-                .collect(Collectors.toList());
-    }
-
-
-    @Transactional
-    public void getRolesPerView(String name) {
-        var roles = appViewRepository.findViewsRolesPermissionsPerView("teacherRegistrationList");
-        System.out.println("roles" + roles);
-    }
 }
