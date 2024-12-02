@@ -1,4 +1,4 @@
-package gr.clothesmanager.security;
+package gr.clothesmanager.core;
 
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.repository.UserRepository;

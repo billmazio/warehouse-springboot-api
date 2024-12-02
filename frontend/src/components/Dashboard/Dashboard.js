@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { fetchDashboardData } from "../../services/api";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+import Calendar from "../Calendar/CalendarComponent"; // Import the CalendarComponent
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -14,6 +14,8 @@ const Dashboard = () => {
     });
     const [error, setError] = useState("");
     const [calendarDate, setCalendarDate] = useState(new Date()); // State for calendar
+
+    const navigate = useNavigate(); // Use navigate for redirection
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,14 +38,13 @@ const Dashboard = () => {
     }, []);
 
     const handleRedirect = (path) => {
-        window.location.href = path;
+        navigate(path); // Use navigate to redirect to the given path
     };
 
     const handleLogout = () => {
         localStorage.removeItem("token"); // Remove the token from local storage
         window.location.href = "/login"; // Redirect the user to the login page
     };
-
 
     return (
         <div className="dashboard-container">
@@ -67,7 +68,7 @@ const Dashboard = () => {
                     <li onClick={() => handleRedirect("/storage/orders")}>
                         <i className="fa fa-truck"></i> Παραγγελίες
                     </li>
-                    <li onClick={() => handleRedirect("/storage/users")}>
+                    <li onClick={() => handleRedirect("/manage-users")}>
                         <i className="fa fa-book"></i> Διαχείριση Χρηστών
                     </li>
                     <li onClick={() => handleRedirect("/change-password")}>
@@ -93,27 +94,42 @@ const Dashboard = () => {
 
                 {/* Cards */}
                 <section className="dashboard-cards">
-                    <div className="card card-users" onClick={() => handleRedirect("/storage/users")}>
+                    <div
+                        className="card card-users"
+                        onClick={() => handleRedirect("/manage-users")}
+                    >
                         <i className="fa fa-users card-icon"></i>
                         <h3>Διαχείριση Χρηστών</h3>
                         <p>Ενεργοί Χρήστες: {dashboardData.user}</p>
                     </div>
-                    <div className="card card-materials" onClick={() => handleRedirect("/storage/materials")}>
+                    <div
+                        className="card card-materials"
+                        onClick={() => handleRedirect("/storage/materials")}
+                    >
                         <i className="fa fa-tshirt card-icon"></i>
                         <h3>Διαχείριση Ενδυμάτων</h3>
                         <p>Καταχωρημένα: {dashboardData.materials}</p>
                     </div>
-                    <div className="card card-sizes" onClick={() => handleRedirect("/storage/sizes")}>
+                    <div
+                        className="card card-sizes"
+                        onClick={() => handleRedirect("/storage/sizes")}
+                    >
                         <i className="fa fa-ruler card-icon"></i>
                         <h3>Διαχείριση Μεγεθών</h3>
                         <p>Συνολικά Μεγέθη: {dashboardData.sizes}</p>
                     </div>
-                    <div className="card card-orders" onClick={() => handleRedirect("/storage/orders")}>
+                    <div
+                        className="card card-orders"
+                        onClick={() => handleRedirect("/storage/orders")}
+                    >
                         <i className="fa fa-shopping-cart card-icon"></i>
                         <h3>Παραγγελίες</h3>
                         <p>Συνολικές Παραγγελίες: {dashboardData.orders}</p>
                     </div>
-                    <div className="card card-stores" onClick={() => handleRedirect("/storage/stores")}>
+                    <div
+                        className="card card-stores"
+                        onClick={() => handleRedirect("/storage/stores")}
+                    >
                         <i className="fa fa-warehouse card-icon"></i>
                         <h3>Διαχείριση Αποθηκών</h3>
                         <p>Ενεργές Αποθήκες: {dashboardData.stores}</p>
@@ -122,7 +138,6 @@ const Dashboard = () => {
 
                 {/* Calendar */}
                 <section className="calendar-container">
-                    <h3>Ημερολόγιο</h3>
                     <Calendar onChange={setCalendarDate} value={calendarDate} />
                 </section>
 

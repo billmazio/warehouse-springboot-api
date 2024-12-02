@@ -30,58 +30,78 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response, // Simply return the response if no error
     (error) => {
-        // Log the error
         console.error("Error in Axios response interceptor:", error.response || error.message);
 
-        // Optional: Redirect to login if unauthorized (401)
         if (error.response?.status === 401) {
             console.warn("Unauthorized! Redirecting to login...");
             window.location.href = "/login"; // Redirect to login page
         }
 
-        // Optional: Handle token expiration (403 or custom logic)
         if (error.response?.status === 403) {
             console.warn("Token expired or insufficient permissions.");
-            // Additional token refresh logic can go here if implemented
         }
 
-        return Promise.reject(error); // Reject the error to handle it in the component
+        return Promise.reject(error);
     }
 );
 
-// Example reusable API function to fetch dashboard data
+// Add reusable API functions
+
+// Fetch all users
+export const fetchUsers = async () => {
+    try {
+        const response = await api.get("/api/users"); // API call to fetch users
+        return response.data;
+    } catch (err) {
+        console.error("Error in fetchUsers:", err.response || err.message);
+        throw err;
+    }
+};
+
+// Delete a user
+export const deleteUser = async (userId) => {
+    try {
+        const response = await api.delete(`/api/users/${userId}`); // API call to delete user
+        return response.data;
+    } catch (err) {
+        console.error("Error in deleteUser:", err.response || err.message);
+        throw err;
+    }
+};
+
+// Fetch dashboard data
 export const fetchDashboardData = async () => {
     try {
-        const response = await api.get("/api/dashboard"); // Make API call
-        return response.data; // Return the data from the response
+        const response = await api.get("/api/dashboard");
+        return response.data;
     } catch (err) {
         console.error("Error in fetchDashboardData:", err.response || err.message);
-        throw err; // Re-throw the error to be handled in the component
+        throw err;
     }
 };
 
-// Example reusable API function to fetch user details
+// Fetch user details
 export const fetchUserDetails = async () => {
     try {
-        const response = await api.get("/api/user/details"); // Example endpoint
-        return response.data; // Return the data
+        const response = await api.get("/api/user/details");
+        return response.data;
     } catch (err) {
         console.error("Error in fetchUserDetails:", err.response || err.message);
-        throw err; // Re-throw the error
+        throw err;
     }
 };
 
-// Example reusable API function for logout
+// Logout
 export const logout = async () => {
     try {
-        const response = await api.post("/auth/logout"); // Call logout API
-        localStorage.removeItem("token"); // Remove token from localStorage
+        const response = await api.post("/auth/logout");
+        localStorage.removeItem("token");
         return response.data;
     } catch (err) {
         console.error("Error in logout:", err.response || err.message);
-        throw err; // Re-throw the error
+        throw err;
     }
 };
 
-// Export the configured Axios instance for direct use if needed
+// Export the Axios instance
 export default api;

@@ -2,13 +2,17 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
-import PrivateRoute from "./components/PrivateRoute/PrivateRoute"; // Import PrivateRoute
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import UserManagement from "./components/UserManagement/UserManagement";
 
 const App = () => {
     return (
         <Router>
             <Routes>
+                {/* Login Route */}
                 <Route path="/login" element={<Login />} />
+
+                {/* Dashboard Route */}
                 <Route
                     path="/dashboard"
                     element={
@@ -17,6 +21,18 @@ const App = () => {
                         </PrivateRoute>
                     }
                 />
+
+                {/* User Management Route */}
+                <Route
+                    path="/manage-users"
+                    element={
+                        <PrivateRoute>
+                            <UserManagement />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Catch-All Route */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Router>

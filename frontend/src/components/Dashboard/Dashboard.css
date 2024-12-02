@@ -143,33 +143,6 @@
     text-align: center;
     margin-bottom: 20px;
 }
-.calendar-container {
-    margin-top: 100px ; /* Center the outer container horizontally */
-    margin: auto;
-    padding: 10px;
-    max-width: 400px; /* Define a max-width for the outer container */
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex; /* Use flexbox for centering */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    text-align: center;
-}
-
-.react-calendar {
-    width: 100%; /* Ensure the calendar takes up the full width of its container */
-    max-width: 350px; /* Limit the width of the calendar itself */
-    background: none; /* Remove background styling for the calendar */
-    border: none; /* Remove borders from the calendar */
-    box-shadow: none; /* Remove shadows */
-}
-
-.react-calendar__tile {
-    text-align: center; /* Center the text inside tiles */
-    line-height: 0.5; /* Improve spacing inside tiles */
-}
 
 /* Footer styling */
 .footer {
