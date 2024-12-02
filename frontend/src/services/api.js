@@ -57,6 +57,17 @@ export const fetchUsers = async () => {
     }
 };
 
+// Create a new user
+export const createUser = async (userData) => {
+    try {
+        const response = await api.post("/api/users", userData);
+        return response.data;
+    } catch (err) {
+        console.error("Error creating user:", err.response || err.message);
+        throw err;
+    }
+};
+
 
 export const updateUserRoles = async (userId, newRole) => {
     try {
@@ -80,6 +91,16 @@ export const deleteUser = async (userId) => {
     }
 };
 
+
+export const fetchStores = async () => {
+    try {
+        const response = await api.get("/api/stores"); // Use the correct endpoint
+        return response.data; // Ensure this returns an array of stores
+    } catch (err) {
+        console.error("Error fetching stores:", err.response || err.message);
+        throw err;
+    }
+};
 
 
 

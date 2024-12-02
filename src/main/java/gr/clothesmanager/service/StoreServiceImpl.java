@@ -5,6 +5,7 @@ import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.interfaces.StoreService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.StoreRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class StoreServiceImpl implements StoreService {
         this.storeRepository = storeRepository;
     }
 
-    @Override
+    @Transactional
     public StoreDTO save(StoreDTO storeDTO) {
         // Convert DTO to entity
         Store store = new Store();
@@ -32,7 +33,7 @@ public class StoreServiceImpl implements StoreService {
         return StoreDTO.fromModel(savedStore);
     }
 
-    @Override
+    @Transactional
     public StoreDTO findById(Long id) {
         // Find store by ID and map to DTO
         return storeRepository.findById(id)
@@ -40,7 +41,7 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow(() -> new IllegalArgumentException("Store not found with ID: " + id));
     }
 
-    @Override
+    @Transactional
     public List<StoreDTO> findAll() {
         // Get all stores and map to DTOs
         return storeRepository.findAll().stream()
@@ -48,7 +49,7 @@ public class StoreServiceImpl implements StoreService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+    @Transactional
     public void edit(Long id, StoreDTO storeDTO) {
         // Find the existing store entity
         Store store = storeRepository.findById(id)
@@ -61,4 +62,10 @@ public class StoreServiceImpl implements StoreService {
         // Save the updated store
         storeRepository.save(store);
     }
+
+   @Transactional
+    public void delete(Long id) {
+        storeRepository.deleteById(id);
+    }
+
 }

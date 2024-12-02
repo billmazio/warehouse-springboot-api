@@ -1,6 +1,7 @@
 package gr.clothesmanager.interfaces;
 
 import gr.clothesmanager.dto.UserDTO;
+import gr.clothesmanager.model.Store;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 public interface UserService {
 
 
-    UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException;
+    UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException;
 
     Optional<UserDTO> findUserById(Long id) throws UserNotFoundException;
 

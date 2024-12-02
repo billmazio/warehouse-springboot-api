@@ -2,6 +2,7 @@ package gr.clothesmanager.service;
 
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.UserService;
+import gr.clothesmanager.model.Store;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.UserRepository;
@@ -33,23 +34,42 @@ public class UserServiceImpl implements UserService {
         } else { username = principal.toString(); } return userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username)); }
 
+//    @Transactional
+//    public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
+//        if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
+//            LOGGER.error("User with username '{}' already exists", userDTO.getUsername());
+//            throw new UserAlreadyExistsException("User with username '" + userDTO.getUsername() + "' already exists");
+//        }
+//
+//        // Assign roles to the user
+//        Set<UserRole> roles = assignRoles(userDTO.getRoles());
+//
+//        User user = userDTO.toModel();
+//        user.setRoles(roles);
+//
+//        User savedUser = userRepository.save(user);
+//        LOGGER.info("User saved with ID: {}", savedUser.getId());
+//        return UserDTO.fromModel(savedUser);
+//    }
+
     @Transactional
-    public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
+    public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
-            LOGGER.error("User with username '{}' already exists", userDTO.getUsername());
-            throw new UserAlreadyExistsException("User with username '" + userDTO.getUsername() + "' already exists");
+            throw new UserAlreadyExistsException("User already exists");
         }
-
-        // Assign roles to the user
         Set<UserRole> roles = assignRoles(userDTO.getRoles());
-
-        User user = userDTO.toModel();
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setPassword((userDTO.getPassword()));
+        user.setEnable(userDTO.getEnable());
+        user.setStore(store);
         user.setRoles(roles);
 
-        User savedUser = userRepository.save(user);
-        LOGGER.info("User saved with ID: {}", savedUser.getId());
-        return UserDTO.fromModel(savedUser);
+        userRepository.save(user);
+        return UserDTO.fromModel(user);
     }
+
+
 
     @Transactional
     public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {

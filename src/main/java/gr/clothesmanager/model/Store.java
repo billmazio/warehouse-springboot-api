@@ -55,4 +55,16 @@ public class Store {
         return Objects.hash(id, title, address, enable);
     }
 
+
+    @Override
+    public String toString() {
+        return "Store{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", address='" + address + '\'' +
+                ", enable=" + enable +
+                ", orders=" + orders +
+                ", users=" + users +
+                '}';
+    }
 }

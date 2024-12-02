@@ -30,7 +30,6 @@ public class SizeServiceImpl implements SizeService {
     }
 
     @Transactional
-    @Override
     public List<SizeDTO> findAll() {
         List<Size> sizes = sizeRepository.findAll();
         return sizes.stream()

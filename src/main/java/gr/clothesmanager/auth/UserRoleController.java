@@ -2,7 +2,10 @@ package gr.clothesmanager.auth;
 
 import gr.clothesmanager.auth.dto.ResponseMessageDTO;
 import gr.clothesmanager.dto.UserDTO;
+import gr.clothesmanager.model.Store;
+import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.RoleServiceImpl;
+import gr.clothesmanager.service.StoreServiceImpl;
 import gr.clothesmanager.service.UserServiceImpl;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -24,19 +27,35 @@ public class UserRoleController {
 
     private final UserServiceImpl userService;
     private final RoleServiceImpl roleService;
+    private final StoreRepository storeRepository;
+//
+//    @PostMapping
+//    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
+//        try {
+//            UserDTO createdUser = userService.saveUser(userDTO);
+//            LOGGER.info("User created with username: {}", createdUser.getUsername());
+//            return ResponseEntity.ok(createdUser);
+//        } catch (Exception e) {
+//            LOGGER.error("Error creating user: {}", e.getMessage());
+//            throw e;
+//        }
+//    }
 
 
     @PostMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
         try {
-            UserDTO createdUser = userService.saveUser(userDTO);
-            LOGGER.info("User created with username: {}", createdUser.getUsername());
+            Store store = storeRepository.findById(userDTO.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid store ID"));
+            UserDTO createdUser = userService.saveUser(userDTO,store);
             return ResponseEntity.ok(createdUser);
         } catch (Exception e) {
             LOGGER.error("Error creating user: {}", e.getMessage());
             throw e;
         }
     }
+
 
 
     @GetMapping
