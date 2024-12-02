@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { fetchDashboardData } from "../../services/api";
-import Calendar from "../Calendar/CalendarComponent"; // Import the CalendarComponent
+import Calendar from "../Calendar/CalendarComponent";
+import UserManagement from "../UserManagement/UserManagement";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -13,9 +13,8 @@ const Dashboard = () => {
         stores: 0,
     });
     const [error, setError] = useState("");
-    const [calendarDate, setCalendarDate] = useState(new Date()); // State for calendar
-
-    const navigate = useNavigate(); // Use navigate for redirection
+    const [calendarDate, setCalendarDate] = useState(new Date());
+    const [activeSection, setActiveSection] = useState("dashboard");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,13 +36,13 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    const handleRedirect = (path) => {
-        navigate(path); // Use navigate to redirect to the given path
+    const handleSectionChange = (section) => {
+        setActiveSection(section);
     };
 
     const handleLogout = () => {
-        localStorage.removeItem("token"); // Remove the token from local storage
-        window.location.href = "/login"; // Redirect the user to the login page
+        localStorage.removeItem("token");
+        window.location.href = "/login";
     };
 
     return (
@@ -56,22 +55,22 @@ const Dashboard = () => {
                     <span>[SuperAdmin]</span>
                 </div>
                 <ul className="menu">
-                    <li onClick={() => handleRedirect("/home")}>
+                    <li onClick={() => handleSectionChange("dashboard")}>
                         <i className="fa fa-palette"></i> Αρχική
                     </li>
-                    <li onClick={() => handleRedirect("/storage/stores")}>
+                    <li onClick={() => handleSectionChange("users")}>
+                        <i className="fa fa-users"></i> Διαχείριση Χρηστών
+                    </li>
+                    <li onClick={() => handleSectionChange("stores")}>
                         <i className="fa fa-landmark"></i> Αποθήκες
                     </li>
-                    <li onClick={() => handleRedirect("/storage/materials")}>
+                    <li onClick={() => handleSectionChange("materials")}>
                         <i className="fa fa-child"></i> Ενδύματα
                     </li>
-                    <li onClick={() => handleRedirect("/storage/orders")}>
+                    <li onClick={() => handleSectionChange("orders")}>
                         <i className="fa fa-truck"></i> Παραγγελίες
                     </li>
-                    <li onClick={() => handleRedirect("/manage-users")}>
-                        <i className="fa fa-book"></i> Διαχείριση Χρηστών
-                    </li>
-                    <li onClick={() => handleRedirect("/change-password")}>
+                    <li onClick={() => handleSectionChange("change-password")}>
                         <i className="fa fa-lock"></i> Αλλαγή Κωδικού
                     </li>
                 </ul>
@@ -81,67 +80,49 @@ const Dashboard = () => {
             <main className="main-content">
                 <header className="header">
                     <h1>Κεντρική Αποθήκη</h1>
-                    <button
-                        className="logout-btn"
-                        onClick={() => handleLogout("/logout")}
-                    >
+                    <button className="logout-btn" onClick={handleLogout}>
                         Αποσύνδεση
                     </button>
                 </header>
 
-                {/* Error Message */}
+                {/* Render Active Section */}
                 {error && <p className="error-message">{error}</p>}
+                {activeSection === "dashboard" && (
+                    <section className="dashboard-cards">
+                        <div className="card" onClick={() => handleSectionChange("users")}>
+                            <i className="fa fa-users card-icon"></i>
+                            <h3>Διαχείριση Χρηστών</h3>
+                            <p>Ενεργοί Χρήστες: {dashboardData.user}</p>
+                        </div>
+                        <div className="card" onClick={() => handleSectionChange("materials")}>
+                            <i className="fa fa-tshirt card-icon"></i>
+                            <h3>Διαχείριση Ενδυμάτων</h3>
+                            <p>Καταχωρημένα: {dashboardData.materials}</p>
+                        </div>
+                        <div className="card" onClick={() => handleSectionChange("sizes")}>
+                            <i className="fa fa-ruler card-icon"></i>
+                            <h3>Διαχείριση Μεγεθών</h3>
+                            <p>Συνολικά Μεγέθη: {dashboardData.sizes}</p>
+                        </div>
+                        <div className="card" onClick={() => handleSectionChange("orders")}>
+                            <i className="fa fa-shopping-cart card-icon"></i>
+                            <h3>Παραγγελίες</h3>
+                            <p>Συνολικές Παραγγελίες: {dashboardData.orders}</p>
+                        </div>
+                        <div className="card" onClick={() => handleSectionChange("stores")}>
+                            <i className="fa fa-warehouse card-icon"></i>
+                            <h3>Διαχείριση Αποθηκών</h3>
+                            <p>Ενεργές Αποθήκες: {dashboardData.stores}</p>
+                        </div>
+                    </section>
+                )}
+                {activeSection === "users" && <UserManagement />}
+                {activeSection === "calendar" && (
+                    <section className="calendar-container">
+                        <Calendar onChange={setCalendarDate} value={calendarDate} />
+                    </section>
+                )}
 
-                {/* Cards */}
-                <section className="dashboard-cards">
-                    <div
-                        className="card card-users"
-                        onClick={() => handleRedirect("/manage-users")}
-                    >
-                        <i className="fa fa-users card-icon"></i>
-                        <h3>Διαχείριση Χρηστών</h3>
-                        <p>Ενεργοί Χρήστες: {dashboardData.user}</p>
-                    </div>
-                    <div
-                        className="card card-materials"
-                        onClick={() => handleRedirect("/storage/materials")}
-                    >
-                        <i className="fa fa-tshirt card-icon"></i>
-                        <h3>Διαχείριση Ενδυμάτων</h3>
-                        <p>Καταχωρημένα: {dashboardData.materials}</p>
-                    </div>
-                    <div
-                        className="card card-sizes"
-                        onClick={() => handleRedirect("/storage/sizes")}
-                    >
-                        <i className="fa fa-ruler card-icon"></i>
-                        <h3>Διαχείριση Μεγεθών</h3>
-                        <p>Συνολικά Μεγέθη: {dashboardData.sizes}</p>
-                    </div>
-                    <div
-                        className="card card-orders"
-                        onClick={() => handleRedirect("/storage/orders")}
-                    >
-                        <i className="fa fa-shopping-cart card-icon"></i>
-                        <h3>Παραγγελίες</h3>
-                        <p>Συνολικές Παραγγελίες: {dashboardData.orders}</p>
-                    </div>
-                    <div
-                        className="card card-stores"
-                        onClick={() => handleRedirect("/storage/stores")}
-                    >
-                        <i className="fa fa-warehouse card-icon"></i>
-                        <h3>Διαχείριση Αποθηκών</h3>
-                        <p>Ενεργές Αποθήκες: {dashboardData.stores}</p>
-                    </div>
-                </section>
-
-                {/* Calendar */}
-                <section className="calendar-container">
-                    <Calendar onChange={setCalendarDate} value={calendarDate} />
-                </section>
-
-                {/* Footer */}
                 <footer className="footer">
                     <p>&copy; 2024 Storage Management. All Rights Reserved.</p>
                 </footer>

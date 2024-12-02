@@ -20,7 +20,7 @@ const UserManagement = () => {
     const [newUser, setNewUser] = useState({
         username: "",
         password: "",
-        role: "LOCAL_ADMIN",
+        role: "",
         enable: 1,
         storeId: "",
     });
@@ -114,12 +114,13 @@ const UserManagement = () => {
     return (
         <div className="user-management-container">
             <ToastContainer/>
-            <button
+       {/*     <button
                 className="back-button"
                 onClick={() => window.history.back()} // Navigates to the previous page
             >
                 Πίσω
-            </button>
+            </button>*/}
+
             <h2>Διαχείριση Χρηστών</h2>
             {error && <p className="error-message">{error}</p>}
 
