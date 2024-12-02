@@ -46,6 +46,29 @@
     transition: background 0.3s ease;
 }
 
+.cancel-button {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+
+.back-button {
+    background-color: #007bff; /* Blue background */
+    color: #fff; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 20px; /* Add spacing below the button */
+    transition: background 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+
 .create-user-form button:hover {
     background: #218838;
 }

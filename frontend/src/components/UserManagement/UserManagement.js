@@ -65,10 +65,10 @@ const UserManagement = () => {
         try {
             await deleteUser(userToDelete.id);
             setUsers(users.filter((user) => user.id !== userToDelete.id));
-            toast.success(`User "${userToDelete.username}" deleted successfully.`);
+            toast.success(`Ο χρήστης "${userToDelete.username}" διαγράφηκε επιτυχώς.`);
         } catch (err) {
             console.error("Error deleting user:", err);
-            toast.error("Failed to delete user.");
+            toast.error("Αποτυχία διαγραφής χρήστη.");
         }
 
         closeConfirmationDialog();
@@ -81,7 +81,7 @@ const UserManagement = () => {
         }
 
         if (!newUser.username.trim() || !newUser.password.trim() || !newUser.storeId) {
-            toast.warning("Username, password, and store selection are required.");
+            toast.warning("Το Όνομα Χρήστη, ο Κωδικός Πρόσβασης και η επιλογή Αποθήκης είναι απαραίτητα.");
             return;
         }
 
@@ -89,16 +89,22 @@ const UserManagement = () => {
             const createdUser = await createUser(newUser);
             setUsers([...users, createdUser]);
             setNewUser({ username: "", password: "", role: "LOCAL_ADMIN", enable: 1, storeId: "" });
-            toast.success("User created successfully.");
+            toast.success("Ο χρήστης δημιουργήθηκε επιτυχώς.");
         } catch (err) {
             console.error("Error creating user:", err);
-            toast.error("Failed to create user.");
+            toast.error("Αποτυχία δημιουργίας χρήστη..");
         }
     };
 
     return (
         <div className="user-management-container">
-            <ToastContainer />
+            <ToastContainer/>
+            <button
+                className="back-button"
+                onClick={() => window.history.back()} // Navigates to the previous page
+            >
+                Πίσω
+            </button>
             <h2>Διαχείριση Χρηστών</h2>
             {error && <p className="error-message">{error}</p>}
 
@@ -106,19 +112,19 @@ const UserManagement = () => {
                 <div className="create-user-form">
                     <input
                         type="text"
-                        placeholder="Enter username"
+                        placeholder="Εισάγετε όνομα χρήστη"
                         value={newUser.username}
-                        onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                        onChange={(e) => setNewUser({...newUser, username: e.target.value})}
                     />
                     <input
                         type="password"
-                        placeholder="Enter password"
+                        placeholder="Εισάγετε κωδικό"
                         value={newUser.password}
-                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                        onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                     />
                     <select
                         value={newUser.role}
-                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                        onChange={(e) => setNewUser({...newUser, role: e.target.value})}
                     >
                         <option value="SUPER_ADMIN">Super Admin</option>
                         <option value="LOCAL_ADMIN">Local Admin</option>
@@ -129,16 +135,16 @@ const UserManagement = () => {
                             type="checkbox"
                             checked={newUser.enable === 1}
                             onChange={(e) =>
-                                setNewUser({ ...newUser, enable: e.target.checked ? 1 : 0 })
+                                setNewUser({...newUser, enable: e.target.checked ? 1 : 0})
                             }
                         />
                     </label>
                     <select
                         value={newUser.storeId}
-                        onChange={(e) => setNewUser({ ...newUser, storeId: e.target.value })}
+                        onChange={(e) => setNewUser({...newUser, storeId: e.target.value})}
                     >
                         <option value="" disabled>
-                            Select Store
+                            Επιλογή Αποθήκης
                         </option>
                         {stores.map((store) => (
                             <option key={store.id} value={store.id}>
@@ -148,19 +154,35 @@ const UserManagement = () => {
                     </select>
 
                     <button className="create-button" onClick={handleCreate}>
-                        Create User
+                        Δημιουργία χρήστη
                     </button>
+                    <div>
+                        <button
+                            className="cancel-button"
+                            onClick={() =>
+                                setNewUser({
+                                    username: "",
+                                    password: "",
+                                    role: "LOCAL_ADMIN",
+                                    enable: 1,
+                                    storeId: "",
+                                })
+                            }
+                        >
+                            Ακύρωση
+                        </button>
+                    </div>
                 </div>
             )}
 
             <table className="user-table">
                 <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Store</th>
-                    <th>Actions</th>
+                    <th>ΟΝΟΜΑ ΧΡΗΣΤΗ</th>
+                    <th>ΡΟΛΟΣ</th>
+                    <th>ΚΑΤΑΣΤΑΣΗ</th>
+                    <th>ΑΠΟΘΗΚΗ</th>
+                    <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -183,25 +205,29 @@ const UserManagement = () => {
                 </tbody>
             </table>
 
+
             {showConfirmation && (
                 <div className="confirmation-dialog">
                     <div className="confirmation-content">
                         <p>
-                            Are you sure you want to delete user{" "}
-                            <strong>{userToDelete?.username}</strong>?
+                            Είστε σίγουροι ότι θέλετε να διαγράψετε τον χρήστη{" "}
+                            <strong>{userToDelete?.username}</strong>;
                         </p>
                         <div className="confirmation-actions">
                             <button className="cancel-button" onClick={closeConfirmationDialog}>
-                                Cancel
+                                Ακύρωση
                             </button>
                             <button className="confirm-button" onClick={confirmDelete}>
-                                Confirm
+                                Επιβεβαίωση
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+
         </div>
+
     );
 };
 
