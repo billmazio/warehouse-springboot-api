@@ -1,69 +1,47 @@
-.user-management {
+.user-management-container {
+    margin: 20px;
     padding: 20px;
-    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.user-management h2 {
+.user-management-container h2 {
     text-align: center;
-    color: #333;
     margin-bottom: 20px;
 }
 
 .user-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 16px;
-    text-align: left;
-}
-
-.user-table thead {
-    background-color: #f4f4f4;
+    margin: 0 auto;
 }
 
 .user-table th,
 .user-table td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 .user-table th {
-    font-weight: bold;
+    background-color: #007bff;
+    color: white;
 }
 
-.user-table tbody tr:nth-child(even) {
+.user-table td {
     background-color: #f9f9f9;
 }
 
-.user-table tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-button {
-    padding: 8px 12px;
-    font-size: 14px;
-    color: #fff;
+.delete-button {
     background-color: #007bff;
+    color: white;
     border: none;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    margin-right: 8px;
 }
 
-button:hover {
+.delete-button:hover {
     background-color: #0056b3;
-}
-
-button.delete {
-    background-color: #dc3545;
-}
-
-button.delete:hover {
-    background-color: #c82333;
-}
-
-.error-message {
-    color: red;
-    font-size: 14px;
-    text-align: center;
 }

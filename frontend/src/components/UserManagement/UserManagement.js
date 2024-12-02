@@ -1,38 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { fetchUsers, deleteUser } from "../../services/api"; // Import API functions
+import React, { useEffect, useState } from "react";
+import { fetchUsers } from "../../services/api"; // Import the API function
 import "./UserManagement.css";
 
-
 const UserManagement = () => {
-    const [users, setUsers] = useState([]); // State to store users
-    const [error, setError] = useState(""); // State for error handling
+    const [users, setUsers] = useState([]); // State for storing users
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchAllUsers = async () => {
+        const loadUsers = async () => {
             try {
-                const data = await fetchUsers(); // Fetch users from the API
-                setUsers(data); // Set users in state
+                const data = await fetchUsers(); // Fetch users from API
+                setUsers(data); // Update state with user data
             } catch (err) {
-                console.error("Error fetching users:", err.response || err.message);
-                setError("Failed to load users.");
+                setError("Failed to fetch users.");
+                console.error("Error:", err);
             }
         };
 
-        fetchAllUsers();
+        loadUsers();
     }, []);
 
     const handleDelete = async (userId) => {
-        try {
-            await deleteUser(userId); // Call API to delete the user
-            setUsers(users.filter((user) => user.id !== userId)); // Remove deleted user from state
-        } catch (err) {
-            console.error("Error deleting user:", err);
-            setError("Failed to delete user.");
-        }
+        // Implement delete functionality (if required)
+        console.log("Delete user with ID:", userId);
     };
 
     return (
-        <div className="user-management">
+        <div className="user-management-container">
             <h2>Manage Users</h2>
             {error && <p className="error-message">{error}</p>}
             <table className="user-table">
@@ -48,11 +42,15 @@ const UserManagement = () => {
                 {users.map((user) => (
                     <tr key={user.id}>
                         <td>{user.username}</td>
-                        <td>{user.role}</td>
-                        <td>{user.status === "active" ? "Active" : "Inactive"}</td>
+                        <td>{user.roles.map((role) => role.name).join(", ")}</td>
+                        <td>{user.enable ? "Active" : "Inactive"}</td>
                         <td>
-                            <button onClick={() => handleDelete(user.id)}>Delete</button>
-                            {/* Add edit functionality here */}
+                            <button
+                                className="delete-button"
+                                onClick={() => handleDelete(user.id)}
+                            >
+                                Delete
+                            </button>
                         </td>
                     </tr>
                 ))}
