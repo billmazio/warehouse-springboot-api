@@ -63,15 +63,18 @@ const UserManagement = () => {
         if (!userToDelete) return;
 
         // Check if the user to delete is a SUPER_ADMIN
-        const isUserToDeleteSuperAdmin = userToDelete.roles.some((role) => role.name === "SUPER_ADMIN");
+        const isUserToDeleteSuperAdmin = userToDelete.roles?.some((role) => role.name === "SUPER_ADMIN");
 
-        // Check if the logged-in user has the SUPER_ADMIN role
+        // If the logged-in user is not a SUPER_ADMIN but tries to delete a SUPER_ADMIN
         if (isUserToDeleteSuperAdmin && loggedInUserRole !== "SUPER_ADMIN") {
+            // Show the specific error message
             toast.error("Δεν μπορείτε να διαγράψετε έναν Super Admin χρήστη.");
-            return;
+            closeConfirmationDialog(); // Close the confirmation dialog immediately
+            return; // Exit the function to prevent further execution
         }
 
         try {
+            // Proceed with deletion
             await deleteUser(userToDelete.id);
             setUsers(users.filter((user) => user.id !== userToDelete.id));
             toast.success(`Ο χρήστης "${userToDelete.username}" διαγράφηκε επιτυχώς.`);
@@ -82,6 +85,8 @@ const UserManagement = () => {
 
         closeConfirmationDialog();
     };
+
+
 
 
     const handleCreate = async () => {

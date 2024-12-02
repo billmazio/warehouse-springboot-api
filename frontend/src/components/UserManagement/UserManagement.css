@@ -146,3 +146,34 @@ h2 {
     font-size: 24px;
     color: #333;
 }
+.confirmation-actions .cancel-button,
+.confirmation-actions .confirm-button {
+    padding: 12px 20px; /* Larger padding for better usability */
+    border: none;
+    border-radius: 8px; /* Rounded corners for a modern look */
+    font-size: 16px; /* Slightly larger font size */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.confirmation-actions .cancel-button {
+    background-color: #f44336; /* Bright red for cancel */
+    color: white;
+    margin-right: 10px; /* Spacing between buttons */
+}
+
+.confirmation-actions .cancel-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+    transform: scale(1.05); /* Subtle zoom effect */
+}
+
+.confirmation-actions .confirm-button {
+    background-color: #4caf50; /* Bright green for confirm */
+    color: white;
+}
+
+.confirmation-actions .confirm-button:hover {
+    background-color: #388e3c; /* Darker green on hover */
+    transform: scale(1.05); /* Subtle zoom effect */
+}
