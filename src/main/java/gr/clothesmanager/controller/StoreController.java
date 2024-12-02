@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.service.StoreServiceImpl;
+import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class StoreController {
 
     // Edit an existing store
     @PutMapping("/{id}")
-    public ResponseEntity<Void> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) {
+    public ResponseEntity<Void> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) throws StoreNotFoundException {
         storeService.edit(id, storeDTO);
         return ResponseEntity.noContent().build();
     }

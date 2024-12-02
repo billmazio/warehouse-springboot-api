@@ -5,25 +5,23 @@ import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.interfaces.StoreService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.StoreRepository;
+import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
+import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
 
-    @Autowired
-    public StoreServiceImpl(StoreRepository storeRepository) {
-        this.storeRepository = storeRepository;
-    }
-
     @Transactional
-    public StoreDTO save(StoreDTO storeDTO) {
+    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
         // Convert DTO to entity
         Store store = new Store();
         store.setTitle(storeDTO.getTitle());
@@ -34,11 +32,11 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
-    public StoreDTO findById(Long id) {
+    public StoreDTO findById(Long id) throws StoreNotFoundException {
         // Find store by ID and map to DTO
         return storeRepository.findById(id)
                 .map(StoreDTO::fromModel)
-                .orElseThrow(() -> new IllegalArgumentException("Store not found with ID: " + id));
+                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
     }
 
     @Transactional
@@ -50,10 +48,10 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
-    public void edit(Long id, StoreDTO storeDTO) {
+    public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
         // Find the existing store entity
         Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Store not found with ID: " + id));
+                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
 
         // Update the entity fields
         store.setTitle(storeDTO.getTitle());
@@ -63,9 +61,9 @@ public class StoreServiceImpl implements StoreService {
         storeRepository.save(store);
     }
 
-   @Transactional
+ /*  @Transactional
     public void delete(Long id) {
         storeRepository.deleteById(id);
     }
-
+*/
 }
