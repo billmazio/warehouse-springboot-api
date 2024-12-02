@@ -14,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -30,11 +32,12 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS setup
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/public/**").permitAll() // Allow login
-                        .requestMatchers("/dashboard/**").authenticated() // Require authentication for dashboard
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // Allow login
+                        .requestMatchers("/", "/index.html", "/static/**").permitAll() // Permit static resources
+                        .requestMatchers("/dashboard/**").authenticated() // Secure dashboard
+                        .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -48,13 +51,15 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); // Allow all origins (for debugging only)
-        configuration.addAllowedMethod("*"); // Allow all HTTP methods
-        configuration.addAllowedHeader("*"); // Allow all headers
-        configuration.setAllowCredentials(true); // Allow cookies or credentials
+        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Allow React dev server
+        configuration.setAllowedMethods(Collections.singletonList("*")); // Allow all HTTP methods
+        configuration.setAllowedHeaders(Collections.singletonList("*")); // Allow all headers
+        configuration.setAllowCredentials(true); // Allow credentials
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

@@ -1,14 +1,28 @@
+import { jwtDecode } from "jwt-decode"; // Named import
+import React from "react";
 import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
     const token = localStorage.getItem("token");
+
     if (!token) {
-        // Redirect to login if no token
         return <Navigate to="/login" />;
     }
 
-    // Optionally, validate the token with the backend
-    // to ensure it's still valid (can add additional logic here)
+    try {
+        const decodedToken = jwtDecode(token); // Decode the JWT
+        const currentTime = Date.now() / 1000; // Get current time in seconds
+
+        if (decodedToken.exp < currentTime) {
+            // Token expired
+            localStorage.removeItem("token");
+            return <Navigate to="/login" />;
+        }
+    } catch (error) {
+        console.error("Invalid Token:", error);
+        localStorage.removeItem("token");
+        return <Navigate to="/login" />;
+    }
 
     return children;
 };

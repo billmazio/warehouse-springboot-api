@@ -22,7 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final TokenBlacklistService tokenBlacklistService; // Service to check revoked tokens
+    private final TokenBlacklistService tokenBlacklistService; // Service for token revocation
 
     @Override
     protected void doFilterInternal(
@@ -32,45 +32,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
-        // Check for Authorization header
+        // Log Authorization header for debugging
+        System.out.println("Authorization Header: " + authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // If no Authorization header or invalid format, continue the chain
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7); // Extract JWT token
+        final String jwt = authHeader.substring(7); // Extract the JWT token
 
         // Check if the token is revoked
         if (tokenBlacklistService.isTokenRevoked(jwt)) {
+            System.out.println("JWT token is revoked.");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token has been revoked.");
             return;
         }
 
         try {
-            // Extract user ID from the JWT token
+            // Extract user ID from the token
             String userId = jwtService.extractId(jwt);
+            System.out.println("Extracted User ID: " + userId);
 
-            // Ensure no existing authentication in SecurityContext
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userId);
+                // Load user details by the extracted ID
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
 
-                // Validate the JWT token
+                // Validate the token
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // Create authentication token and set it in SecurityContext
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("Invalid JWT token.");
                 }
             }
         } catch (io.jsonwebtoken.MalformedJwtException e) {
-            // Log invalid or malformed JWT tokens
+            // Handle malformed JWT token
             System.out.println("Malformed JWT token: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Malformed token.");
+            return;
         } catch (Exception e) {
-            // Handle other unexpected errors
+            // Handle any unexpected exceptions
+            System.err.println("Error during JWT processing: " + e.getMessage());
             e.printStackTrace();
         }
 
+        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

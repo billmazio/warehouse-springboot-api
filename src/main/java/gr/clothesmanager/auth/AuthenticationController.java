@@ -6,6 +6,7 @@ import gr.clothesmanager.auth.dto.AuthenticationResponse;
 import gr.clothesmanager.auth.dto.LoginRequest;
 import gr.clothesmanager.security.TokenBlacklistService;
 import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,15 +31,29 @@ public class AuthenticationController {
     private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
-            // Authenticate user and generate token
             String token = authenticationService.authenticateAndGenerateToken(loginRequest);
-            return ResponseEntity.ok(Collections.singletonMap("token", token));
+
+            // Set token as HttpOnly cookie
+            Cookie cookie = new Cookie("jwt", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false); // Use true in production (only with HTTPS)
+            cookie.setPath("/");
+            cookie.setMaxAge(15 * 60); // Token valid for 15 minutes
+            response.addCookie(cookie);
+
+            // For testing, include token in response body
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Login successful");
+            responseBody.put("token", token); // Include the token for frontend debugging (remove in production)
+
+            return ResponseEntity.ok(responseBody);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
         }
     }
+
 
 
     @PostMapping("/logout")
