@@ -62,6 +62,15 @@ const UserManagement = () => {
     const confirmDelete = async () => {
         if (!userToDelete) return;
 
+        // Check if the user to delete is a SUPER_ADMIN
+        const isUserToDeleteSuperAdmin = userToDelete.roles.some((role) => role.name === "SUPER_ADMIN");
+
+        // Check if the logged-in user has the SUPER_ADMIN role
+        if (isUserToDeleteSuperAdmin && loggedInUserRole !== "SUPER_ADMIN") {
+            toast.error("Δεν μπορείτε να διαγράψετε έναν Super Admin χρήστη.");
+            return;
+        }
+
         try {
             await deleteUser(userToDelete.id);
             setUsers(users.filter((user) => user.id !== userToDelete.id));
@@ -73,6 +82,7 @@ const UserManagement = () => {
 
         closeConfirmationDialog();
     };
+
 
     const handleCreate = async () => {
         if (loggedInUserRole !== "SUPER_ADMIN") {
@@ -189,16 +199,21 @@ const UserManagement = () => {
                 {users.map((user) => (
                     <tr key={user.id}>
                         <td>{user.username}</td>
-                        <td>{user.roles?.[0]?.name || "N/A"}</td>
+                        <td>
+                            {(user.roles || []).map((role) => role.name).join(", ")} {/* Display roles */}
+                        </td>
                         <td>{user.enable === 1 ? "Active" : "Inactive"}</td>
+                        {/* Convert Integer to readable status */}
                         <td>{user.store?.title || "N/A"}</td>
                         <td>
-                            <button
-                                className="delete-button"
-                                onClick={() => openConfirmationDialog(user)}
-                            >
-                                Διαγραφή
-                            </button>
+                            {loggedInUserRole === "SUPER_ADMIN" && (
+                                <button
+                                    className="delete-button"
+                                    onClick={() => openConfirmationDialog(user)}
+                                >
+                                    Διαγραφή
+                                </button>
+                            )}
                         </td>
                     </tr>
                 ))}
