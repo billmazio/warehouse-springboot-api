@@ -8,11 +8,13 @@ import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,15 +52,22 @@ public class UserController {
     // Create a new user
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException, StoreNotFoundException {
-        if (userDTO.getStore() == null || userDTO.getStore().getId() == null) { // Check if store and its ID exist
-            throw new IllegalArgumentException("Store ID is required.");
-        }
+    public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+        try {
+            if (userDTO.getStore() == null) {
+                throw new IllegalArgumentException("Store ID is required.");
+            }
 
-        // Fetch the store entity using the store ID from UserDTO
-        var store = storeService.findById(userDTO.getStore().getId());
-        UserDTO createdUser = userService.saveUser(userDTO, store.toModel());
-        return ResponseEntity.ok(createdUser);
+            var store = storeService.findById(userDTO.getStore().getId()); // Fetch the store entity
+            UserDTO createdUser = userService.saveUser(userDTO, store.toModel());
+            return ResponseEntity.ok(createdUser);
+        } catch (UserAlreadyExistsException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Username already exists")); // Return a 409 Conflict response
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "An error occurred"));
+        }
     }
 
 

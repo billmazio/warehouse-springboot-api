@@ -58,17 +58,6 @@ export const fetchUsers = async () => {
 };
 
 
-export const updateUserRoles = async (userId, newRole) => {
-    try {
-        const response = await api.post(`/api/users/${userId}/roles/${newRole}`);
-        return response.data;
-    } catch (err) {
-        console.error("Error updating user roles:", err.response || err.message);
-        throw err;
-    }
-};
-
-
 // Delete a user
 export const deleteUser = async (userId) => {
     try {
@@ -129,7 +118,6 @@ export const fetchUserDetails = async () => {
         throw err;
     }
 };
-
 
 // Logout
 export const logout = async () => {

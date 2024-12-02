@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleServiceImpl roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
         Set<UserRole> roles = assignRoles(userDTO.getRoles());
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPassword((userDTO.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Encode the password correctly
         user.setEnable(userDTO.getEnable());
         user.setStore(store);
         user.setRoles(roles);
@@ -45,6 +47,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return UserDTO.fromModel(user);
     }
+
 
     @Transactional
     public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {

@@ -92,7 +92,7 @@ const UserManagement = () => {
             toast.success("Ο χρήστης δημιουργήθηκε επιτυχώς.");
         } catch (err) {
             console.error("Error creating user:", err);
-            toast.error("Αποτυχία δημιουργίας χρήστη..");
+            toast.error("Το όνομα χρήστη υπάρχει ήδη. Παρακαλώ επιλέξτε διαφορετικό όνομα χρήστη.");
         }
     };
 
