@@ -82,19 +82,19 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
 
-    @Transactional
-    public void assignRoleToUser(Long userId, String roleTag) throws UserNotFoundException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
-
-        UserRole role = roleService.getRoleByTag(roleTag);
-        if (role == null) {
-            throw new IllegalArgumentException("Role with tag '" + roleTag + "' does not exist");
-        }
-
-        user.getRoles().add(role);
-        userRepository.save(user);
-    }
+//    @Transactional
+//    public void assignRoleToUser(Long userId, String roleTag) throws UserNotFoundException {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+//
+//        UserRole role = roleService.getRoleByTag(roleTag);
+//        if (role == null) {
+//            throw new IllegalArgumentException("Role with tag '" + roleTag + "' does not exist");
+//        }
+//
+//        user.getRoles().add(role);
+//        userRepository.save(user);
+//    }
 
     public int getActiveUserCount() {
         // Example query to fetch active users
@@ -122,4 +122,38 @@ public class UserServiceImpl implements UserService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
+
+    @Transactional
+    public UserDTO getAuthenticatedUserDetails() throws UserNotFoundException {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
+        return UserDTO.fromModel(user);
+    }
+
+
+    @Transactional
+    public void assignRoleToUser(Long userId, String roleName) throws UserNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        UserRole role = roleService.getRoleByTag(roleName);
+        if (role == null) {
+            throw new IllegalArgumentException("Role with name '" + roleName + "' does not exist");
+        }
+
+        user.getRoles().clear(); // Clear existing roles
+        user.getRoles().add(role); // Add the new role
+        userRepository.save(user);
+    }
+
 }

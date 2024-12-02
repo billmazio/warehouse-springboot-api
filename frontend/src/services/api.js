@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Set the base URL for your API
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 // Create an Axios instance
@@ -58,6 +57,18 @@ export const fetchUsers = async () => {
     }
 };
 
+
+export const updateUserRoles = async (userId, newRole) => {
+    try {
+        const response = await api.post(`/api/users/${userId}/roles/${newRole}`);
+        return response.data;
+    } catch (err) {
+        console.error("Error updating user roles:", err.response || err.message);
+        throw err;
+    }
+};
+
+
 // Delete a user
 export const deleteUser = async (userId) => {
     try {
@@ -68,6 +79,9 @@ export const deleteUser = async (userId) => {
         throw err;
     }
 };
+
+
+
 
 // Fetch dashboard data
 export const fetchDashboardData = async () => {
@@ -83,13 +97,14 @@ export const fetchDashboardData = async () => {
 // Fetch user details
 export const fetchUserDetails = async () => {
     try {
-        const response = await api.get("/api/user/details");
+        const response = await api.get("/api/users/details");
         return response.data;
     } catch (err) {
         console.error("Error in fetchUserDetails:", err.response || err.message);
         throw err;
     }
 };
+
 
 // Logout
 export const logout = async () => {

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,14 @@ public class UserRoleController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<UserDTO> getLoggedInUserDetails() throws UserNotFoundException {
+        // Get the authenticated user's details
+        UserDTO loggedInUser = userService.getAuthenticatedUserDetails();
+        return ResponseEntity.ok(loggedInUser);
+    }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserNotFoundException {
@@ -54,20 +63,31 @@ public class UserRoleController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/{userId}/roles/{roleTag}")
+//    @PostMapping("/{userId}/roles/{roleTag}")
+//    public ResponseEntity<ResponseMessageDTO> assignRoleToUser(
+//            @PathVariable Long userId,
+//            @PathVariable String roleTag
+//    ) throws UserNotFoundException {
+//        try {
+//            userService.assignRoleToUser(userId, roleTag);
+//            LOGGER.info("Role '{}' assigned to user with ID {}", roleTag, userId);
+//            return ResponseEntity.ok(new ResponseMessageDTO("success", "Role assigned successfully"));
+//        } catch (Exception e) {
+//            LOGGER.error("Error assigning role to user: {}", e.getMessage());
+//            throw e;
+//        }
+//    }
+
+    @PostMapping("/{userId}/roles/{roleName}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ResponseMessageDTO> assignRoleToUser(
             @PathVariable Long userId,
-            @PathVariable String roleTag
+            @PathVariable String roleName
     ) throws UserNotFoundException {
-        try {
-            userService.assignRoleToUser(userId, roleTag);
-            LOGGER.info("Role '{}' assigned to user with ID {}", roleTag, userId);
-            return ResponseEntity.ok(new ResponseMessageDTO("success", "Role assigned successfully"));
-        } catch (Exception e) {
-            LOGGER.error("Error assigning role to user: {}", e.getMessage());
-            throw e;
-        }
+        userService.assignRoleToUser(userId, roleName);
+        return ResponseEntity.ok(new ResponseMessageDTO("success", "Role assigned successfully"));
     }
+
 
 
     @GetMapping("/roles")
@@ -78,10 +98,14 @@ public class UserRoleController {
     }
 
 
+
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseMessageDTO> deleteUser(@PathVariable Long id) throws UserNotFoundException {
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) throws UserNotFoundException {
         userService.deleteUserById(id);
-        LOGGER.info("User with ID {} deleted successfully", id);
-        return ResponseEntity.ok(new ResponseMessageDTO("success", "User deleted successfully"));
+        return ResponseEntity.ok("User deleted successfully");
     }
+
+
 }
