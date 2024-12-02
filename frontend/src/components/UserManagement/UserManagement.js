@@ -197,7 +197,7 @@ const UserManagement = () => {
                                 className="delete-button"
                                 onClick={() => openConfirmationDialog(user)}
                             >
-                                Delete
+                                Διαγραφή
                             </button>
                         </td>
                     </tr>
