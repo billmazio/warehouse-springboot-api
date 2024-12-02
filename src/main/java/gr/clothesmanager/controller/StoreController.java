@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.service.StoreServiceImpl;
+import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +27,14 @@ public class StoreController {
 
     // Fetch a store by ID
     @GetMapping("/{id}")
-    public ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id) {
+    public ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id) throws StoreNotFoundException {
         StoreDTO store = storeService.findById(id);
         return ResponseEntity.ok(store);
     }
 
     // Create a new store
     @PostMapping
-    public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO) {
+    public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO) throws StoreAlreadyExistsException {
         StoreDTO createdStore = storeService.save(storeDTO);
         return ResponseEntity.ok(createdStore);
     }
@@ -46,9 +47,9 @@ public class StoreController {
     }
 
     // Delete a store by ID
-    @DeleteMapping("/{id}")
+ /*   @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStore(@PathVariable Long id) {
         storeService.delete(id);
         return ResponseEntity.noContent().build();
-    }
+    }*/
 }

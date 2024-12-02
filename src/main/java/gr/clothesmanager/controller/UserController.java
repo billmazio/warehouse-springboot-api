@@ -4,6 +4,7 @@ import gr.clothesmanager.auth.dto.ResponseMessageDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.service.UserServiceImpl;
 import gr.clothesmanager.service.StoreServiceImpl;
+import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class UserController {
     // Create a new user
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException, StoreNotFoundException {
         if (userDTO.getStore() == null || userDTO.getStore().getId() == null) { // Check if store and its ID exist
             throw new IllegalArgumentException("Store ID is required.");
         }
