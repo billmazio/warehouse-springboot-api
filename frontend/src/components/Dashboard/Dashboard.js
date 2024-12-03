@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { fetchDashboardData } from "../../services/api";
+import { fetchDashboardData, fetchUserDetails } from "../../services/api";
 import Calendar from "../Calendar/CalendarComponent";
 import UserManagement from "../UserManagement/UserManagement";
+
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -15,21 +16,31 @@ const Dashboard = () => {
     const [error, setError] = useState("");
     const [calendarDate, setCalendarDate] = useState(new Date());
     const [activeSection, setActiveSection] = useState("dashboard"); // Manage active section
-
+    const [userDetails, setUserDetails] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await fetchDashboardData();
+                // Fetch both dashboard data and user details
+                const [dashboardResponse, userResponse] = await Promise.all([
+                    fetchDashboardData(),
+                    fetchUserDetails()
+                ]);
+
+                // Set dashboard data
                 setDashboardData({
-                    user: data.user || 0,
-                    materials: data.materials || 0,
-                    sizes: data.sizes || 0,
-                    orders: data.orders || 0,
-                    stores: data.stores || 0,
+                    user: dashboardResponse.user || 0,
+                    materials: dashboardResponse.materials || 0,
+                    sizes: dashboardResponse.sizes || 0,
+                    orders: dashboardResponse.orders || 0,
+                    stores: dashboardResponse.stores || 0,
                 });
+
+                // Set user details
+                setUserDetails(userResponse);
+
             } catch (err) {
-                console.error("Error fetching dashboard data:", err);
-                setError("Failed to load dashboard data.");
+                console.error("Error fetching data:", err);
+                setError("Failed to load data.");
             }
         };
 
@@ -50,10 +61,16 @@ const Dashboard = () => {
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
-                    <img src="/img/user.png" alt="User" />
-                    <h4>Admin Panel</h4>
-                    <span>[SuperAdmin]</span>
+                    <div className="user-avatar">
+                        <span>{userDetails?.username?.charAt(0).toUpperCase() || "U"}</span> {/* First letter or default */}
+                    </div>
+                    <div className="user-info">
+                        <h4 className="welcome-message">Welcome,</h4>
+                        <h4 className="username">{userDetails?.username || "User"}</h4>
+                    </div>
                 </div>
+
+
                 <ul className="menu">
                     <li
                         className={activeSection === "dashboard" ? "active" : ""}
@@ -71,19 +88,19 @@ const Dashboard = () => {
                         className={activeSection === "stores" ? "active" : ""}
                         onClick={() => handleSectionChange("stores")}
                     >
-                        <i className="fa fa-landmark"></i> Αποθήκες
+                        <i className="fa fa-warehouse"></i> Αποθήκες
                     </li>
                     <li
                         className={activeSection === "materials" ? "active" : ""}
                         onClick={() => handleSectionChange("materials")}
                     >
-                        <i className="fa fa-child"></i> Ενδύματα
+                        <i className="fa fa-tshirt"></i> Ενδύματα
                     </li>
                     <li
                         className={activeSection === "orders" ? "active" : ""}
                         onClick={() => handleSectionChange("orders")}
                     >
-                        <i className="fa fa-truck"></i> Παραγγελίες
+                        <i className="fa fa-shopping-cart"></i> Παραγγελίες
                     </li>
                     <li
                         className={activeSection === "change-password" ? "active" : ""}
