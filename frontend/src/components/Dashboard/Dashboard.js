@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { fetchDashboardData, fetchUserDetails } from "../../services/api";
 import Calendar from "../Calendar/CalendarComponent";
 import UserManagement from "../UserManagement/UserManagement";
-
+import StoreManagement from "../StoreManagement/StoreManagement";
 import "./Dashboard.css";
+
 
 const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState({
@@ -152,6 +153,7 @@ const Dashboard = () => {
                     </section>
                 )}
                 {activeSection === "users" && <UserManagement />}
+                {activeSection === "stores" && <StoreManagement />}
                 {activeSection === "calendar" && (
                     <section className="calendar-container">
                         <Calendar onChange={setCalendarDate} value={calendarDate} />

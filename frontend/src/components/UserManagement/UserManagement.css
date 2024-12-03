@@ -1,11 +1,8 @@
 .user-management-container {
-    font-family: Arial, sans-serif;
-    margin: 20px auto;
-    max-width: 90%;
-    background: #dfe2e6;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .create-user-form {
@@ -21,8 +18,9 @@
 }
 
 .create-user-form input,
-.create-user-form select,
-.create-user-form button {
+.create-user-form select {
+    background-color: white; /* White background */
+    color: #333; /* Dark text color for readability */
     font-size: 14px;
     padding: 10px;
     border-radius: 8px;
@@ -32,18 +30,19 @@
 }
 
 .create-user-form input:focus,
-.create-user-form select:focus,
-.create-user-form button:focus {
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+.create-user-form select:focus {
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); /* Highlight on focus */
+    border-color: #007bff; /* Blue border on focus */
 }
 
 .create-user-form button {
-    background: #28a745;
+    background-color: #28a745;
     color: white;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
     border: none;
-    transition: background 0.3s ease;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 .cancel-button {
@@ -52,17 +51,6 @@
     border-radius: 8px;
 }
 
-.back-button {
-    background-color: #007bff; /* Blue background */
-    color: #fff; /* White text */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px; /* Rounded corners */
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 20px; /* Add spacing below the button */
-    transition: background 0.3s ease;
-}
 
 .back-button:hover {
     background-color: #0056b3; /* Darker blue on hover */
@@ -116,7 +104,7 @@
 }
 
 .user-table tr:hover {
-    background-color: #f9f9f9; /* Highlight row on hover for better UX */
+    background-color: #f0f0f0;
 }
 
 
@@ -142,19 +130,17 @@
 
 h2 {
     text-align: center;
+    color: #2c3e50;
     margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
 }
 .confirmation-actions .cancel-button,
 .confirmation-actions .confirm-button {
-    padding: 12px 20px; /* Larger padding for better usability */
-    border: none;
-    border-radius: 8px; /* Rounded corners for a modern look */
-    font-size: 16px; /* Slightly larger font size */
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .confirmation-actions .cancel-button {
