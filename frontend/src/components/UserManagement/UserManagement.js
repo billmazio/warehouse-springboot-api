@@ -228,17 +228,17 @@ const UserManagement = () => {
 
 
             {showConfirmation && (
-                <div className="confirmation-dialog">
+                <div className="user-conf">
                     <div className="confirmation-content">
                         <p>
                             Είστε σίγουροι ότι θέλετε να διαγράψετε τον χρήστη{" "}
                             <strong>{userToDelete?.username}</strong>;
                         </p>
-                        <div className="confirmation-actions">
-                            <button className="cancel-button" onClick={closeConfirmationDialog}>
+                        <div className="user-confirmation-actions">
+                            <button className="user-cancel-button" onClick={closeConfirmationDialog}>
                                 Ακύρωση
                             </button>
-                            <button className="confirm-button" onClick={confirmDelete}>
+                            <button className="user-confirm-button" onClick={confirmDelete}>
                                 Επιβεβαίωση
                             </button>
                         </div>

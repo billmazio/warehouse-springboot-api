@@ -85,16 +85,22 @@ const StoreManagement = () => {
                     type="text"
                     placeholder="Εισάγετε τίτλο αποθήκης"
                     value={newStore.title}
-                    onChange={(e) => setNewStore({ ...newStore, title: e.target.value })}
+                    onChange={(e) => setNewStore({...newStore, title: e.target.value})}
                 />
                 <input
                     type="text"
                     placeholder="Εισάγετε διεύθυνση αποθήκης"
                     value={newStore.address}
-                    onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
+                    onChange={(e) => setNewStore({...newStore, address: e.target.value})}
                 />
                 <button className="create-button" onClick={handleCreate}>
                     Δημιουργία Αποθήκης
+                </button>
+                <button
+                    className="cancel-button"
+                    onClick={() => setNewStore({title: "", address: ""})}
+                >
+                    Ακύρωση
                 </button>
             </div>
 
@@ -131,11 +137,11 @@ const StoreManagement = () => {
                             Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη{" "}
                             <strong>{storeToDelete?.title}</strong>;
                         </p>
-                        <div className="confirmation-actions">
-                            <button className="cancel-button" onClick={closeConfirmationDialog}>
+                        <div className="store-confirmation-actions">
+                            <button className="store-cancel-button" onClick={closeConfirmationDialog}>
                                 Ακύρωση
                             </button>
-                            <button className="confirm-button" onClick={confirmDelete}>
+                            <button className="store-confirm-button" onClick={confirmDelete}>
                                 Επιβεβαίωση
                             </button>
                         </div>

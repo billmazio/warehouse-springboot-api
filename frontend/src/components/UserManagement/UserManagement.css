@@ -17,6 +17,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+
 .create-user-form input,
 .create-user-form select {
     background-color: white; /* White background */
@@ -49,11 +50,6 @@
     background-color: #dc3545 !important;
     color: #fff !important;
     border-radius: 8px;
-}
-
-
-.back-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
 }
 
 
@@ -133,33 +129,33 @@ h2 {
     color: #2c3e50;
     margin-bottom: 20px;
 }
-.confirmation-actions .cancel-button,
-.confirmation-actions .confirm-button {
+.user-confirmation-actions .user-cancel-button,
+.user-confirmation-actions .user-confirm-button {
     background-color: white;
-    padding: 25px;
+    padding: 10px;
     border-radius: 8px;
     text-align: center;
-    width: 300px;
+    width: 150px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.confirmation-actions .cancel-button {
-    background-color: #f44336; /* Bright red for cancel */
+.user-confirmation-actions .user-cancel-button {
+    background-color: #c82333; /* Bright red for cancel */
     color: white;
     margin-right: 10px; /* Spacing between buttons */
 }
 
-.confirmation-actions .cancel-button:hover {
-    background-color: #d32f2f; /* Darker red on hover */
+.user-confirmation-actions .user-cancel-button:hover {
+    background-color: #dc3545; /* Darker red on hover */
     transform: scale(1.05); /* Subtle zoom effect */
 }
 
-.confirmation-actions .confirm-button {
+.user-confirmation-actions .user-confirm-button {
     background-color: #4caf50; /* Bright green for confirm */
     color: white;
 }
 
-.confirmation-actions .confirm-button:hover {
+.user-confirmation-actions .user-confirm-button:hover {
     background-color: #388e3c; /* Darker green on hover */
     transform: scale(1.05); /* Subtle zoom effect */
 }
