@@ -80,7 +80,7 @@ const StoreManagement = () => {
             <h2>Διαχείριση Αποθηκών</h2>
             {error && <p className="error-message">{error}</p>}
 
-            <div className="create-store-form">
+            <div className="store-create-form">
                 <input
                     type="text"
                     placeholder="Εισάγετε τίτλο αποθήκης"

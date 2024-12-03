@@ -11,11 +11,11 @@
     margin-bottom: 20px;
 }
 
-.create-store-form button:hover {
+.store-create-form button:hover {
     background: #218838;
 }
 
-.create-store-form input {
+.store-create-form input {
     font-size: 14px;
     padding: 10px;
     border-radius: 8px;
@@ -30,7 +30,7 @@
     text-overflow: ellipsis; /* Show ellipsis for overflow text */
 }
 
-.create-store-form {
+.store-create-form {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;

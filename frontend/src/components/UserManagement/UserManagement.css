@@ -5,7 +5,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.create-user-form {
+.user-create-form {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -18,25 +18,29 @@
 }
 
 
-.create-user-form input,
-.create-user-form select {
-    background-color: white; /* White background */
-    color: #333; /* Dark text color for readability */
+.user-create-form input,
+.user-create-form select {
     font-size: 14px;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
     outline: none;
     transition: box-shadow 0.3s ease;
+    max-width: 100%; /* Prevent the input from growing too large */
+    width: 80px; /* Set a reasonable default width */
+    flex: 1; /* Allow the input to grow based on the content */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow content */
+    text-overflow: ellipsis; /* Show ellipsis for overflow text */
 }
 
-.create-user-form input:focus,
-.create-user-form select:focus {
+.user-create-form input:focus,
+.user-create-form select:focus {
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); /* Highlight on focus */
     border-color: #007bff; /* Blue border on focus */
 }
 
-.create-user-form button {
+.user-create-form button {
     background-color: #28a745;
     color: white;
     padding: 10px 20px;
@@ -53,7 +57,7 @@
 }
 
 
-.create-user-form button:hover {
+.user-create-form button:hover {
     background: #218838;
 }
 

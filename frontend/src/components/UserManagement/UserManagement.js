@@ -125,7 +125,7 @@ const UserManagement = () => {
             {error && <p className="error-message">{error}</p>}
 
             {loggedInUserRole === "SUPER_ADMIN" && (
-                <div className="create-user-form">
+                <div className="user-create-form">
                     <input
                         type="text"
                         placeholder="Εισάγετε όνομα χρήστη"
