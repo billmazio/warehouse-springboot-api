@@ -14,7 +14,7 @@ const Dashboard = () => {
     });
     const [error, setError] = useState("");
     const [calendarDate, setCalendarDate] = useState(new Date());
-    const [activeSection, setActiveSection] = useState("dashboard");
+    const [activeSection, setActiveSection] = useState("dashboard"); // Manage active section
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +37,7 @@ const Dashboard = () => {
     }, []);
 
     const handleSectionChange = (section) => {
-        setActiveSection(section);
+        setActiveSection(section); // Update active section
     };
 
     const handleLogout = () => {
@@ -55,22 +55,40 @@ const Dashboard = () => {
                     <span>[SuperAdmin]</span>
                 </div>
                 <ul className="menu">
-                    <li onClick={() => handleSectionChange("dashboard")}>
+                    <li
+                        className={activeSection === "dashboard" ? "active" : ""}
+                        onClick={() => handleSectionChange("dashboard")}
+                    >
                         <i className="fa fa-palette"></i> Αρχική
                     </li>
-                    <li onClick={() => handleSectionChange("users")}>
+                    <li
+                        className={activeSection === "users" ? "active" : ""}
+                        onClick={() => handleSectionChange("users")}
+                    >
                         <i className="fa fa-users"></i> Διαχείριση Χρηστών
                     </li>
-                    <li onClick={() => handleSectionChange("stores")}>
+                    <li
+                        className={activeSection === "stores" ? "active" : ""}
+                        onClick={() => handleSectionChange("stores")}
+                    >
                         <i className="fa fa-landmark"></i> Αποθήκες
                     </li>
-                    <li onClick={() => handleSectionChange("materials")}>
+                    <li
+                        className={activeSection === "materials" ? "active" : ""}
+                        onClick={() => handleSectionChange("materials")}
+                    >
                         <i className="fa fa-child"></i> Ενδύματα
                     </li>
-                    <li onClick={() => handleSectionChange("orders")}>
+                    <li
+                        className={activeSection === "orders" ? "active" : ""}
+                        onClick={() => handleSectionChange("orders")}
+                    >
                         <i className="fa fa-truck"></i> Παραγγελίες
                     </li>
-                    <li onClick={() => handleSectionChange("change-password")}>
+                    <li
+                        className={activeSection === "change-password" ? "active" : ""}
+                        onClick={() => handleSectionChange("change-password")}
+                    >
                         <i className="fa fa-lock"></i> Αλλαγή Κωδικού
                     </li>
                 </ul>
