@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    fetchStores,
-    createStore,
-    deleteStore
-} from "../../services/api";
+import { fetchStores, createStore, deleteStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
@@ -16,32 +12,44 @@ const StoreManagement = () => {
     const [newStore, setNewStore] = useState({
         title: "",
         address: "",
+        enable: 1, // Default to Active
     });
 
+
+
+
+    // Fetch all stores on component mount
     useEffect(() => {
         const loadStores = async () => {
             try {
-                const storeData = await fetchStores();
+                const [storeData] = await Promise.all([
+                    fetchStores(),
+
+                ]);
                 setStores(storeData);
             } catch (err) {
                 setError("Failed to fetch store data.");
-                console.error("Error:", err);
+                console.error("Error fetching stores:", err);
             }
         };
 
-        loadStores();
+        loadStores(); // Fetch stores on component mount
     }, []);
 
+
+    // Open confirmation dialog for deleting a store
     const openConfirmationDialog = (store) => {
         setStoreToDelete(store);
         setShowConfirmation(true);
     };
 
+    // Close confirmation dialog
     const closeConfirmationDialog = () => {
         setShowConfirmation(false);
         setStoreToDelete(null);
     };
 
+    // Handle deleting a store
     const confirmDelete = async () => {
         if (!storeToDelete) return;
 
@@ -51,12 +59,13 @@ const StoreManagement = () => {
             toast.success(`Η αποθήκη "${storeToDelete.title}" διαγράφηκε επιτυχώς.`);
         } catch (err) {
             console.error("Error deleting store:", err);
-            toast.error("Αποτυχία διαγραφής αποθήκης.");
+            toast.error("Αποτυχία διαγραφής αποθήκης. Ελέγξτε εάν υπάρχουν σχετικές εγγραφές.");
         }
 
         closeConfirmationDialog();
     };
 
+    // Handle creating a store
     const handleCreate = async () => {
         if (!newStore.title.trim() || !newStore.address.trim()) {
             toast.warning("Ο Τίτλος και η Διεύθυνση είναι απαραίτητα.");
@@ -66,12 +75,19 @@ const StoreManagement = () => {
         try {
             const createdStore = await createStore(newStore);
             setStores([...stores, createdStore]);
-            setNewStore({ title: "", address: "" });
+            setNewStore({ title: "", address: "", enable: 1 }); // Reset form
             toast.success("Η αποθήκη δημιουργήθηκε επιτυχώς.");
         } catch (err) {
             console.error("Error creating store:", err);
             toast.error("Αποτυχία δημιουργίας αποθήκης.");
         }
+    };
+
+
+
+    // Handle cancel action
+    const handleCancel = () => {
+        setNewStore({ title: "", address: "", enable: 1 }); // Reset form
     };
 
     return (
@@ -80,43 +96,54 @@ const StoreManagement = () => {
             <h2>Διαχείριση Αποθηκών</h2>
             {error && <p className="error-message">{error}</p>}
 
+            {/* Create Store Form */}
             <div className="store-create-form">
                 <input
                     type="text"
                     placeholder="Εισάγετε τίτλο αποθήκης"
                     value={newStore.title}
-                    onChange={(e) => setNewStore({...newStore, title: e.target.value})}
+                    onChange={(e) => setNewStore({ ...newStore, title: e.target.value })}
                 />
                 <input
                     type="text"
                     placeholder="Εισάγετε διεύθυνση αποθήκης"
                     value={newStore.address}
-                    onChange={(e) => setNewStore({...newStore, address: e.target.value})}
+                    onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
                 />
+                <label>
+                    Enable:
+                    <input
+                        type="checkbox"
+                        checked={newStore.enable === 1}
+                        onChange={(e) =>
+                            setNewStore({ ...newStore, enable: e.target.checked ? 1 : 0 })
+                        }
+                    />
+                </label>
                 <button className="create-button" onClick={handleCreate}>
                     Δημιουργία Αποθήκης
                 </button>
-                <button
-                    className="cancel-button"
-                    onClick={() => setNewStore({title: "", address: ""})}
-                >
+                <button className="cancel-button" onClick={handleCancel}>
                     Ακύρωση
                 </button>
             </div>
 
+            {/* Store Table */}
             <table className="store-table">
                 <thead>
                 <tr>
                     <th>ΤΙΤΛΟΣ</th>
                     <th>ΔΙΕΥΘΥΝΣΗ</th>
+                    <th>ΚΑΤΑΣΤΑΣΗ</th>
                     <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
                 <tbody>
                 {stores.map((store) => (
-                    <tr key={store.id}>
+                    <tr key={store.id}> {/* Use a unique key for each row */}
                         <td>{store.title}</td>
                         <td>{store.address}</td>
+                        <td>{store.enable === 1 ? "Active" : "Inactive"}</td>
                         <td>
                             <button
                                 className="delete-button"
@@ -128,8 +155,10 @@ const StoreManagement = () => {
                     </tr>
                 ))}
                 </tbody>
+
             </table>
 
+            {/* Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">
                     <div className="confirmation-content">
@@ -138,7 +167,10 @@ const StoreManagement = () => {
                             <strong>{storeToDelete?.title}</strong>;
                         </p>
                         <div className="store-confirmation-actions">
-                            <button className="store-cancel-button" onClick={closeConfirmationDialog}>
+                            <button
+                                className="store-cancel-button"
+                                onClick={closeConfirmationDialog}
+                            >
                                 Ακύρωση
                             </button>
                             <button className="store-confirm-button" onClick={confirmDelete}>

@@ -119,14 +119,19 @@ export const fetchStores = async () => {
     }
 };
 
-export const createStore = async (store) => {
-    const response = await fetch("/api/stores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(store),
-    });
-    if (!response.ok) throw new Error("Failed to create store");
-    return response.json();
+export const createStore = async (storeData) => {
+    try {
+        const response = await api.post("/api/stores", {
+            title: storeData.title,
+            address: storeData.address,
+            enable: storeData.enable ? 1 : 0, // Convert boolean to integer for 'enable'
+
+        });
+        return response.data;
+    } catch (err) {
+        console.error("Error creating store:", err.response || err.message);
+        throw err;
+    }
 };
 
 export const deleteStore = async (id) => {

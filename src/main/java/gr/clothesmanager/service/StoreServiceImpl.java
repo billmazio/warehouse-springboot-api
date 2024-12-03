@@ -9,6 +9,8 @@ import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,19 +19,44 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class StoreServiceImpl implements StoreService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceImpl.class);
     private final StoreRepository storeRepository;
 
     @Transactional
-    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
-        // Convert DTO to entity
+    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException{
+        if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
+            try {
+                throw new StoreNotFoundException("Title is required");
+            } catch (StoreNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (storeDTO.getAddress() == null || storeDTO.getAddress().isEmpty()) {
+            try {
+                throw new StoreNotFoundException("Address is required");
+            } catch (StoreNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (storeDTO.getEnable() == null) {
+            try {
+                throw new StoreNotFoundException("Enable status is required");
+            } catch (StoreNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         Store store = new Store();
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
-        // Save and return the saved entity as DTO
+        store.setEnable(storeDTO.getEnable());
+
         Store savedStore = storeRepository.save(store);
+        LOGGER.info("Successfully saved store with ID: {}", savedStore.getId());
         return StoreDTO.fromModel(savedStore);
     }
+
+
 
     @Transactional
     public StoreDTO findById(Long id) throws StoreNotFoundException {

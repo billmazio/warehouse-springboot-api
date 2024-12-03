@@ -12,10 +12,6 @@ import java.util.List;
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
-    Store findById(int id);
-
-    List<Store> findAll();
-
     @Query("SELECT COUNT(s) FROM Store s")
     int countStores();
 }

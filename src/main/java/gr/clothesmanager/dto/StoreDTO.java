@@ -27,12 +27,8 @@ public class StoreDTO {
 
     // Convert `StoreDTO` to `Store` (Model)
     public Store toModel() {
-        return Store.builder()
-                .id(id)
-                .title(title)
-                .address(address)
-                .enable(enable)
-                .build();
+        return new Store(id,title,address,enable,null,null);
+
     }
 
     // Populate an existing `Store` model from `StoreDTO`

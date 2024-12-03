@@ -32,12 +32,17 @@ public class StoreController {
         return ResponseEntity.ok(store);
     }
 
-    // Create a new store
+
     @PostMapping
     public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO) throws StoreAlreadyExistsException {
+        if (storeDTO.getTitle() == null || storeDTO.getAddress() == null) {
+            throw new IllegalArgumentException("Title and Address are required");
+        }
         StoreDTO createdStore = storeService.save(storeDTO);
         return ResponseEntity.ok(createdStore);
     }
+
+
 
     // Edit an existing store
     @PutMapping("/{id}")

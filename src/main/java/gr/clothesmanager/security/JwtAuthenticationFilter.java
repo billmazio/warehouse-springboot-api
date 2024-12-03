@@ -1,10 +1,15 @@
 package gr.clothesmanager.security;
 
+import gr.clothesmanager.service.UserServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,14 +20,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final TokenBlacklistService tokenBlacklistService; // Service for token revocation
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -30,61 +34,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-
-        // Log Authorization header for debugging
-        System.out.println("Authorization Header: " + authHeader);
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // If no Authorization header or invalid format, continue the chain
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String jwt = authHeader.substring(7); // Extract the JWT token
-
-        // Check if the token is revoked
-        if (tokenBlacklistService.isTokenRevoked(jwt)) {
-            System.out.println("JWT token is revoked.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token has been revoked.");
-            return;
-        }
-
         try {
-            // Extract user ID from the token
-            String userId = jwtService.extractId(jwt);
-            System.out.println("Extracted User ID: " + userId);
+            String jwt = extractJwt(request);
 
-            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Load user details by the extracted ID
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-
-                // Validate the token
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    // Create authentication token and set it in SecurityContext
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                } else {
-                    System.out.println("Invalid JWT token.");
+            if (jwt != null && !tokenBlacklistService.isTokenRevoked(jwt)) {
+                String userId = jwtService.extractId(jwt);
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    } else {
+                        LOGGER.warn("Invalid JWT token for userId: {}", userId);
+                    }
                 }
             }
-        } catch (io.jsonwebtoken.MalformedJwtException e) {
-            // Handle malformed JWT token
-            System.out.println("Malformed JWT token: " + e.getMessage());
+
+        } catch (ExpiredJwtException e) {
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token has expired.");
+            return;
+        } catch (MalformedJwtException e) {
+            LOGGER.error("Malformed JWT token: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Malformed token.");
             return;
         } catch (Exception e) {
-            // Handle any unexpected exceptions
-            System.err.println("Error during JWT processing: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Unexpected error during JWT processing: {}", e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Authentication failed.");
+            return;
         }
 
-        // Continue the filter chain
         filterChain.doFilter(request, response);
+    }
+
+    private String extractJwt(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return (authHeader != null && authHeader.startsWith("Bearer ")) ? authHeader.substring(7) : null;
     }
 }

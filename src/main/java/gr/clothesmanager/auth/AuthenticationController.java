@@ -4,8 +4,12 @@ package gr.clothesmanager.auth;
 import gr.clothesmanager.auth.dto.AuthenticationRequest;
 import gr.clothesmanager.auth.dto.AuthenticationResponse;
 import gr.clothesmanager.auth.dto.LoginRequest;
+import gr.clothesmanager.core.CustomUserDetailsService;
+import gr.clothesmanager.interfaces.UserService;
+import gr.clothesmanager.security.JwtService;
 import gr.clothesmanager.security.TokenBlacklistService;
 import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -29,6 +34,30 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final JwtService jwtService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String expiredToken) {
+        try {
+            // Validate the expired token
+            if (!jwtService.isTokenExpired(expiredToken)) {
+                throw new IllegalArgumentException("Token is not expired");
+            }
+
+            // Extract user ID from the expired token
+            String userId = jwtService.extractId(expiredToken);
+
+            // Generate a new token
+            String newToken = jwtService.generateToken(userId);
+
+            return ResponseEntity.ok(newToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("Invalid or expired token");
+        }
+    }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
@@ -73,4 +102,7 @@ public class AuthenticationController {
             return request.getRemoteAddr();
         }
     }
+
+
 }
+
