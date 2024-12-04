@@ -6,6 +6,7 @@ import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class StoreController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO) throws StoreAlreadyExistsException {
         if (storeDTO.getTitle() == null || storeDTO.getAddress() == null) {
             throw new IllegalArgumentException("Title and Address are required");
@@ -52,9 +54,10 @@ public class StoreController {
     }
 
     // Delete a store by ID
- /*   @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStore(@PathVariable Long id) {
-        storeService.delete(id);
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> deleteStore(@PathVariable Long id) throws StoreNotFoundException {
+        storeService.deleteStoreById(id);
         return ResponseEntity.noContent().build();
-    }*/
+    }
 }

@@ -135,10 +135,14 @@ export const createStore = async (storeData) => {
 };
 
 export const deleteStore = async (id) => {
-    const response = await fetch(`/api/stores/${id}`, { method: "DELETE" });
-    if (!response.ok) throw new Error("Failed to delete store");
+    try {
+    const response = await api.delete(`/api/stores/${id}`);
+    return response.data;
+} catch (err) {
+    console.error("Error in deleteUser:", err.response || err.message);
+    throw err;
+}
 };
-
 
 // Logout
 export const logout = async () => {

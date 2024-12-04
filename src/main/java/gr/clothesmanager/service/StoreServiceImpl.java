@@ -88,9 +88,12 @@ public class StoreServiceImpl implements StoreService {
         storeRepository.save(store);
     }
 
- /*  @Transactional
-    public void delete(Long id) {
+   @Transactional
+    public void deleteStoreById(Long id) throws StoreNotFoundException{
+        if (!storeRepository.existsById(id)) {
+            throw new StoreNotFoundException("Store not found with ID: " + id);
+        }
         storeRepository.deleteById(id);
+        LOGGER.info("Successfully deleted store with ID: {}", id);
     }
-*/
 }
