@@ -25,15 +25,15 @@ public class Order {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
     private Store store;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "material_id", referencedColumnName = "id", nullable = false)
     private Material material;
 
@@ -46,7 +46,7 @@ public class Order {
     @Column(name = "stock")
     private Integer stock;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "size_id", referencedColumnName = "id", nullable = false)
     private Size size;
 

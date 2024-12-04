@@ -25,10 +25,10 @@ public class Store {
     @Column(name = "enable")
     private Integer enable;
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<Order> orders;
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private Set<User> users;
 
 

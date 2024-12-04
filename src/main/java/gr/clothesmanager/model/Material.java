@@ -21,7 +21,7 @@ public class Material {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "size_id", referencedColumnName = "id", nullable = false)
     private Size size;
 

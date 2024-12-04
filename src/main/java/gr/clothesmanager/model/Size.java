@@ -20,7 +20,7 @@ public class Size {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "size", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "size", fetch = FetchType.EAGER)
     private Set<Material> materials;
 
     public Size(String name) {
