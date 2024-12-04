@@ -6,7 +6,9 @@
 }
 .dashboard-container {
     background: url('DALL·E 2024-12-04 09.08.16.jpg') no-repeat center center/cover;
+    filter: brightness(0.8); /* This reduces the lightness */
 }
+
 
 /* Cards layout adjustments */
 .dashboard-cards {
