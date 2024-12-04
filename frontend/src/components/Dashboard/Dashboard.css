@@ -4,9 +4,9 @@
     height: 100vh;
     background-color: #b7b7bc;
 }
-/*.dashboard-container {
-    background: linear-gradient(135deg, rgba(44, 62, 80, 0.8), rgba(52, 73, 94, 0.8)), url('/path-to-image.jpg') no-repeat center center/cover;
-}*/
+.dashboard-container {
+    background: url('DALL·E 2024-12-04 09.08.16.jpg') no-repeat center center/cover;
+}
 
 /* Cards layout adjustments */
 .dashboard-cards {
