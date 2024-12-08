@@ -4,6 +4,7 @@ package gr.clothesmanager.repository;
 import gr.clothesmanager.model.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,7 +14,10 @@ import java.util.Optional;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
-    List<Material> findByStoreId(Long storeId); // Find materials for a specific store
+    @Query("SELECT m FROM Material m WHERE m.store.id = :storeId")
+    List<Material> findByStoreId(@Param("storeId") Long storeId);
+
+    Optional<Material> findByTextAndStoreId(String text, Long storeId);
 
     Optional<Material> findByText(String text);
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchStores, fetchUserDetails, createStore, deleteStore } from "../../services/api";
+import { fetchStores, fetchUserDetails, fetchMaterialsByStoreId, createStore, deleteStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
@@ -15,8 +15,10 @@ const StoreManagement = () => {
         address: "",
         enable: 1, // Default to Active
     });
+    const [selectedStore, setSelectedStore] = useState(null);
+    const [materials, setMaterials] = useState([]);
+    const [showMaterialsModal, setShowMaterialsModal] = useState(false);
 
-    // Fetch stores and user role on component mount
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -26,7 +28,6 @@ const StoreManagement = () => {
                 ]);
                 setStores(storeData);
 
-                // Determine logged-in user's role
                 const roles = loggedInUser.roles.map((role) => role.name);
                 if (roles.includes("SUPER_ADMIN")) {
                     setLoggedInUserRole("SUPER_ADMIN");
@@ -40,13 +41,11 @@ const StoreManagement = () => {
         loadData();
     }, []);
 
-    // Open confirmation dialog for deleting a store
     const openConfirmationDialog = (store) => {
         setStoreToDelete(store);
         setShowConfirmation(true);
     };
 
-    // Close confirmation dialog
     const closeConfirmationDialog = () => {
         setShowConfirmation(false);
         setStoreToDelete(null);
@@ -60,11 +59,11 @@ const StoreManagement = () => {
         } catch (err) {
             console.error(err.message);
             toast.error("Failed to delete store.");
+        } finally {
+            closeConfirmationDialog();
         }
     };
 
-
-    // Handle creating a store
     const handleCreate = async () => {
         if (loggedInUserRole !== "SUPER_ADMIN") {
             toast.warning("You are not authorized to create stores.");
@@ -87,9 +86,26 @@ const StoreManagement = () => {
         }
     };
 
-    // Handle cancel action
     const handleCancel = () => {
         setNewStore({ title: "", address: "", enable: 1 }); // Reset form
+    };
+
+    const handleViewMaterials = async (store) => {
+        try {
+            const materialsData = await fetchMaterialsByStoreId(store.id);
+            setMaterials(materialsData);
+            setSelectedStore(store);
+            setShowMaterialsModal(true);
+        } catch (err) {
+            console.error("Error fetching materials:", err);
+            toast.error("Failed to fetch materials.");
+        }
+    };
+
+    const closeMaterialsModal = () => {
+        setShowMaterialsModal(false);
+        setSelectedStore(null);
+        setMaterials([]);
     };
 
     return (
@@ -98,7 +114,6 @@ const StoreManagement = () => {
             <h2>Διαχείριση Αποθηκών</h2>
             {error && <p className="error-message">{error}</p>}
 
-            {/* Create Store Form - Visible only to SUPER_ADMIN */}
             {loggedInUserRole === "SUPER_ADMIN" && (
                 <div className="store-create-form">
                     <input
@@ -132,7 +147,6 @@ const StoreManagement = () => {
                 </div>
             )}
 
-            {/* Store Table */}
             <table className="store-table">
                 <thead>
                 <tr>
@@ -159,7 +173,7 @@ const StoreManagement = () => {
                                     </button>
                                     <button
                                         className="view-button"
-                                        onClick={() => toast.info(`View store: ${store.title}`)}
+                                        onClick={() => handleViewMaterials(store)}
                                     >
                                         <i className="fa fa-eye"></i> Προβολή
                                     </button>
@@ -171,7 +185,6 @@ const StoreManagement = () => {
                 </tbody>
             </table>
 
-            {/* Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">
                     <div className="confirmation-content">
@@ -186,10 +199,36 @@ const StoreManagement = () => {
                             >
                                 Ακύρωση
                             </button>
-                            <button className="store-confirm-button" onClick={confirmDelete}>
+                            <button
+                                className="store-confirm-button"
+                                onClick={confirmDelete}
+                            >
                                 Επιβεβαίωση
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {showMaterialsModal && (
+                <div className="materials-modal">
+                    <div className="materials-modal-content">
+                        <h3>Υλικά της Αποθήκης: {selectedStore?.title}</h3>
+                        <button
+                            className="close-modal-button"
+                            onClick={closeMaterialsModal}
+                        >
+                            Κλείσιμο
+                        </button>
+                        {materials.length > 0 ? (
+                            <ul>
+                                {materials.map((material) => (
+                                    <li key={material.id}>{material.name}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Δεν υπάρχουν υλικά για αυτήν την αποθήκη.</p>
+                        )}
                     </div>
                 </div>
             )}

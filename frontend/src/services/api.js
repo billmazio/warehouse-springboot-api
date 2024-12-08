@@ -158,5 +158,17 @@ export const logout = async () => {
     }
 };
 
+
+// New function to fetch materials by store ID
+export const fetchMaterialsByStoreId = async (storeId) => {
+    try {
+        const response = await api.get(`/api/stores/${storeId}/materials`);
+        return response.data;
+    } catch (err) {
+        console.error("Error fetching materials:", err.response || err.message);
+        throw err;
+    }
+};
+
 // Export the Axios instance
 export default api;

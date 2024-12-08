@@ -38,33 +38,46 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
         LOGGER.info("Saving new material with text: {}", materialDTO.getText());
 
-        Optional<Material> existingMaterial = materialRepository.findByText(materialDTO.getText());
+        // Check if the material with the same text already exists in the specified store
+        Optional<Material> existingMaterial = materialRepository.findByTextAndStoreId(
+                materialDTO.getText(), materialDTO.getStoreId());
         if (existingMaterial.isPresent()) {
-            LOGGER.error("Material already exists with text: {}", materialDTO.getText());
-            throw new MaterialAlreadyExistsException("Material with the same text already exists.");
+            LOGGER.error("Material already exists with text: {} in store ID: {}", materialDTO.getText(), materialDTO.getStoreId());
+            throw new MaterialAlreadyExistsException("Material with the same text already exists in this store.");
         }
 
+        // Fetch the associated size
         Size size = sizeRepository.findById(materialDTO.getSizeId())
                 .orElseThrow(() -> new MaterialAlreadyExistsException("Size not found with ID: " + materialDTO.getSizeId()));
 
-        Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size);
+        // Fetch the associated store
+        Store store = storeRepository.findById(materialDTO.getStoreId())
+                .orElseThrow(() -> new MaterialAlreadyExistsException("Store not found with ID: " + materialDTO.getStoreId()));
+
+        // Create and save the new material
+        Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size, store);
         material = materialRepository.save(material);
+
         return MaterialDTO.fromModel(material);
     }
 
 
+
     @Transactional
     public List<MaterialDTO> findMaterialsByStoreId(Long storeId) {
+        // Fetch materials for the specified store
         List<Material> materials = materialRepository.findByStoreId(storeId);
         return materials.stream()
                 .map(material -> new MaterialDTO(
                         material.getId(),
                         material.getText(),
                         material.getQuantity(),
-                        material.getSize().getId()
+                        material.getSize().getId(),
+                        storeId // Include storeId in the DTO
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {

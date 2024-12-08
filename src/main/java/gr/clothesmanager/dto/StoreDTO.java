@@ -1,8 +1,6 @@
 package gr.clothesmanager.dto;
 
-import gr.clothesmanager.model.Order;
-import gr.clothesmanager.model.Store;
-import gr.clothesmanager.model.User;
+import gr.clothesmanager.model.*;
 import lombok.*;
 
 import java.util.List;
@@ -22,12 +20,14 @@ public class StoreDTO {
     private Integer enable;
     private List<Long> orderIds;  // Simplified list of order IDs
     private List<Long> userIds;   // Simplified list of user IDs
+    private List<Long> materialIds;
+    private List<Long> materialDescriptionIds;
 
     // **Mapping Methods**
 
     // Convert `StoreDTO` to `Store` (Model)
     public Store toModel() {
-        return new Store(id,title,address,enable,null,null);
+        return new Store(id,title,address,enable,null,null,null,null);
 
     }
 
@@ -61,6 +61,8 @@ public class StoreDTO {
                 .enable(store.getEnable())
                 .orderIds(store.getOrders() != null ? store.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .userIds(store.getUsers() != null ? store.getUsers().stream().map(User::getId).collect(Collectors.toList()) : null)
+                .materialIds(store.getMaterials() != null ? store.getMaterials().stream().map(Material::getId).collect(Collectors.toList()) : null)
+                .materialDescriptionIds(store.getReceivedMaterials() != null ? store.getReceivedMaterials().stream().map(MaterialDistribution::getId).collect(Collectors.toList()) : null)
                 .build();
     }
 
@@ -73,6 +75,8 @@ public class StoreDTO {
                 .enable(this.enable)
                 .orderIds(this.orderIds != null ? List.copyOf(this.orderIds) : null)
                 .userIds(this.userIds != null ? List.copyOf(this.userIds) : null)
+                .materialIds(this.materialIds != null ? List.copyOf(this.materialIds) : null)
+                .materialDescriptionIds(this.materialDescriptionIds != null ? List.copyOf(this.materialDescriptionIds) : null)
                 .build();
     }
 
@@ -92,6 +96,8 @@ public class StoreDTO {
                 ", enable=" + enable +
                 ", orderIds=" + orderIds +
                 ", userIds=" + userIds +
+                ", materialIds=" + materialIds +
+                ", materialDescriptionIds=" + materialDescriptionIds +
                 '}';
     }
 }
