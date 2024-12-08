@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    fetchStores,
-    fetchUserDetails,
-    createStore,
-    deleteStore,
-} from "../../services/api";
+import { fetchStores, fetchUserDetails, createStore, deleteStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
@@ -57,26 +52,17 @@ const StoreManagement = () => {
         setStoreToDelete(null);
     };
 
-    // Handle deleting a store
     const confirmDelete = async () => {
-        if (!storeToDelete) return;
-
-        if (loggedInUserRole !== "SUPER_ADMIN") {
-            toast.warning("You are not authorized to delete stores.");
-            return;
-        }
-
         try {
             await deleteStore(storeToDelete.id);
             setStores(stores.filter((store) => store.id !== storeToDelete.id));
-            toast.success(`Η αποθήκη "${storeToDelete.title}" διαγράφηκε επιτυχώς.`);
+            toast.success(`Successfully deleted store "${storeToDelete.title}"`);
         } catch (err) {
-            console.error("Error deleting store:", err);
-            toast.error("Αποτυχία διαγραφής αποθήκης. Ελέγξτε εάν υπάρχουν σχετικές εγγραφές.");
+            console.error(err.message);
+            toast.error("Failed to delete store.");
         }
-
-        closeConfirmationDialog();
     };
+
 
     // Handle creating a store
     const handleCreate = async () => {
@@ -164,12 +150,20 @@ const StoreManagement = () => {
                         <td>{store.enable === 1 ? "Active" : "Inactive"}</td>
                         <td>
                             {loggedInUserRole === "SUPER_ADMIN" && (
-                                <button
-                                    className="delete-button"
-                                    onClick={() => openConfirmationDialog(store)}
-                                >
-                                    Διαγραφή
-                                </button>
+                                <>
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => openConfirmationDialog(store)}
+                                    >
+                                        Διαγραφή
+                                    </button>
+                                    <button
+                                        className="view-button"
+                                        onClick={() => toast.info(`View store: ${store.title}`)}
+                                    >
+                                        <i className="fa fa-eye"></i> Προβολή
+                                    </button>
+                                </>
                             )}
                         </td>
                     </tr>

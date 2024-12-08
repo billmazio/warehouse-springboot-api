@@ -53,11 +53,11 @@ public class StoreController {
         return ResponseEntity.noContent().build();
     }
 
-    // Delete a store by ID
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteStore(@PathVariable Long id) throws StoreNotFoundException {
         storeService.deleteStoreById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

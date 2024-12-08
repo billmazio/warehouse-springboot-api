@@ -136,13 +136,15 @@ export const createStore = async (storeData) => {
 
 export const deleteStore = async (id) => {
     try {
-    const response = await api.delete(`/api/stores/${id}`);
-    return response.data;
-} catch (err) {
-    console.error("Error in deleteUser:", err.response || err.message);
-    throw err;
-}
+        const response = await api.delete(`/api/stores/${id}`);
+        return response.data;
+    } catch (err) {
+        console.error("Error in deleteStore:", err.response || err.message);
+        throw err;
+    }
 };
+
+
 
 // Logout
 export const logout = async () => {

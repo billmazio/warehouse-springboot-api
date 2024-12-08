@@ -91,7 +91,7 @@
 
 .delete-button,
 .cancel-button,
-.confirm-button {
+.confirm-button{
     background-color: #dc3545;
     color: white;
     padding: 10px 20px;
@@ -100,6 +100,22 @@
     cursor: pointer;
     font-size: 14px;
 }
+
+
+.view-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+.store-table td button {
+    margin-right: 10px; /* Adds space between buttons */
+}
+
+
 
 
 .delete-button:hover,
@@ -140,3 +156,6 @@
     background-color: #388e3c; /* Darker green on hover */
     transform: scale(1.05); /* Subtle zoom effect */
 }
+
+
+
