@@ -15,6 +15,9 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     Optional<Material> findByText(String text);
 
+    @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")
+    List<Material> findByOptionalFilters(@org.springframework.lang.Nullable String text, @org.springframework.lang.Nullable Long sizeId);
+
     @Query("SELECT COUNT(m) FROM Material m")
     int countMaterials();
 }

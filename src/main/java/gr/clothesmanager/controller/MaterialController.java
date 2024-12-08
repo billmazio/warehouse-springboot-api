@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/materials")
@@ -40,8 +41,16 @@ public class MaterialController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MaterialDTO>> findAll() {
-        return ResponseEntity.ok(materialService.findAll());
+    public ResponseEntity<List<MaterialDTO>> findAll(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) Long sizeId
+    ) {
+        // Pass the query parameters as Optional to the service
+        List<MaterialDTO> materials = materialService.findAll(
+                Optional.ofNullable(text),
+                Optional.ofNullable(sizeId)
+        );
+        return ResponseEntity.ok(materials);
     }
 
     @PutMapping("/{id}")

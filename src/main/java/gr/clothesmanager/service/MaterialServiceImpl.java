@@ -55,9 +55,14 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public List<MaterialDTO> findAll() {
-        LOGGER.info("Fetching all materials.");
-        List<Material> materials = materialRepository.findAll();
+    public List<MaterialDTO> findAll(Optional<String> text, Optional<Long> sizeId) {
+        LOGGER.info("Fetching all materials with optional filters.");
+
+        List<Material> materials = materialRepository.findByOptionalFilters(
+                text.orElse(null),
+                sizeId.orElse(null) // Pass null if Optional is empty
+        );
+
         return materials.stream()
                 .map(MaterialDTO::fromModel)
                 .collect(Collectors.toList());
@@ -86,7 +91,6 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    @Override
     public void delete(Long id) throws MaterialNotFoundException {
         LOGGER.info("Deleting material with ID: {}", id);
         Material material = materialRepository.findById(id)
