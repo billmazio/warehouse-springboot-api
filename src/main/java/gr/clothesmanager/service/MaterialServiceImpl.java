@@ -3,9 +3,13 @@ package gr.clothesmanager.service;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
+import gr.clothesmanager.model.MaterialDistribution;
 import gr.clothesmanager.model.Size;
+import gr.clothesmanager.model.Store;
+import gr.clothesmanager.repository.MaterialDistributionRepository;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.SizeRepository;
+import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
 import jakarta.transaction.Transactional;
@@ -14,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +30,9 @@ public class MaterialServiceImpl implements MaterialService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialServiceImpl.class);
 
     private final MaterialRepository materialRepository;
+    private final StoreRepository storeRepository;
     private final SizeRepository sizeRepository;
+    private final MaterialDistributionRepository materialDistributionRepository;
 
     @Transactional
     public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
@@ -43,6 +50,45 @@ public class MaterialServiceImpl implements MaterialService {
         Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size);
         material = materialRepository.save(material);
         return MaterialDTO.fromModel(material);
+    }
+
+
+    @Transactional
+    public List<MaterialDTO> findMaterialsByStoreId(Long storeId) {
+        List<Material> materials = materialRepository.findByStoreId(storeId);
+        return materials.stream()
+                .map(material -> new MaterialDTO(
+                        material.getId(),
+                        material.getText(),
+                        material.getQuantity(),
+                        material.getSize().getId()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {
+        Material material = materialRepository.findById(materialId)
+                .orElseThrow(() -> new RuntimeException("Material not found"));
+
+        if (material.getQuantity() < quantity) {
+            throw new RuntimeException("Not enough material available for distribution");
+        }
+
+        Store receiverStore = storeRepository.findById(receiverStoreId)
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+
+        // Update the material's quantity in the central store
+        material.setQuantity(material.getQuantity() - quantity);
+        materialRepository.save(material);
+
+        // Record the distribution
+        MaterialDistribution distribution = new MaterialDistribution();
+        distribution.setMaterial(material);
+        distribution.setReceiverStore(receiverStore);
+        distribution.setQuantity(quantity);
+        distribution.setDistributionDate(LocalDate.now());
+        materialDistributionRepository.save(distribution);
     }
 
     @Transactional

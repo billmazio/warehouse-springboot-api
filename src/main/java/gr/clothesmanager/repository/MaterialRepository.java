@@ -13,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
+    List<Material> findByStoreId(Long storeId); // Find materials for a specific store
+
     Optional<Material> findByText(String text);
 
     @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")

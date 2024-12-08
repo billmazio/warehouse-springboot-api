@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.OrderDTO;
 import gr.clothesmanager.interfaces.OrderService;
+import gr.clothesmanager.service.OrderServiceImpl;
 import gr.clothesmanager.service.exceptions.OrderAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderServiceImpl orderService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) throws OrderAlreadyExistsException {

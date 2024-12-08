@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.SizeDTO;
 import gr.clothesmanager.interfaces.SizeService;
+import gr.clothesmanager.service.SizeServiceImpl;
 import gr.clothesmanager.service.exceptions.SizeAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.SizeNotFoundException;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SizeController {
 
-    private final SizeService sizeService;
+    private final SizeServiceImpl sizeService;
 
     @GetMapping("/{id}")
     public ResponseEntity<SizeDTO> findById(@PathVariable Long id) {

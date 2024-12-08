@@ -31,7 +31,11 @@ public class Store {
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<User> users;
 
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Material> materials; // One-to-many relationship with materials
 
+    @OneToMany(mappedBy = "receiverStore", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MaterialDistribution> receivedMaterials;
 
     public Store(String title, String address, Integer enable) {
         this.title = title;

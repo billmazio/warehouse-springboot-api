@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.interfaces.MaterialService;
+import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
 import jakarta.validation.Valid;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MaterialController {
 
-    private final MaterialService materialService;
+    private final MaterialServiceImpl materialService;
 
     @PostMapping
     public ResponseEntity<MaterialDTO> save(@Valid @RequestBody MaterialDTO materialDTO) {
@@ -38,6 +39,15 @@ public class MaterialController {
         } catch (MaterialNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+    }
+
+    @PostMapping("/{materialId}/distribute")
+    public ResponseEntity<Void> distributeMaterial(
+            @PathVariable Long materialId,
+            @RequestParam Long receiverStoreId,
+            @RequestParam Integer quantity) {
+        materialService.distributeMaterial(materialId, receiverStoreId, quantity);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping

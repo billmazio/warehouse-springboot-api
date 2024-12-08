@@ -1,6 +1,8 @@
 package gr.clothesmanager.controller;
 
+import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.StoreDTO;
+import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.StoreServiceImpl;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
@@ -17,6 +19,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreServiceImpl storeService;
+    private final MaterialServiceImpl materialService;
 
     // Fetch all stores
     @GetMapping
@@ -44,7 +47,11 @@ public class StoreController {
         return ResponseEntity.ok(createdStore);
     }
 
-
+    @GetMapping("/{storeId}/materials")
+    public ResponseEntity<List<MaterialDTO>> getMaterialsByStore(@PathVariable Long storeId) {
+        List<MaterialDTO> materials = materialService.findMaterialsByStoreId(storeId);
+        return ResponseEntity.ok(materials);
+    }
 
     // Edit an existing store
     @PutMapping("/{id}")

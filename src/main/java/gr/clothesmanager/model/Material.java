@@ -25,7 +25,10 @@ public class Material {
     @JoinColumn(name = "size_id", referencedColumnName = "id", nullable = false)
     private Size size;
 
-
+    @ManyToOne(fetch = FetchType.LAZY) // Materials belong to a store
+    @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
+    private Store store;
+    
 
     public Material(String text, Integer quantity, Size size) {
         this.text = text;
