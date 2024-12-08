@@ -162,10 +162,11 @@ const StoreManagement = () => {
                                     </button>
                                     <button
                                         className="view-button"
-                                        onClick={() => handleViewMaterials(store)}
+                                        onClick={() => navigate(`/dashboard/manage-stores/${store.id}/materials`)}
                                     >
                                         <i className="fa fa-eye"></i> Προβολή
                                     </button>
+
                                 </div>
                             )}
                         </td>

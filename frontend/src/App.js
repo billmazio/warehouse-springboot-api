@@ -4,9 +4,8 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import UserManagement from "./components/UserManagement/UserManagement";
-import StoreManagement from "./components/StoreManagement/StoreManagement"; // Import StoreManagement
-import MaterialsList from "./components/MaterialsList/MaterialsList"; // Import the MaterialsList component
-
+import StoreManagement from "./components/StoreManagement/StoreManagement";
+import MaterialsList from "./components/MaterialsList/MaterialsList";
 
 const App = () => {
     return (
@@ -27,7 +26,7 @@ const App = () => {
 
                 {/* User Management Route */}
                 <Route
-                    path="/manage-users"
+                    path="/dashboard/manage-users"
                     element={
                         <PrivateRoute>
                             <UserManagement />
@@ -37,7 +36,7 @@ const App = () => {
 
                 {/* Store Management Route */}
                 <Route
-                    path="/manage-stores"
+                    path="/dashboard/manage-stores"
                     element={
                         <PrivateRoute>
                             <StoreManagement />
@@ -47,7 +46,7 @@ const App = () => {
 
                 {/* Materials List Route */}
                 <Route
-                    path="/materials/:storeId"
+                    path="/dashboard/manage-stores/:storeId/materials"
                     element={
                         <PrivateRoute>
                             <MaterialsList />

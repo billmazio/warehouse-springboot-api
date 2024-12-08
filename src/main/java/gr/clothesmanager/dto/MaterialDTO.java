@@ -15,7 +15,9 @@ public class MaterialDTO {
     private Integer quantity;
     private Long sizeId;
     private String sizeName;
+    private String storeTitle;
     private Long storeId;
+
 
 
 
@@ -29,6 +31,7 @@ public class MaterialDTO {
                 .quantity(material.getQuantity())
                 .sizeId(material.getSize() != null ? material.getSize().getId() : null)
                 .sizeName(material.getSize() != null ? material.getSize().getName() : null)
+                .storeTitle(material.getStore() != null ? material.getStore().getTitle() : null)
                 .storeId(material.getStore() != null ? material.getStore().getId() : null)
                 .build();
     }
@@ -50,6 +53,7 @@ public class MaterialDTO {
                 ", sizeId=" + sizeId +
                 ", sizeName='" + sizeName + '\'' +
                 ", storeId=" + storeId +
+                ", storeTitle='" + storeTitle + '\'' +
                 '}';
     }
 }

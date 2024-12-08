@@ -74,7 +74,9 @@ public class MaterialServiceImpl implements MaterialService {
                         material.getQuantity(),
                         material.getSize().getId(),  // Use size ID
                         material.getSize().getName(), // Fetch size name
-                        storeId // Include store ID
+                        material.getStore().getTitle(),
+                        storeId
+
                 ))
                 .collect(Collectors.toList());
     }

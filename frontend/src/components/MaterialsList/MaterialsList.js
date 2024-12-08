@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchMaterialsByStoreId } from "../../services/api";
+import { fetchMaterialsByStoreId, fetchStoreDetails } from "../../services/api";
 import "./MaterialsList.css";
 
 const MaterialsList = () => {
-    const { storeId } = useParams(); // Get the store ID from the URL
-    const navigate = useNavigate(); // To navigate back to stores
+    const [storeTitle, setStoreTitle] = useState("");
+    const { storeId } = useParams();
+    const navigate = useNavigate();
     const [materials, setMaterials] = useState([]);
     const [filteredMaterials, setFilteredMaterials] = useState([]);
     const [filterText, setFilterText] = useState("");
@@ -17,14 +18,25 @@ const MaterialsList = () => {
             try {
                 const materialsData = await fetchMaterialsByStoreId(storeId);
                 setMaterials(materialsData);
-                setFilteredMaterials(materialsData); // Initialize with full materials list
+                setFilteredMaterials(materialsData);
             } catch (err) {
                 setError("Failed to fetch materials.");
                 console.error("Error:", err);
             }
         };
 
+        const loadStoreDetails = async () => {
+            try {
+                const storeData = await fetchStoreDetails(storeId);
+                setStoreTitle(storeData.title);
+            } catch (err) {
+                console.error("Failed to fetch store details:", err);
+                setError("Failed to fetch store details.");
+            }
+        };
+
         loadMaterials();
+        loadStoreDetails();
     }, [storeId]);
 
     const handleFilter = () => {
@@ -32,7 +44,9 @@ const MaterialsList = () => {
             const matchesText = filterText
                 ? material.text.toLowerCase().includes(filterText.toLowerCase())
                 : true;
-            const matchesSize = filterSize ? material.sizeId === parseInt(filterSize, 10) : true;
+            const matchesSize = filterSize
+                ? material.sizeId === parseInt(filterSize, 10)
+                : true;
             return matchesText && matchesSize;
         });
         setFilteredMaterials(filtered);
@@ -40,11 +54,13 @@ const MaterialsList = () => {
 
     return (
         <div className="materials-list-container">
-            <button onClick={() => navigate("/manage-stores")} className="back-button">
+            {/* Back Button */}
+            <button onClick={() => navigate("/dashboard/manage-stores")} className="back-button">
                 Πίσω στις Αποθήκες
             </button>
 
-            <h2>Υλικά για Αποθήκη ID: {storeId}</h2>
+
+            <h2>Υλικά για Αποθήκη: {storeTitle || "Loading..."}</h2>
             {error && <p className="error-message">{error}</p>}
 
             {/* Filters */}
@@ -69,7 +85,9 @@ const MaterialsList = () => {
                 <ul>
                     {filteredMaterials.map((material) => (
                         <li key={material.id}>
-                            {material.text} - Μέγεθος: {material.sizeName}, Ποσότητα: {material.quantity}
+                            <strong>{material.text}</strong> - Μέγεθος:{" "}
+                            {material.sizeName}, Ποσότητα: {material.quantity},
+                            Αποθήκη: {storeTitle}
                         </li>
                     ))}
                 </ul>

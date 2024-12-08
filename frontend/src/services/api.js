@@ -144,6 +144,7 @@ export const deleteStore = async (id) => {
     }
 };
 
+/*
 export const fetchMaterials = async () => {
     try {
         const response = await api.get("/api/materials");
@@ -153,6 +154,18 @@ export const fetchMaterials = async () => {
         throw err;
     }
 };
+*/
+
+export const fetchStoreDetails = async (storeId) => {
+    try {
+        const response = await api.get(`/api/stores/${storeId}`);
+        return response.data;
+    } catch (err) {
+        console.error("Error fetching store details:", err);
+        throw err;
+    }
+};
+
 
 // New function to fetch materials by store ID
 export const fetchMaterialsByStoreId = async (storeId) => {
@@ -165,7 +178,7 @@ export const fetchMaterialsByStoreId = async (storeId) => {
     }
 };
 
-export const fetchMaterialsWithFilters = async (text, sizeId) => {
+/*export const fetchMaterialsWithFilters = async (text, sizeId) => {
     try {
         const response = await api.get("/api/materials", {
             params: {
@@ -178,7 +191,7 @@ export const fetchMaterialsWithFilters = async (text, sizeId) => {
         console.error("Error fetching materials with filters:", err.response || err.message);
         throw err;
     }
-};
+};*/
 
 
 // Logout
