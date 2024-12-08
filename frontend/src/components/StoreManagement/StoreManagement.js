@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import { fetchStores, fetchUserDetails, fetchMaterialsByStoreId, createStore, deleteStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,6 +19,7 @@ const StoreManagement = () => {
     const [selectedStore, setSelectedStore] = useState(null);
     const [materials, setMaterials] = useState([]);
     const [showMaterialsModal, setShowMaterialsModal] = useState(false);
+    const navigate = useNavigate(); // To navigate to the materials route
 
     useEffect(() => {
         const loadData = async () => {
@@ -90,22 +92,9 @@ const StoreManagement = () => {
         setNewStore({ title: "", address: "", enable: 1 }); // Reset form
     };
 
-    const handleViewMaterials = async (store) => {
-        try {
-            const materialsData = await fetchMaterialsByStoreId(store.id);
-            setMaterials(materialsData);
-            setSelectedStore(store);
-            setShowMaterialsModal(true);
-        } catch (err) {
-            console.error("Error fetching materials:", err);
-            toast.error("Failed to fetch materials.");
-        }
-    };
-
-    const closeMaterialsModal = () => {
-        setShowMaterialsModal(false);
-        setSelectedStore(null);
-        setMaterials([]);
+    const handleViewMaterials = (store) => {
+        // Navigate to the materials route with the store ID
+        navigate(`/materials/${store.id}`);
     };
 
     return (
@@ -164,7 +153,7 @@ const StoreManagement = () => {
                         <td>{store.enable === 1 ? "Active" : "Inactive"}</td>
                         <td>
                             {loggedInUserRole === "SUPER_ADMIN" && (
-                                <>
+                                <div>
                                     <button
                                         className="delete-button"
                                         onClick={() => openConfirmationDialog(store)}
@@ -177,7 +166,7 @@ const StoreManagement = () => {
                                     >
                                         <i className="fa fa-eye"></i> Προβολή
                                     </button>
-                                </>
+                                </div>
                             )}
                         </td>
                     </tr>
@@ -206,29 +195,6 @@ const StoreManagement = () => {
                                 Επιβεβαίωση
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {showMaterialsModal && (
-                <div className="materials-modal">
-                    <div className="materials-modal-content">
-                        <h3>Υλικά της Αποθήκης: {selectedStore?.title}</h3>
-                        <button
-                            className="close-modal-button"
-                            onClick={closeMaterialsModal}
-                        >
-                            Κλείσιμο
-                        </button>
-                        {materials.length > 0 ? (
-                            <ul>
-                                {materials.map((material) => (
-                                    <li key={material.id}>{material.name}</li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Δεν υπάρχουν υλικά για αυτήν την αποθήκη.</p>
-                        )}
                     </div>
                 </div>
             )}

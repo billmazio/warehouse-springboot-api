@@ -63,6 +63,8 @@ public class MaterialController {
         return ResponseEntity.ok(materials);
     }
 
+
+
     @PutMapping("/{id}")
     public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) {
         try {

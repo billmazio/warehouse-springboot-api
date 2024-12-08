@@ -5,6 +5,8 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import UserManagement from "./components/UserManagement/UserManagement";
 import StoreManagement from "./components/StoreManagement/StoreManagement"; // Import StoreManagement
+import MaterialsList from "./components/MaterialsList/MaterialsList"; // Import the MaterialsList component
+
 
 const App = () => {
     return (
@@ -39,6 +41,16 @@ const App = () => {
                     element={
                         <PrivateRoute>
                             <StoreManagement />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Materials List Route */}
+                <Route
+                    path="/materials/:storeId"
+                    element={
+                        <PrivateRoute>
+                            <MaterialsList />
                         </PrivateRoute>
                     }
                 />
