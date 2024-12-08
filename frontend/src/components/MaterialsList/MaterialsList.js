@@ -69,7 +69,7 @@ const MaterialsList = () => {
                 <ul>
                     {filteredMaterials.map((material) => (
                         <li key={material.id}>
-                            <strong>{material.text}</strong> - Μέγεθος: {material.sizeId}, Ποσότητα: {material.quantity}
+                            {material.text} - Μέγεθος: {material.sizeName}, Ποσότητα: {material.quantity}
                         </li>
                     ))}
                 </ul>

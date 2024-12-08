@@ -72,11 +72,13 @@ public class MaterialServiceImpl implements MaterialService {
                         material.getId(),
                         material.getText(),
                         material.getQuantity(),
-                        material.getSize().getId(),
-                        storeId // Include storeId in the DTO
+                        material.getSize().getId(),  // Use size ID
+                        material.getSize().getName(), // Fetch size name
+                        storeId // Include store ID
                 ))
                 .collect(Collectors.toList());
     }
+
 
 
     @Transactional
