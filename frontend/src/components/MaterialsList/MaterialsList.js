@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchMaterialsByStoreId, fetchStoreDetails } from "../../services/api";
+import { fetchSizes } from "../../services/api"
 import "./MaterialsList.css";
+;
 
 const MaterialsList = () => {
     const [storeTitle, setStoreTitle] = useState("");
+    const [sizes, setSizes] = useState([]);
     const { storeId } = useParams();
     const navigate = useNavigate();
     const [materials, setMaterials] = useState([]);
@@ -39,6 +42,19 @@ const MaterialsList = () => {
         loadStoreDetails();
     }, [storeId]);
 
+    useEffect(() => {
+        const loadSizes = async () => {
+            try {
+                const sizesData = await fetchSizes();
+                setSizes(sizesData); // Set the fetched sizes
+            } catch (err) {
+                console.error("Failed to fetch sizes:", err);
+            }
+        };
+
+        loadSizes();
+    }, []);
+
     const handleFilter = () => {
         const filtered = materials.filter((material) => {
             const matchesText = filterText
@@ -51,6 +67,8 @@ const MaterialsList = () => {
         });
         setFilteredMaterials(filtered);
     };
+
+
 
     return (
         <div className="materials-list-container">
@@ -67,18 +85,24 @@ const MaterialsList = () => {
             <div className="filters">
                 <input
                     type="text"
-                    placeholder="Φίλτρο ανά κείμενο (π.χ. μπλούζες)"
+                    placeholder="Φίλτρο ανά προϊόν (π.χ. μπλούζες)"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                 />
-                <input
-                    type="number"
-                    placeholder="Φίλτρο ανά μέγεθος ID"
+                <select
                     value={filterSize}
                     onChange={(e) => setFilterSize(e.target.value)}
-                />
+                >
+                    <option value="">Φίλτρο ανά μέγεθος</option>
+                    {sizes.map((size) => (
+                        <option key={size.id} value={size.id}>
+                            {size.name}
+                        </option>
+                    ))}
+                </select>
                 <button onClick={handleFilter}>Φιλτράρισμα</button>
             </div>
+
 
             {/* Materials List */}
             {filteredMaterials.length > 0 ? (

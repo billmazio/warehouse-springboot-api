@@ -178,6 +178,12 @@ export const fetchMaterialsByStoreId = async (storeId) => {
     }
 };
 
+export const fetchSizes = async () => {
+    const response = await api.get("/api/sizes"); // Replace with your API endpoint
+    return response.data;
+};
+
+
 /*export const fetchMaterialsWithFilters = async (text, sizeId) => {
     try {
         const response = await api.get("/api/materials", {
