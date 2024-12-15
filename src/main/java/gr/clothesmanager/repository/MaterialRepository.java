@@ -2,6 +2,8 @@ package gr.clothesmanager.repository;
 
 
 import gr.clothesmanager.model.Material;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +28,8 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     @Query("SELECT COUNT(m) FROM Material m")
     int countMaterials();
+
+    Page<Material> findByStoreId(Long storeId, Pageable pageable);
+
+
 }

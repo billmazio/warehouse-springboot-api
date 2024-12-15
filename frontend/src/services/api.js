@@ -144,17 +144,6 @@ export const deleteStore = async (id) => {
     }
 };
 
-/*
-export const fetchMaterials = async () => {
-    try {
-        const response = await api.get("/api/materials");
-        return response.data;
-    } catch (err) {
-        console.error("Error fetching materials:", err.response || err.message);
-        throw err;
-    }
-};
-*/
 
 export const fetchStoreDetails = async (storeId) => {
     try {
@@ -167,14 +156,37 @@ export const fetchStoreDetails = async (storeId) => {
 };
 
 
-// New function to fetch materials by store ID
-export const fetchMaterialsByStoreId = async (storeId) => {
+export const fetchMaterialsByStoreId = async (storeId, page = 0, size = 5) => {
     try {
-        const response = await api.get(`/api/stores/${storeId}/materials`);
-        return response.data;
-    } catch (err) {
-        console.error("Error fetching materials:", err.response || err.message);
-        throw err;
+        const response = await fetch(
+            `/api/materials?storeId=${storeId}&page=${page}&size=${size}`
+        );
+        if (!response.ok) {
+            throw new Error("Failed to fetch materials.");
+        }
+        return await response.json(); // Assuming JSON response
+    } catch (error) {
+        console.error("Error fetching materials:", error);
+        throw error;
+    }
+};
+
+
+export const fetchMaterialsPaginated = async (
+    storeId,
+    page = 0,
+    size = 5,
+    text = "",
+    sizeId = ""
+) => {
+    try {
+        const response = await api.get("/api/materials/paginated", {
+            params: { storeId, page, size, text, sizeId },
+        });
+        return response.data; // { content, totalPages, number }
+    } catch (error) {
+        console.error("Error fetching paginated materials:", error);
+        throw error;
     }
 };
 
@@ -182,22 +194,6 @@ export const fetchSizes = async () => {
     const response = await api.get("/api/sizes"); // Replace with your API endpoint
     return response.data;
 };
-
-
-/*export const fetchMaterialsWithFilters = async (text, sizeId) => {
-    try {
-        const response = await api.get("/api/materials", {
-            params: {
-                text: text || null,
-                sizeId: sizeId || null,
-            },
-        });
-        return response.data;
-    } catch (err) {
-        console.error("Error fetching materials with filters:", err.response || err.message);
-        throw err;
-    }
-};*/
 
 
 // Logout

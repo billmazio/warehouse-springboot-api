@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -161,4 +163,23 @@ public class MaterialServiceImpl implements MaterialService {
 
         materialRepository.delete(material);
     }
+
+    private MaterialDTO convertToDTO(Material material) {
+        MaterialDTO dto = new MaterialDTO();
+        dto.setId(material.getId());
+        dto.setText(material.getText());
+        dto.setSizeName(material.getSize().getName());
+        dto.setQuantity(material.getQuantity());
+        dto.setStoreId(material.getStore().getId());
+        return dto;
+    }
+
+    @Transactional
+    public Page<MaterialDTO> findAllPaginated(Long storeId, Pageable pageable) {
+        Page<Material> materials = materialRepository.findByStoreId(storeId, pageable);
+        return materials.map(this::convertToDTO);
+    }
+
+
+
 }

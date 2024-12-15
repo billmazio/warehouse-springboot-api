@@ -7,6 +7,9 @@ import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +44,9 @@ public class MaterialController {
         }
     }
 
+
+
+
     @PostMapping("/{materialId}/distribute")
     public ResponseEntity<Void> distributeMaterial(
             @PathVariable Long materialId,
@@ -65,6 +71,7 @@ public class MaterialController {
 
 
 
+
     @PutMapping("/{id}")
     public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) {
         try {
@@ -84,4 +91,17 @@ public class MaterialController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<MaterialDTO>> findAllMaterials(
+            @RequestParam Long storeId,
+            Pageable pageable
+    ) {
+        Page<MaterialDTO> materials = materialService.findAllPaginated(storeId, pageable);
+        return ResponseEntity.ok(materials);
+    }
+
+
 }

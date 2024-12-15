@@ -57,3 +57,35 @@ ul li {
 .back-button:hover {
     background-color: #0056b3;
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+
+.pagination span {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: #2c3e50;
+}
