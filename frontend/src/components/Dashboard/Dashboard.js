@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import { fetchDashboardData, fetchUserDetails } from "../../services/api";
 import "./Dashboard.css";
 
@@ -14,6 +14,7 @@ const Dashboard = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const location = useLocation(); // Current route for active class
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,7 +43,6 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-
     const handleNavigation = (path) => {
         navigate(path); // Navigate to specific paths
     };
@@ -65,22 +65,40 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <ul className="menu">
-                    <li onClick={() => handleNavigation("/dashboard")}>
+                    <li
+                        className={location.pathname === "/dashboard" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard")}
+                    >
                         <i className="fa fa-palette"></i> Αρχική
                     </li>
-                    <li onClick={() => handleNavigation("/dashboard/manage-users")}>
+                    <li
+                        className={location.pathname === "/dashboard/manage-users" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard/manage-users")}
+                    >
                         <i className="fa fa-users"></i> Διαχείριση Χρηστών
                     </li>
-                    <li onClick={() => handleNavigation("/dashboard/manage-stores")}>
+                    <li
+                        className={location.pathname === "/dashboard/manage-stores" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard/manage-stores")}
+                    >
                         <i className="fa fa-warehouse"></i> Αποθήκες
                     </li>
-                    <li onClick={() => handleNavigation("/dashboard/manage-materials")}>
+                    <li
+                        className={location.pathname === "/dashboard/manage-materials" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard/manage-materials")}
+                    >
                         <i className="fa fa-tshirt"></i> Ενδύματα
                     </li>
-                    <li onClick={() => handleNavigation("/dashboard/manage-orders")}>
+                    <li
+                        className={location.pathname === "/dashboard/manage-orders" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard/manage-orders")}
+                    >
                         <i className="fa fa-shopping-cart"></i> Παραγγελίες
                     </li>
-                    <li onClick={() => handleNavigation("/dashboard/change-password")}>
+                    <li
+                        className={location.pathname === "/dashboard/change-password" ? "active" : ""}
+                        onClick={() => handleNavigation("/dashboard/change-password")}
+                    >
                         <i className="fa fa-lock"></i> Αλλαγή Κωδικού
                     </li>
                 </ul>
@@ -98,7 +116,7 @@ const Dashboard = () => {
                 {error && <p className="error-message">{error}</p>}
 
                 {/* Dashboard Cards */}
-                {!window.location.pathname.includes("manage") && (
+                {!location.pathname.includes("manage") && (
                     <section className="dashboard-cards">
                         <div className="card" onClick={() => handleNavigation("/dashboard/manage-users")}>
                             <i className="fa fa-users card-icon"></i>
