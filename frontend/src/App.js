@@ -5,15 +5,17 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import UserManagement from "./components/UserManagement/UserManagement";
 import StoreManagement from "./components/StoreManagement/StoreManagement";
-import MaterialsList from "./components/MaterialsList/MaterialsList";
+import CentralMaterialsList from "./components/MaterialsList/CentralMaterialsList";
+import StoreMaterialsList from "./components/MaterialsList/StoreMaterialsList";
 
 const App = () => {
     return (
         <Router>
             <Routes>
+                {/* Login Route */}
                 <Route path="/login" element={<Login />} />
 
-                {/* Dashboard Layout with Nested Routes */}
+                {/* Protected Dashboard Route */}
                 <Route
                     path="/dashboard"
                     element={
@@ -22,13 +24,13 @@ const App = () => {
                         </PrivateRoute>
                     }
                 >
-
                     <Route path="manage-users" element={<UserManagement />} />
                     <Route path="manage-stores" element={<StoreManagement />} />
-                    <Route path="manage-stores/:storeId/materials" element={<MaterialsList />} />
+                    <Route path="manage-materials" element={<CentralMaterialsList />} />
+                    <Route path="manage-stores/:storeId/materials" element={<StoreMaterialsList />} />
                 </Route>
 
-                {/* Catch-All Route */}
+                {/* Fallback Route */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Router>

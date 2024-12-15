@@ -156,36 +156,26 @@ export const fetchStoreDetails = async (storeId) => {
 };
 
 
-export const fetchMaterialsByStoreId = async (storeId, page = 0, size = 5) => {
-    try {
-        const response = await fetch(
-            `/api/materials?storeId=${storeId}&page=${page}&size=${size}`
-        );
-        if (!response.ok) {
-            throw new Error("Failed to fetch materials.");
-        }
-        return await response.json(); // Assuming JSON response
-    } catch (error) {
-        console.error("Error fetching materials:", error);
-        throw error;
-    }
-};
-
-
-export const fetchMaterialsPaginated = async (
-    storeId,
-    page = 0,
-    size = 5,
-    text = "",
-    sizeId = ""
-) => {
+export const fetchMaterialsByStoreId = async (storeId, page = 0, size = 5, text = "", sizeId = "") => {
     try {
         const response = await api.get("/api/materials/paginated", {
             params: { storeId, page, size, text, sizeId },
         });
         return response.data; // { content, totalPages, number }
     } catch (error) {
-        console.error("Error fetching paginated materials:", error);
+        console.error("Error fetching store materials:", error);
+        throw error;
+    }
+};
+
+export const fetchAllMaterialsPaginated = async (page = 0, size = 5, text = "", sizeId = "") => {
+    try {
+        const response = await api.get("/api/materials/all/paginated", {
+            params: { page, size, text, sizeId },
+        });
+        return response.data; // { content, totalPages, number }
+    } catch (error) {
+        console.error("Error fetching all materials:", error);
         throw error;
     }
 };

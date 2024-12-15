@@ -95,12 +95,21 @@ public class MaterialController {
 
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<MaterialDTO>> findMaterialsPaginated(
+    public ResponseEntity<Page<MaterialDTO>> findMaterialsByStoreId(
             @RequestParam Long storeId,
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
-            @PageableDefault(size = 5) Pageable pageable) {
+            Pageable pageable) {
         Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
+        return ResponseEntity.ok(materials);
+    }
+
+    @GetMapping("/all/paginated")
+    public ResponseEntity<Page<MaterialDTO>> findAllMaterials(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) Long sizeId,
+            Pageable pageable) {
+        Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
         return ResponseEntity.ok(materials);
     }
 

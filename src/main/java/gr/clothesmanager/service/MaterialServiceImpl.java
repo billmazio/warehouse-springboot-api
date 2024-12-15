@@ -174,10 +174,21 @@ public class MaterialServiceImpl implements MaterialService {
         return dto;
     }
 
+
+
     @Transactional
     public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) {
-        Page<Material> page = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable);
-        return page.map(this::convertToDTO);
+        LOGGER.info("Fetching materials with optional filters. Store ID: {}, Text: {}, Size ID: {}", storeId, text, sizeId);
+
+        // If `storeId` is null, fetch all materials
+        Page<Material> materialsPage;
+        if (storeId == null) {
+            materialsPage = materialRepository.findAllByFilters(text, sizeId, pageable);
+        } else {
+            materialsPage = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable);
+        }
+
+        return materialsPage.map(this::convertToDTO);
     }
 
 
