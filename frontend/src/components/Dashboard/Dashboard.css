@@ -171,11 +171,14 @@
 }
 
 .main-content {
-    flex: 1;
+    flex: 1; /* Grow to fill remaining space */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; /* Align content to top */
     padding: 20px;
+    min-height: calc(100vh - 50px); /* Ensure full viewport height minus footer */
+    box-sizing: border-box;
+    overflow: auto;
 }
 
 .header {
@@ -187,7 +190,11 @@
     color: #b7b7bc;
     border-radius: 8px;
     margin-bottom: 10px;
+    position: sticky; /* Makes the header stick */
+    top: 0; /* Sticks to the top of the viewport */
+    z-index: 1000; /* Ensures the header is above other content */
 }
+
 
 .logout-btn {
     background-color: #e74c3c;
