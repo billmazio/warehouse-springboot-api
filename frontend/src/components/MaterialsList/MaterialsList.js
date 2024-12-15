@@ -19,7 +19,7 @@ const MaterialsList = () => {
     const { storeId } = useParams();
     const navigate = useNavigate();
 
-    // Function to load materials with filters and pagination
+    // Load materials with filters and pagination
     const loadMaterials = useCallback(async () => {
         try {
             const response = await fetchMaterialsPaginated(
@@ -59,7 +59,7 @@ const MaterialsList = () => {
         }
     }, []);
 
-    // Load materials, store details, and sizes on mount or when dependencies change
+    // Initial data load
     useEffect(() => {
         loadMaterials();
         loadStoreDetails();
@@ -68,7 +68,7 @@ const MaterialsList = () => {
 
     // Filter handler
     const handleFilter = () => {
-        setCurrentPage(0); // Reset to the first page when applying filters
+        setCurrentPage(0); // Reset to the first page when filters are applied
         loadMaterials();
     };
 

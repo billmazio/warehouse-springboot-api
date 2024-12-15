@@ -175,9 +175,9 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public Page<MaterialDTO> findAllPaginated(Long storeId, Pageable pageable) {
-        Page<Material> materials = materialRepository.findByStoreId(storeId, pageable);
-        return materials.map(this::convertToDTO);
+    public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) {
+        Page<Material> page = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable);
+        return page.map(this::convertToDTO);
     }
 
 

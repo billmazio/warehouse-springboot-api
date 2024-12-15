@@ -29,7 +29,14 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     @Query("SELECT COUNT(m) FROM Material m")
     int countMaterials();
 
-    Page<Material> findByStoreId(Long storeId, Pageable pageable);
+    @Query("SELECT m FROM Material m WHERE m.store.id = :storeId " +
+            "AND (:text IS NULL OR LOWER(m.text) LIKE LOWER(CONCAT('%', :text, '%'))) " +
+            "AND (:sizeId IS NULL OR m.size.id = :sizeId)")
+    Page<Material> findByStoreIdAndFilters(@Param("storeId") Long storeId,
+                                           @Param("text") String text,
+                                           @Param("sizeId") Long sizeId,
+                                           Pageable pageable);
+
 
 
 }
