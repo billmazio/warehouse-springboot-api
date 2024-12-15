@@ -11,10 +11,9 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                {/* Login Route */}
                 <Route path="/login" element={<Login />} />
 
-                {/* Dashboard Route */}
+                {/* Dashboard Layout with Nested Routes */}
                 <Route
                     path="/dashboard"
                     element={
@@ -22,37 +21,12 @@ const App = () => {
                             <Dashboard />
                         </PrivateRoute>
                     }
-                />
+                >
 
-                {/* User Management Route */}
-                <Route
-                    path="/dashboard/manage-users"
-                    element={
-                        <PrivateRoute>
-                            <UserManagement />
-                        </PrivateRoute>
-                    }
-                />
-
-                {/* Store Management Route */}
-                <Route
-                    path="/dashboard/manage-stores"
-                    element={
-                        <PrivateRoute>
-                            <StoreManagement />
-                        </PrivateRoute>
-                    }
-                />
-
-                {/* Materials List Route */}
-                <Route
-                    path="/dashboard/manage-stores/:storeId/materials"
-                    element={
-                        <PrivateRoute>
-                            <MaterialsList />
-                        </PrivateRoute>
-                    }
-                />
+                    <Route path="manage-users" element={<UserManagement />} />
+                    <Route path="manage-stores" element={<StoreManagement />} />
+                    <Route path="manage-stores/:storeId/materials" element={<MaterialsList />} />
+                </Route>
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
