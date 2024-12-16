@@ -228,11 +228,11 @@ const StoreManagement = () => {
                         />
                     </label>
                     <div className="edit-actions">
-                        <button className="save-button" onClick={handleUpdateStore}>
-                            Αποθήκευση
-                        </button>
                         <button className="cancel-button" onClick={() => setEditingStore(null)}>
                             Ακύρωση
+                        </button>
+                        <button className="save-button" onClick={handleUpdateStore}>
+                            Αποθήκευση
                         </button>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ const StoreManagement = () => {
 
             {showConfirmation && (
                 <div className="confirmation-dialog">
-                    <div className="confirmation-content">
+                <div className="confirmation-content">
                         <p>
                             Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη{" "}
                             <strong>{storeToDelete?.title}</strong>;
