@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllMaterialsPaginated, fetchSizes } from "../../services/api";
+import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial } from "../../services/api";
 import "./MaterialsList.css";
 
 const CentralMaterialsList = () => {
@@ -12,6 +12,8 @@ const CentralMaterialsList = () => {
     const [filterSize, setFilterSize] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [materialToDelete, setMaterialToDelete] = useState(null);
     const [error, setError] = useState("");
 
     // Fetch all materials with filters and pagination
@@ -42,6 +44,29 @@ const CentralMaterialsList = () => {
         loadSizes();
     }, [loadMaterials, loadSizes]);
 
+    // Open confirmation dialog for delete
+    const openConfirmationDialog = (material) => {
+        setMaterialToDelete(material);
+        setShowConfirmation(true);
+    };
+
+    // Close confirmation dialog
+    const closeConfirmationDialog = () => {
+        setShowConfirmation(false);
+        setMaterialToDelete(null);
+    };
+
+    // Confirm delete
+    const confirmDelete = async () => {
+        try {
+            await deleteMaterial(materialToDelete.id);
+            setMaterials(materials.filter((m) => m.id !== materialToDelete.id));
+            closeConfirmationDialog();
+        } catch (err) {
+            console.error("Failed to delete material", err);
+        }
+    };
+
     const handleFilter = () => {
         setCurrentPage(0);
         loadMaterials();
@@ -70,7 +95,9 @@ const CentralMaterialsList = () => {
                         </option>
                     ))}
                 </select>
-                <button className="create-button" onClick={handleFilter}>Φιλτράρισμα</button>
+                <button className="create-button" onClick={handleFilter}>
+                    Φιλτράρισμα
+                </button>
             </div>
 
             <table className="store-table">
@@ -91,7 +118,12 @@ const CentralMaterialsList = () => {
                             <td>{material.quantity}</td>
                             <td>
                                 <button className="view-button">Επεξεργασία</button>
-                                <button className="delete-button">Διαγραφή</button>
+                                <button
+                                    className="delete-button"
+                                    onClick={() => openConfirmationDialog(material)}
+                                >
+                                    Διαγραφή
+                                </button>
                             </td>
                         </tr>
                     ))
@@ -114,14 +146,38 @@ const CentralMaterialsList = () => {
                     Σελίδα {currentPage + 1} από {totalPages}
                 </span>
                 <button
-                    onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
-                    }
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
                     disabled={currentPage >= totalPages - 1}
                 >
                     Επόμενη
                 </button>
             </div>
+
+            {/* Confirmation Dialog */}
+            {showConfirmation && (
+                <div className="confirmation-dialog">
+                    <div className="confirmation-content">
+                        <p>
+                            Είστε σίγουροι ότι θέλετε να διαγράψετε το προϊόν{" "}
+                            <strong>{materialToDelete?.text}</strong>;
+                        </p>
+                        <div className="materials-confirmation-actions">
+                            <button
+                                className="materials-cancel-button"
+                                onClick={closeConfirmationDialog}
+                            >
+                                Ακύρωση
+                            </button>
+                            <button
+                                className="materials-confirm-button"
+                                onClick={confirmDelete}
+                            >
+                                Επιβεβαίωση
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

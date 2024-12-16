@@ -180,6 +180,17 @@ export const fetchAllMaterialsPaginated = async (page = 0, size = 5, text = "", 
     }
 };
 
+export const deleteMaterial = async (id) => {
+    const response = await fetch(`/api/materials/${id}`, {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to delete material");
+    }
+};
+
+
 export const fetchSizes = async () => {
     const response = await api.get("/api/sizes"); // Replace with your API endpoint
     return response.data;

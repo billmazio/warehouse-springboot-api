@@ -110,3 +110,40 @@ ul li {
 .add-material-form button:hover {
     background-color: #218838;
 }
+.delete-button:hover,
+.cancel-button:hover,
+.confirm-button:hover {
+    background-color: #dc3545;
+}
+
+/* Confirmation Dialog Actions */
+.materials-confirmation-actions .materials-cancel-button,
+.materials-confirmation-actions .materials-confirm-button {
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    width: 150px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.materials-confirmation-actions .materials-cancel-button {
+    background-color: #c82333; /* Bright red for cancel */
+    color: white;
+    margin-right: 10px; /* Spacing between buttons */
+}
+
+.materials-confirmation-actions .materials-cancel-button:hover {
+    background-color: #dc3545; /* Darker red on hover */
+    transform: scale(1.05); /* Subtle zoom effect */
+}
+
+.materials-confirmation-actions .materials-confirm-button {
+    background-color: #4caf50; /* Bright green for confirm */
+    color: white;
+}
+
+.materials-confirmation-actions .materials-confirm-button:hover {
+    background-color: #388e3c; /* Darker green on hover */
+    transform: scale(1.05); /* Subtle zoom effect */
+}
