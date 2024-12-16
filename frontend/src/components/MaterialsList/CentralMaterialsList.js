@@ -211,7 +211,7 @@ const CentralMaterialsList = () => {
 
             {/* Edit Modal */}
             {editingMaterial && (
-                <div className="edit-modal">
+                <div className="edit-modal-materials">
                     <h3>Επεξεργασία Προϊόντος</h3>
                     <input
                         type="text"
@@ -236,11 +236,18 @@ const CentralMaterialsList = () => {
                         value={editFormData.quantity}
                         onChange={(e) => setEditFormData({ ...editFormData, quantity: e.target.value })}
                     />
-                    <div className="materials-confirmation-actions">
-                        <button className="materials-cancel-button" onClick={() => setEditingMaterial(null)}>
+                    {/* Centered Buttons */}
+                    <div className="button-group">
+                        <button
+                            className="materials-cancel-button"
+                            onClick={() => setEditingMaterial(null)}
+                        >
                             Ακύρωση
                         </button>
-                        <button className="materials-confirm-button" onClick={handleSaveEdit}>
+                        <button
+                            className="materials-confirm-button"
+                            onClick={handleSaveEdit}
+                        >
                             Αποθήκευση
                         </button>
                     </div>
@@ -255,17 +262,25 @@ const CentralMaterialsList = () => {
                             Είστε σίγουροι ότι θέλετε να διαγράψετε το προϊόν{" "}
                             <strong>{materialToDelete?.text}</strong>;
                         </p>
-                        <div className="materials-confirmation-actions">
-                            <button className="materials-cancel-button" onClick={closeConfirmationDialog}>
+                        {/* Centered Buttons */}
+                        <div className="button-group">
+                            <button
+                                className="materials-cancel-button"
+                                onClick={closeConfirmationDialog}
+                            >
                                 Ακύρωση
                             </button>
-                            <button className="materials-confirm-button" onClick={confirmDelete}>
+                            <button
+                                className="materials-confirm-button"
+                                onClick={confirmDelete}
+                            >
                                 Επιβεβαίωση
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

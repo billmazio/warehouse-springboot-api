@@ -183,16 +183,16 @@ const StoreManagement = () => {
                                         Επεξεργασία
                                     </button>
                                     <button
-                                        className="delete-button"
-                                        onClick={() => openConfirmationDialog(store)}
-                                    >
-                                        Διαγραφή
-                                    </button>
-                                    <button
                                         className="view-button"
                                         onClick={() => navigate(`/dashboard/manage-stores/${store.id}/materials`)}
                                     >
                                         <i className="fa fa-eye"></i> Προβολή
+                                    </button>
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => openConfirmationDialog(store)}
+                                    >
+                                        Διαγραφή
                                     </button>
                                 </div>
                             )}
