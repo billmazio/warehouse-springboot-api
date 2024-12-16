@@ -48,15 +48,14 @@ const CentralMaterialsList = () => {
     };
 
     return (
-        <div className="materials-list-container">
+        <div className="store-management-container">
             <button onClick={() => navigate("/dashboard")} className="back-button">
                 Πίσω στην Κεντρική Διαχείριση
             </button>
 
-            <h2>Ενδύματα</h2>
-            {error && <p className="error-message">{error}</p>}
+            <h2>Διαχείριση Ενδυμάτων</h2>
 
-            <div className="filters">
+            <div className="store-create-form">
                 <input
                     type="text"
                     placeholder="Φίλτρο ανά προϊόν"
@@ -71,20 +70,38 @@ const CentralMaterialsList = () => {
                         </option>
                     ))}
                 </select>
-                <button onClick={handleFilter}>Φιλτράρισμα</button>
+                <button className="create-button" onClick={handleFilter}>Φιλτράρισμα</button>
             </div>
 
-            {materials.length > 0 ? (
-                <ul>
-                    {materials.map((material) => (
-                        <li key={material.id}>
-                            <strong>{material.text}</strong> - Μέγεθος: {material.sizeName}, Ποσότητα: {material.quantity}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>Δεν υπάρχουν ενδύματα.</p>
-            )}
+            <table className="store-table">
+                <thead>
+                <tr>
+                    <th>Προϊόν</th>
+                    <th>Μέγεθος</th>
+                    <th>Ποσότητα</th>
+                    <th>Ενέργειες</th>
+                </tr>
+                </thead>
+                <tbody>
+                {materials.length > 0 ? (
+                    materials.map((material) => (
+                        <tr key={material.id}>
+                            <td>{material.text}</td>
+                            <td>{material.sizeName}</td>
+                            <td>{material.quantity}</td>
+                            <td>
+                                <button className="view-button">Επεξεργασία</button>
+                                <button className="delete-button">Διαγραφή</button>
+                            </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="4">Δεν υπάρχουν ενδύματα.</td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
 
             <div className="pagination">
                 <button
@@ -97,7 +114,9 @@ const CentralMaterialsList = () => {
                     Σελίδα {currentPage + 1} από {totalPages}
                 </span>
                 <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                    onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+                    }
                     disabled={currentPage >= totalPages - 1}
                 >
                     Επόμενη

@@ -180,7 +180,6 @@ export const fetchAllMaterialsPaginated = async (page = 0, size = 5, text = "", 
     }
 };
 
-
 export const fetchSizes = async () => {
     const response = await api.get("/api/sizes"); // Replace with your API endpoint
     return response.data;

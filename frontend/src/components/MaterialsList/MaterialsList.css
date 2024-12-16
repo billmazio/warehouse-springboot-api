@@ -89,3 +89,24 @@ ul li {
     font-weight: bold;
     color: #2c3e50;
 }
+.add-material-form input,
+.add-material-form select,
+.add-material-form button {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.add-material-form button {
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+}
+
+.add-material-form button:hover {
+    background-color: #218838;
+}
