@@ -57,14 +57,17 @@ const StoreManagement = () => {
         try {
             await deleteStore(storeToDelete.id);
             setStores(stores.filter((store) => store.id !== storeToDelete.id));
-            toast.success(`Successfully deleted store "${storeToDelete.title}"`);
+            toast.success(`Η αποθήκη "${storeToDelete.title}" διαγράφηκε επιτυχώς.`);
         } catch (err) {
-            console.error(err.message);
-            toast.error("Failed to delete store.");
+            console.error("Error deleting store:", err);
+            toast.error(
+                `Δεν μπορείτε να διαγράψετε την αποθήκη "${storeToDelete.title}" επειδή περιέχει συνδεδεμένα δεδομένα.`
+            );
         } finally {
             closeConfirmationDialog();
         }
     };
+
 
     const handleCreate = async () => {
         if (loggedInUserRole !== "SUPER_ADMIN") {
