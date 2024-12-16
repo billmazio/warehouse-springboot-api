@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     fetchUsers,
     fetchUserDetails,
@@ -11,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./UserManagement.css";
 
 const UserManagement = () => {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [stores, setStores] = useState([]);
     const [loggedInUserRole, setLoggedInUserRole] = useState("");
@@ -114,12 +116,9 @@ const UserManagement = () => {
     return (
         <div className="user-management-container">
             <ToastContainer/>
-       {/*     <button
-                className="back-button"
-                onClick={() => window.history.back()} // Navigates to the previous page
-            >
-                Πίσω
-            </button>*/}
+            <button onClick={() => navigate("/dashboard")} className="back-button">
+                Πίσω στην Κεντρική Διαχείριση
+            </button>
 
             <h2>Διαχείριση Χρηστών</h2>
             {error && <p className="error-message">{error}</p>}

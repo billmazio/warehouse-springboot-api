@@ -99,7 +99,11 @@ const StoreManagement = () => {
 
     return (
         <div className="store-management-container">
-            <ToastContainer />
+            <ToastContainer/>
+            <button onClick={() => navigate("/dashboard")} className="back-button">
+                Πίσω στην Κεντρική Διαχείριση
+            </button>
+
             <h2>Διαχείριση Αποθηκών</h2>
             {error && <p className="error-message">{error}</p>}
 
@@ -109,13 +113,13 @@ const StoreManagement = () => {
                         type="text"
                         placeholder="Εισάγετε τίτλο αποθήκης"
                         value={newStore.title}
-                        onChange={(e) => setNewStore({ ...newStore, title: e.target.value })}
+                        onChange={(e) => setNewStore({...newStore, title: e.target.value})}
                     />
                     <input
                         type="text"
                         placeholder="Εισάγετε διεύθυνση αποθήκης"
                         value={newStore.address}
-                        onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
+                        onChange={(e) => setNewStore({...newStore, address: e.target.value})}
                     />
                     <label>
                         Enable:
@@ -123,7 +127,7 @@ const StoreManagement = () => {
                             type="checkbox"
                             checked={newStore.enable === 1}
                             onChange={(e) =>
-                                setNewStore({ ...newStore, enable: e.target.checked ? 1 : 0 })
+                                setNewStore({...newStore, enable: e.target.checked ? 1 : 0})
                             }
                         />
                     </label>

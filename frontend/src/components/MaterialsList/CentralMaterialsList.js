@@ -79,10 +79,10 @@ const CentralMaterialsList = () => {
             await editMaterial(editingMaterial.id, editFormData);
             setEditingMaterial(null);
             loadMaterials();
-            toast.success("Material updated successfully!");
+            toast.success("Το προϊόν ενημερώθηκε επιτυχώς!");
         } catch (err) {
-            console.error("Failed to update material", err);
-            toast.error("Failed to update material.");
+            console.error("Αποτυχία ενημέρωσης προϊόντος", err);
+            toast.error("Αποτυχία ενημέρωσης προϊόντος.");
         }
     };
 
@@ -101,11 +101,12 @@ const CentralMaterialsList = () => {
         try {
             await deleteMaterial(materialToDelete.id);
             setMaterials(materials.filter((m) => m.id !== materialToDelete.id));
-            toast.success("Material deleted successfully!");
+            toast.success("Το προϊόν διαγράφηκε επιτυχώς!");
         } catch (err) {
-            console.error("Failed to delete material", err);
-            toast.error("Failed to delete material.");
-        } finally {
+            console.error("Αποτυχία διαγραφής προϊόντος", err);
+            toast.error("Αποτυχία διαγραφής προϊόντος.");
+
+    } finally {
             closeConfirmationDialog();
         }
     };
