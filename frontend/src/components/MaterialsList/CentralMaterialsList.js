@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial, editMaterial } from "../../services/api";
-
+import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial, editMaterial, fetchUserDetails } from "../../services/api";
 import "./MaterialsList.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CentralMaterialsList = () => {
     const navigate = useNavigate();
@@ -17,9 +18,26 @@ const CentralMaterialsList = () => {
     const [editFormData, setEditFormData] = useState({ text: "", sizeId: "", quantity: "" });
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [materialToDelete, setMaterialToDelete] = useState(null);
+    const [loggedInUserRole, setLoggedInUserRole] = useState("");
     const [error, setError] = useState("");
 
-    // Fetch all materials with filters and pagination
+    // Fetch user role
+    useEffect(() => {
+        const loadUserDetails = async () => {
+            try {
+                const userDetails = await fetchUserDetails();
+                const roles = userDetails.roles.map((role) => role.name);
+                if (roles.includes("SUPER_ADMIN")) {
+                    setLoggedInUserRole("SUPER_ADMIN");
+                }
+            } catch (err) {
+                console.error("Failed to fetch user details", err);
+            }
+        };
+        loadUserDetails();
+    }, []);
+
+    // Fetch materials and sizes
     const loadMaterials = useCallback(async () => {
         try {
             const response = await fetchAllMaterialsPaginated(currentPage, 5, filterText, filterSize);
@@ -31,7 +49,6 @@ const CentralMaterialsList = () => {
         }
     }, [currentPage, filterText, filterSize]);
 
-    // Fetch available sizes
     const loadSizes = useCallback(async () => {
         try {
             const sizesData = await fetchSizes();
@@ -47,18 +64,7 @@ const CentralMaterialsList = () => {
         loadSizes();
     }, [loadMaterials, loadSizes]);
 
-    // Open confirmation dialog for delete
-    const openConfirmationDialog = (material) => {
-        setMaterialToDelete(material);
-        setShowConfirmation(true);
-    };
-
-    // Close confirmation dialog
-    const closeConfirmationDialog = () => {
-        setShowConfirmation(false);
-        setMaterialToDelete(null);
-    };
-
+    // Edit handlers
     const handleEditClick = (material) => {
         setEditingMaterial(material);
         setEditFormData({
@@ -67,42 +73,53 @@ const CentralMaterialsList = () => {
             quantity: material.quantity,
         });
     };
+
     const handleSaveEdit = async () => {
         try {
-            await editMaterial(editingMaterial.id, editFormData); // Send updated data to API
-            setEditingMaterial(null); // Close the form
-            loadMaterials(); // Refresh the list
+            await editMaterial(editingMaterial.id, editFormData);
+            setEditingMaterial(null);
+            loadMaterials();
+            toast.success("Material updated successfully!");
         } catch (err) {
             console.error("Failed to update material", err);
-            setError("Failed to update material.");
+            toast.error("Failed to update material.");
         }
     };
 
+    // Delete handlers
+    const openConfirmationDialog = (material) => {
+        setMaterialToDelete(material);
+        setShowConfirmation(true);
+    };
 
-    // Confirm delete
+    const closeConfirmationDialog = () => {
+        setShowConfirmation(false);
+        setMaterialToDelete(null);
+    };
+
     const confirmDelete = async () => {
         try {
             await deleteMaterial(materialToDelete.id);
             setMaterials(materials.filter((m) => m.id !== materialToDelete.id));
-            closeConfirmationDialog();
+            toast.success("Material deleted successfully!");
         } catch (err) {
             console.error("Failed to delete material", err);
+            toast.error("Failed to delete material.");
+        } finally {
+            closeConfirmationDialog();
         }
-    };
-
-    const handleFilter = () => {
-        setCurrentPage(0);
-        loadMaterials();
     };
 
     return (
         <div className="store-management-container">
+            <ToastContainer />
             <button onClick={() => navigate("/dashboard")} className="back-button">
                 Πίσω στην Κεντρική Διαχείριση
             </button>
 
             <h2>Διαχείριση Ενδυμάτων</h2>
 
+            {/* Filters */}
             <div className="store-create-form">
                 <input
                     type="text"
@@ -111,18 +128,19 @@ const CentralMaterialsList = () => {
                     onChange={(e) => setFilterText(e.target.value)}
                 />
                 <select value={filterSize} onChange={(e) => setFilterSize(e.target.value)}>
-                    <option  value="">Φίλτρο ανά μέγεθος</option>
+                    <option value="">Φίλτρο ανά μέγεθος</option>
                     {sizes.map((size) => (
                         <option key={size.id} value={size.id}>
                             {size.name}
                         </option>
                     ))}
                 </select>
-                <button className="create-button" onClick={handleFilter}>
+                <button className="create-button" onClick={loadMaterials}>
                     Φιλτράρισμα
                 </button>
             </div>
 
+            {/* Materials Table */}
             <table className="store-table">
                 <thead>
                 <tr>
@@ -133,54 +151,35 @@ const CentralMaterialsList = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {materials.length > 0 ? (
-                    materials.map((material) => (
-                        <tr key={material.id}>
-                            <td>{material.text}</td>
-                            <td>{material.sizeName}</td>
-                            <td>{material.quantity}</td>
-                            <td>
-                                <button
-                                    className="view-button"
-                                    onClick={() => handleEditClick(material)}
-                                >
-                                    Επεξεργασία
-                                </button>
-
-                                <button
-                                    className="delete-button"
-                                    onClick={() => openConfirmationDialog(material)}
-                                >
-                                    Διαγραφή
-                                </button>
-                            </td>
-                        </tr>
-                    ))
-                ) : (
-                    <tr>
-                        <td colSpan="4">Δεν υπάρχουν ενδύματα.</td>
+                {materials.map((material) => (
+                    <tr key={material.id}>
+                        <td>{material.text}</td>
+                        <td>{material.sizeName}</td>
+                        <td>{material.quantity}</td>
+                        <td>
+                            {loggedInUserRole === "SUPER_ADMIN" && (
+                                <>
+                                    <button
+                                        className="view-button"
+                                        onClick={() => handleEditClick(material)}
+                                    >
+                                        Επεξεργασία
+                                    </button>
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => openConfirmationDialog(material)}
+                                    >
+                                        Διαγραφή
+                                    </button>
+                                </>
+                            )}
+                        </td>
                     </tr>
-                )}
+                ))}
                 </tbody>
             </table>
 
-            <div className="pagination">
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-                    disabled={currentPage === 0}
-                >
-                    Προηγούμενη
-                </button>
-                <span>
-                    Σελίδα {currentPage + 1} από {totalPages}
-                </span>
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
-                    disabled={currentPage >= totalPages - 1}
-                >
-                    Επόμενη
-                </button>
-            </div>
+            {/* Edit Modal */}
             {editingMaterial && (
                 <div className="edit-modal">
                     <h3>Επεξεργασία Προϊόντος</h3>
@@ -218,8 +217,7 @@ const CentralMaterialsList = () => {
                 </div>
             )}
 
-
-            {/* Confirmation Dialog */}
+            {/* Delete Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">
                     <div className="confirmation-content">
@@ -228,16 +226,10 @@ const CentralMaterialsList = () => {
                             <strong>{materialToDelete?.text}</strong>;
                         </p>
                         <div className="materials-confirmation-actions">
-                            <button
-                                className="materials-cancel-button"
-                                onClick={closeConfirmationDialog}
-                            >
+                            <button className="materials-cancel-button" onClick={closeConfirmationDialog}>
                                 Ακύρωση
                             </button>
-                            <button
-                                className="materials-confirm-button"
-                                onClick={confirmDelete}
-                            >
+                            <button className="materials-confirm-button" onClick={confirmDelete}>
                                 Επιβεβαίωση
                             </button>
                         </div>
@@ -246,7 +238,6 @@ const CentralMaterialsList = () => {
             )}
         </div>
     );
-
 };
 
 export default CentralMaterialsList;

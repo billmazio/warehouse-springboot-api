@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import { fetchStores, fetchUserDetails, fetchMaterialsByStoreId, createStore, deleteStore } from "../../services/api";
+import { fetchStores, fetchUserDetails, createStore, deleteStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
