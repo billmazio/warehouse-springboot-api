@@ -181,15 +181,14 @@ export const fetchAllMaterialsPaginated = async (page = 0, size = 5, text = "", 
 };
 
 export const deleteMaterial = async (id) => {
-    const response = await fetch(`/api/materials/${id}`, {
-        method: "DELETE",
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to delete material");
+    try {
+        const response = await api.delete(`/api/materials/${id}`);
+        return response.data;
+    } catch (err) {
+        console.error("Error in deleteStore:", err.response || err.message);
+        throw err;
     }
 };
-
 
 export const fetchSizes = async () => {
     const response = await api.get("/api/sizes"); // Replace with your API endpoint
