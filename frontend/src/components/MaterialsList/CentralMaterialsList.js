@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial } from "../../services/api";
+import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial, editMaterial } from "../../services/api";
+
 import "./MaterialsList.css";
 
 const CentralMaterialsList = () => {
@@ -12,6 +13,8 @@ const CentralMaterialsList = () => {
     const [filterSize, setFilterSize] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [editingMaterial, setEditingMaterial] = useState(null);
+    const [editFormData, setEditFormData] = useState({ text: "", sizeId: "", quantity: "" });
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [materialToDelete, setMaterialToDelete] = useState(null);
     const [error, setError] = useState("");
@@ -55,6 +58,26 @@ const CentralMaterialsList = () => {
         setShowConfirmation(false);
         setMaterialToDelete(null);
     };
+
+    const handleEditClick = (material) => {
+        setEditingMaterial(material);
+        setEditFormData({
+            text: material.text,
+            sizeId: material.sizeId,
+            quantity: material.quantity,
+        });
+    };
+    const handleSaveEdit = async () => {
+        try {
+            await editMaterial(editingMaterial.id, editFormData); // Send updated data to API
+            setEditingMaterial(null); // Close the form
+            loadMaterials(); // Refresh the list
+        } catch (err) {
+            console.error("Failed to update material", err);
+            setError("Failed to update material.");
+        }
+    };
+
 
     // Confirm delete
     const confirmDelete = async () => {
@@ -117,7 +140,13 @@ const CentralMaterialsList = () => {
                             <td>{material.sizeName}</td>
                             <td>{material.quantity}</td>
                             <td>
-                                <button className="view-button">Επεξεργασία</button>
+                                <button
+                                    className="view-button"
+                                    onClick={() => handleEditClick(material)}
+                                >
+                                    Επεξεργασία
+                                </button>
+
                                 <button
                                     className="delete-button"
                                     onClick={() => openConfirmationDialog(material)}
@@ -152,6 +181,43 @@ const CentralMaterialsList = () => {
                     Επόμενη
                 </button>
             </div>
+            {editingMaterial && (
+                <div className="edit-modal">
+                    <h3>Επεξεργασία Προϊόντος</h3>
+                    <input
+                        type="text"
+                        placeholder="Προϊόν"
+                        value={editFormData.text}
+                        onChange={(e) => setEditFormData({ ...editFormData, text: e.target.value })}
+                    />
+                    <select
+                        value={editFormData.sizeId}
+                        onChange={(e) => setEditFormData({ ...editFormData, sizeId: e.target.value })}
+                    >
+                        <option value="">Επιλέξτε μέγεθος</option>
+                        {sizes.map((size) => (
+                            <option key={size.id} value={size.id}>
+                                {size.name}
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        type="number"
+                        placeholder="Ποσότητα"
+                        value={editFormData.quantity}
+                        onChange={(e) => setEditFormData({ ...editFormData, quantity: e.target.value })}
+                    />
+                    <div className="materials-confirmation-actions">
+                        <button className="materials-cancel-button" onClick={() => setEditingMaterial(null)}>
+                            Ακύρωση
+                        </button>
+                        <button className="materials-confirm-button" onClick={handleSaveEdit}>
+                            Αποθήκευση
+                        </button>
+                    </div>
+                </div>
+            )}
+
 
             {/* Confirmation Dialog */}
             {showConfirmation && (
@@ -180,6 +246,7 @@ const CentralMaterialsList = () => {
             )}
         </div>
     );
+
 };
 
 export default CentralMaterialsList;

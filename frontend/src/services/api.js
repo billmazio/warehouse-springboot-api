@@ -180,6 +180,17 @@ export const fetchAllMaterialsPaginated = async (page = 0, size = 5, text = "", 
     }
 };
 
+export const editMaterial = async (id, updatedData) => {
+    try {
+        const response = await api.put(`/api/materials/${id}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("Error in editMaterial:", error.response || error.message);
+        throw error;
+    }
+};
+
+
 export const deleteMaterial = async (id) => {
     try {
         const response = await api.delete(`/api/materials/${id}`);
