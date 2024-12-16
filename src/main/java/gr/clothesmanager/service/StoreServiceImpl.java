@@ -76,17 +76,20 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
-        // Find the existing store entity
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
 
-        // Update the entity fields
+        if (storeDTO.getTitle() == null || storeDTO.getAddress() == null) {
+            throw new IllegalArgumentException("Title and Address cannot be null.");
+        }
+
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
+        store.setEnable(storeDTO.getEnable());
 
-        // Save the updated store
         storeRepository.save(store);
     }
+
 
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import { fetchStores, fetchUserDetails, createStore, deleteStore } from "../../services/api";
+import { useNavigate } from "react-router-dom";
+import { fetchStores, fetchUserDetails, createStore, deleteStore, editStore } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
@@ -9,17 +9,16 @@ const StoreManagement = () => {
     const [stores, setStores] = useState([]);
     const [loggedInUserRole, setLoggedInUserRole] = useState("");
     const [error, setError] = useState("");
+    const [editingStore, setEditingStore] = useState(null);
+    const [editFormData, setEditFormData] = useState({ title: "", address: "", enable: 1 });
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [storeToDelete, setStoreToDelete] = useState(null);
     const [newStore, setNewStore] = useState({
         title: "",
         address: "",
-        enable: 1, // Default to Active
+        enable: 1,
     });
-    const [selectedStore, setSelectedStore] = useState(null);
-    const [materials, setMaterials] = useState([]);
-    const [showMaterialsModal, setShowMaterialsModal] = useState(false);
-    const navigate = useNavigate(); // To navigate to the materials route
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadData = async () => {
@@ -68,6 +67,23 @@ const StoreManagement = () => {
         }
     };
 
+    const handleUpdateStore = async () => {
+        if (!editingStore) return;
+
+        try {
+            await editStore(editingStore.id, editFormData);
+            setStores(
+                stores.map((store) =>
+                    store.id === editingStore.id ? { ...store, ...editFormData } : store
+                )
+            );
+            toast.success("Η αποθήκη ενημερώθηκε επιτυχώς!");
+            setEditingStore(null);
+        } catch (err) {
+            console.error("Error updating store:", err);
+            toast.error("Αποτυχία ενημέρωσης αποθήκης.");
+        }
+    };
 
     const handleCreate = async () => {
         if (loggedInUserRole !== "SUPER_ADMIN") {
@@ -83,7 +99,7 @@ const StoreManagement = () => {
         try {
             const createdStore = await createStore(newStore);
             setStores([...stores, createdStore]);
-            setNewStore({ title: "", address: "", enable: 1 }); // Reset form
+            setNewStore({ title: "", address: "", enable: 1 });
             toast.success("Η αποθήκη δημιουργήθηκε επιτυχώς.");
         } catch (err) {
             console.error("Error creating store:", err);
@@ -92,17 +108,12 @@ const StoreManagement = () => {
     };
 
     const handleCancel = () => {
-        setNewStore({ title: "", address: "", enable: 1 }); // Reset form
-    };
-
-    const handleViewMaterials = (store) => {
-        // Navigate to the materials route with the store ID
-        navigate(`/materials/${store.id}`);
+        setNewStore({ title: "", address: "", enable: 1 });
     };
 
     return (
         <div className="store-management-container">
-            <ToastContainer/>
+            <ToastContainer />
             <button onClick={() => navigate("/dashboard")} className="back-button">
                 Πίσω στην Κεντρική Διαχείριση
             </button>
@@ -116,13 +127,13 @@ const StoreManagement = () => {
                         type="text"
                         placeholder="Εισάγετε τίτλο αποθήκης"
                         value={newStore.title}
-                        onChange={(e) => setNewStore({...newStore, title: e.target.value})}
+                        onChange={(e) => setNewStore({ ...newStore, title: e.target.value })}
                     />
                     <input
                         type="text"
                         placeholder="Εισάγετε διεύθυνση αποθήκης"
                         value={newStore.address}
-                        onChange={(e) => setNewStore({...newStore, address: e.target.value})}
+                        onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
                     />
                     <label>
                         Enable:
@@ -130,15 +141,12 @@ const StoreManagement = () => {
                             type="checkbox"
                             checked={newStore.enable === 1}
                             onChange={(e) =>
-                                setNewStore({...newStore, enable: e.target.checked ? 1 : 0})
+                                setNewStore({ ...newStore, enable: e.target.checked ? 1 : 0 })
                             }
                         />
                     </label>
                     <button className="create-button" onClick={handleCreate}>
                         Δημιουργία Αποθήκης
-                    </button>
-                    <button className="cancel-button" onClick={handleCancel}>
-                        Ακύρωση
                     </button>
                 </div>
             )}
@@ -162,6 +170,19 @@ const StoreManagement = () => {
                             {loggedInUserRole === "SUPER_ADMIN" && (
                                 <div>
                                     <button
+                                        className="edit-button"
+                                        onClick={() => {
+                                            setEditingStore(store);
+                                            setEditFormData({
+                                                title: store.title,
+                                                address: store.address,
+                                                enable: store.enable,
+                                            });
+                                        }}
+                                    >
+                                        Επεξεργασία
+                                    </button>
+                                    <button
                                         className="delete-button"
                                         onClick={() => openConfirmationDialog(store)}
                                     >
@@ -173,7 +194,6 @@ const StoreManagement = () => {
                                     >
                                         <i className="fa fa-eye"></i> Προβολή
                                     </button>
-
                                 </div>
                             )}
                         </td>
@@ -181,6 +201,42 @@ const StoreManagement = () => {
                 ))}
                 </tbody>
             </table>
+
+            {editingStore && (
+                <div className="edit-modal">
+                    <h3>Επεξεργασία Αποθήκης</h3>
+                    <input
+                        type="text"
+                        placeholder="Τίτλος"
+                        value={editFormData.title}
+                        onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Διεύθυνση"
+                        value={editFormData.address}
+                        onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                    />
+                    <label>
+                        Enable:
+                        <input
+                            type="checkbox"
+                            checked={editFormData.enable === 1}
+                            onChange={(e) =>
+                                setEditFormData({ ...editFormData, enable: e.target.checked ? 1 : 0 })
+                            }
+                        />
+                    </label>
+                    <div className="edit-actions">
+                        <button className="save-button" onClick={handleUpdateStore}>
+                            Αποθήκευση
+                        </button>
+                        <button className="cancel-button" onClick={() => setEditingStore(null)}>
+                            Ακύρωση
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {showConfirmation && (
                 <div className="confirmation-dialog">
@@ -190,16 +246,10 @@ const StoreManagement = () => {
                             <strong>{storeToDelete?.title}</strong>;
                         </p>
                         <div className="store-confirmation-actions">
-                            <button
-                                className="store-cancel-button"
-                                onClick={closeConfirmationDialog}
-                            >
+                            <button className="store-cancel-button" onClick={closeConfirmationDialog}>
                                 Ακύρωση
                             </button>
-                            <button
-                                className="store-confirm-button"
-                                onClick={confirmDelete}
-                            >
+                            <button className="store-confirm-button" onClick={confirmDelete}>
                                 Επιβεβαίωση
                             </button>
                         </div>

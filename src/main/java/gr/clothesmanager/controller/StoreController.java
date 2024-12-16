@@ -55,6 +55,7 @@ public class StoreController {
 
     // Edit an existing store
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) throws StoreNotFoundException {
         storeService.edit(id, storeDTO);
         return ResponseEntity.noContent().build();

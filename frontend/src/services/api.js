@@ -134,6 +134,17 @@ export const createStore = async (storeData) => {
     }
 };
 
+export const editStore = async (id, updatedData) => {
+    try {
+        const response = await api.put(`/api/stores/${id}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating store:", error.response || error.message);
+        throw error;
+    }
+};
+
+
 export const deleteStore = async (id) => {
     try {
         const response = await api.delete(`/api/stores/${id}`);
