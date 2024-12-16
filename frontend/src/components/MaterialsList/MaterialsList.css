@@ -22,7 +22,7 @@
 
 .filters button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 4px;
@@ -30,7 +30,7 @@
 }
 
 .filters button:hover {
-    background-color: #0056b3;
+    background-color: #218838;
 }
 
 ul {
@@ -147,6 +147,14 @@ ul li {
     background-color: #388e3c; /* Darker green on hover */
     transform: scale(1.05); /* Subtle zoom effect */
 }
+
+select {
+    border-radius: 8px; /* Rounded corners */
+    padding: 8px 12px; /* Spacing inside the dropdown */
+    cursor: pointer;
+    outline: none;
+}
+
 .edit-modal {
     background-color: #fff;
     border-radius: 10px;
@@ -218,8 +226,9 @@ ul li {
 
 .edit-modal .button-group {
     display: flex;
-    justify-content: space-between;
-    gap: 10px; /* Consistent spacing between buttons */
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 15px; /* Add space between buttons */
     margin-top: 10px;
 }
+
 

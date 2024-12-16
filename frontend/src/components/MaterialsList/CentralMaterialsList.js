@@ -111,7 +111,7 @@ const CentralMaterialsList = () => {
                     onChange={(e) => setFilterText(e.target.value)}
                 />
                 <select value={filterSize} onChange={(e) => setFilterSize(e.target.value)}>
-                    <option value="">Φίλτρο ανά μέγεθος</option>
+                    <option  value="">Φίλτρο ανά μέγεθος</option>
                     {sizes.map((size) => (
                         <option key={size.id} value={size.id}>
                             {size.name}
