@@ -209,24 +209,24 @@ const StoreManagement = () => {
                         type="text"
                         placeholder="Τίτλος"
                         value={editFormData.title}
-                        onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                        onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
                     />
                     <input
                         type="text"
                         placeholder="Διεύθυνση"
                         value={editFormData.address}
-                        onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                        onChange={(e) => setEditFormData({...editFormData, address: e.target.value})}
                     />
-                    <label>
-                        Enable:
+                    <div className="checkbox-container">
+                        <label>Enable:</label>
                         <input
                             type="checkbox"
                             checked={editFormData.enable === 1}
                             onChange={(e) =>
-                                setEditFormData({ ...editFormData, enable: e.target.checked ? 1 : 0 })
+                                setEditFormData({...editFormData, enable: e.target.checked ? 1 : 0})
                             }
                         />
-                    </label>
+                    </div>
                     <div className="edit-actions">
                         <button className="cancel-button" onClick={() => setEditingStore(null)}>
                             Ακύρωση
@@ -240,7 +240,7 @@ const StoreManagement = () => {
 
             {showConfirmation && (
                 <div className="confirmation-dialog">
-                <div className="confirmation-content">
+                    <div className="confirmation-content">
                         <p>
                             Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη{" "}
                             <strong>{storeToDelete?.title}</strong>;

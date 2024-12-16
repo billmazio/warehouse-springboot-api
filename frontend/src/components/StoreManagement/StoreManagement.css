@@ -242,3 +242,20 @@
     justify-content: center; /* Center align buttons */
     gap: 15px; /* Space between buttons */
 }
+/* Align label and checkbox in one line */
+.checkbox-container {
+    display: flex;
+    align-items: center; /* Vertically align content */
+    gap: 10px; /* Space between label and checkbox */
+}
+
+.checkbox-container label {
+    font-size: 1rem; /* Adjust font size if needed */
+    color: #333; /* Text color */
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
