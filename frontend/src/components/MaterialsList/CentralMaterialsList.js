@@ -263,7 +263,7 @@ const CentralMaterialsList = () => {
                             <strong>{materialToDelete?.text}</strong>;
                         </p>
                         {/* Centered Buttons */}
-                        <div className="button-group">
+                        <div className="materials-button-group">
                             <button
                                 className="materials-cancel-button"
                                 onClick={closeConfirmationDialog}

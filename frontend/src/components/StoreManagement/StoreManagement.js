@@ -245,7 +245,7 @@ const StoreManagement = () => {
                             Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη{" "}
                             <strong>{storeToDelete?.title}</strong>;
                         </p>
-                        <div className="store-confirmation-actions">
+                        <div className="store-button-group">
                             <button className="store-cancel-button" onClick={closeConfirmationDialog}>
                                 Ακύρωση
                             </button>

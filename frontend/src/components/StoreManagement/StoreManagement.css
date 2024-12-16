@@ -124,37 +124,40 @@
     background-color: #dc3545;
 }
 
-
-
-.store-confirmation-actions .store-cancel-button,
-.store-confirmation-actions .store-confirm-button {
-    background-color: white;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    width: 150px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.store-button-group {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 20px; /* Space between buttons */
+    margin-top: 10px;
 }
 
-.store-confirmation-actions .store-cancel-button {
-    background-color: #c82333; /* Bright red for cancel */
-    color: white;
-    margin-right: 10px; /* Spacing between buttons */
+.store-cancel-button,
+.store-confirm-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
 
-.store-confirmation-actions .store-cancel-button:hover {
-    background-color: #dc3545; /* Darker red on hover */
-    transform: scale(1.05); /* Subtle zoom effect */
+.store-cancel-button {
+    background-color: #dc3545;
 }
 
-.store-confirmation-actions .store-confirm-button {
-    background-color: #4caf50; /* Bright green for confirm */
-    color: white;
+.store-cancel-button:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
 }
 
-.store-confirmation-actions .store-confirm-button:hover {
-    background-color: #388e3c; /* Darker green on hover */
-    transform: scale(1.05); /* Subtle zoom effect */
+.store-confirm-button {
+    background-color: #28a745;
+}
+
+.store-confirm-button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
 }
 
 

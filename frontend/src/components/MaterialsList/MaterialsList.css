@@ -275,7 +275,7 @@ select {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-.button-group {
+.materials-button-group {
     display: flex;
     justify-content: center; /* Center the buttons horizontally */
     gap: 20px; /* Space between buttons */
