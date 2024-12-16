@@ -211,15 +211,17 @@ const UserManagement = () => {
                         {/* Convert Integer to readable status */}
                         <td>{user.store?.title || "N/A"}</td>
                         <td>
-                            {loggedInUserRole === "SUPER_ADMIN" && (
-                                <button
-                                    className="delete-button"
-                                    onClick={() => openConfirmationDialog(user)}
-                                >
-                                    Διαγραφή
-                                </button>
-                            )}
+                            {loggedInUserRole === "SUPER_ADMIN" &&
+                                !user.roles.some((role) => role.name === "SUPER_ADMIN") && ( // Hide delete for SUPER_ADMIN
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => openConfirmationDialog(user)}
+                                    >
+                                        Διαγραφή
+                                    </button>
+                                )}
                         </td>
+
                     </tr>
                 ))}
                 </tbody>
