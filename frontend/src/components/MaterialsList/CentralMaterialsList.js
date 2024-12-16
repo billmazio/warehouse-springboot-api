@@ -142,6 +142,7 @@ const CentralMaterialsList = () => {
             </div>
 
             {/* Materials Table */}
+            {/* Materials Table */}
             <table className="store-table">
                 <thead>
                 <tr>
@@ -152,33 +153,61 @@ const CentralMaterialsList = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {materials.map((material) => (
-                    <tr key={material.id}>
-                        <td>{material.text}</td>
-                        <td>{material.sizeName}</td>
-                        <td>{material.quantity}</td>
-                        <td>
-                            {loggedInUserRole === "SUPER_ADMIN" && (
-                                <>
-                                    <button
-                                        className="view-button"
-                                        onClick={() => handleEditClick(material)}
-                                    >
-                                        Επεξεργασία
-                                    </button>
-                                    <button
-                                        className="delete-button"
-                                        onClick={() => openConfirmationDialog(material)}
-                                    >
-                                        Διαγραφή
-                                    </button>
-                                </>
-                            )}
-                        </td>
+                {materials.length > 0 ? (
+                    materials.map((material) => (
+                        <tr key={material.id}>
+                            <td>{material.text}</td>
+                            <td>{material.sizeName}</td>
+                            <td>{material.quantity}</td>
+                            <td>
+                                {loggedInUserRole === "SUPER_ADMIN" && (
+                                    <>
+                                        <button
+                                            className="view-button"
+                                            onClick={() => handleEditClick(material)}
+                                        >
+                                            Επεξεργασία
+                                        </button>
+                                        <button
+                                            className="delete-button"
+                                            onClick={() => openConfirmationDialog(material)}
+                                        >
+                                            Διαγραφή
+                                        </button>
+                                    </>
+                                )}
+                            </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="4">Δεν υπάρχουν διαθέσιμα προϊόντα.</td>
                     </tr>
-                ))}
+                )}
                 </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <div className="pagination">
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+                    disabled={currentPage === 0}
+                    className="pagination-button"
+                >
+                    Προηγούμενη
+                </button>
+                <span>
+        Σελίδα {currentPage + 1} από {totalPages}
+    </span>
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                    disabled={currentPage >= totalPages - 1}
+                    className="pagination-button"
+                >
+                    Επόμενη
+                </button>
+            </div>
+
 
             {/* Edit Modal */}
             {editingMaterial && (
