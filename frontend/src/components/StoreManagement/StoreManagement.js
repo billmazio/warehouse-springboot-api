@@ -127,13 +127,13 @@ const StoreManagement = () => {
                         type="text"
                         placeholder="Εισάγετε τίτλο αποθήκης"
                         value={newStore.title}
-                        onChange={(e) => setNewStore({ ...newStore, title: e.target.value })}
+                        onChange={(e) => setNewStore({...newStore, title: e.target.value})}
                     />
                     <input
                         type="text"
                         placeholder="Εισάγετε διεύθυνση αποθήκης"
                         value={newStore.address}
-                        onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
+                        onChange={(e) => setNewStore({...newStore, address: e.target.value})}
                     />
                     <label>
                         Enable:
@@ -141,14 +141,29 @@ const StoreManagement = () => {
                             type="checkbox"
                             checked={newStore.enable === 1}
                             onChange={(e) =>
-                                setNewStore({ ...newStore, enable: e.target.checked ? 1 : 0 })
+                                setNewStore({...newStore, enable: e.target.checked ? 1 : 0})
                             }
                         />
                     </label>
                     <button className="create-button" onClick={handleCreate}>
                         Δημιουργία Αποθήκης
                     </button>
+                    <div>
+                        <button
+                            className="cancel-button"
+                            onClick={() =>
+                                setNewStore({
+                                    title: "",
+                                    address: "",
+                                    enable: 1,
+                                })
+                            }
+                        >
+                            Ακύρωση
+                        </button>
+                    </div>
                 </div>
+
             )}
 
             <table className="stores-table">
