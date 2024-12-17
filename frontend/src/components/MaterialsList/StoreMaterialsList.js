@@ -68,7 +68,7 @@ const StoreMaterialsList = () => {
             {error && <p className="error-message">{error}</p>}
 
             {/* Filters */}
-            <div className="filters">
+            <div className="store-filters">
                 <input
                     type="text"
                     placeholder="Φίλτρο ανά προϊόν"

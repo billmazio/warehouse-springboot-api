@@ -151,7 +151,7 @@ const StoreManagement = () => {
                 </div>
             )}
 
-            <table className="store-table">
+            <table className="stores-table">
                 <thead>
                 <tr>
                     <th>ΤΙΤΛΟΣ</th>
@@ -203,7 +203,7 @@ const StoreManagement = () => {
             </table>
 
             {editingStore && (
-                <div className="edit-modal">
+                <div className="edit-modal-store">
                     <h3>Επεξεργασία Αποθήκης</h3>
                     <input
                         type="text"

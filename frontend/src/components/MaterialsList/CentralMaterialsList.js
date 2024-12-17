@@ -142,8 +142,7 @@ const CentralMaterialsList = () => {
             </div>
 
             {/* Materials Table */}
-            {/* Materials Table */}
-            <table className="store-table">
+            <table className="materials-table">
                 <thead>
                 <tr>
                     <th>Προϊόν</th>
