@@ -6,6 +6,29 @@
     border-radius: 8px;
     background-color: #f9f9f9;
 }
+.materials-management-container{
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.materials-create-form input,
+.materials-create-form select{
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+    color: #333;
+    max-width: 100%;
+    width: 300px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .filters {
     display: flex;
@@ -65,7 +88,7 @@ ul li {
 }
 
 .pagination button {
-    background-color: #3498db;
+    background-color: #007bff;
     color: #fff;
     border: none;
     padding: 8px 12px;
@@ -80,7 +103,7 @@ ul li {
 }
 
 .pagination button:hover:not(:disabled) {
-    background-color: #2980b9;
+    background-color: #0056b3;
 }
 
 .pagination span {
@@ -100,6 +123,25 @@ ul li {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
+.materials-create-form input:focus,
+.materials-create-form select:focus {
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+    border-color: #007bff;
+}
+
+.materials-create-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 
 .add-material-form button {
     background-color: #28a745;
@@ -148,12 +190,7 @@ ul li {
     transform: scale(1.05); /* Subtle zoom effect */
 }
 
-select {
-    border-radius: 8px; /* Rounded corners */
-    padding: 8px 12px; /* Spacing inside the dropdown */
-    cursor: pointer;
-    outline: none;
-}
+
 
 .edit-modal-materials {
     background-color: #fff;
@@ -275,10 +312,12 @@ select {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
+
+
 .materials-button-group {
     display: flex;
-    justify-content: center; /* Center the buttons horizontally */
-    gap: 20px; /* Space between buttons */
+    justify-content: center;
+    gap: 20px;
     margin-top: 10px;
 }
 

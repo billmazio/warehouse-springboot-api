@@ -112,7 +112,7 @@ const CentralMaterialsList = () => {
     };
 
     return (
-        <div className="store-management-container">
+        <div className="materials-management-container">
             <ToastContainer />
             <button onClick={() => navigate("/dashboard")} className="back-button">
                 Πίσω στην Κεντρική Διαχείριση
@@ -121,7 +121,7 @@ const CentralMaterialsList = () => {
             <h2>Διαχείριση Ενδυμάτων</h2>
 
             {/* Filters */}
-            <div className="store-create-form">
+            <div className="materials-create-form">
                 <input
                     type="text"
                     placeholder="Φίλτρο ανά προϊόν"
