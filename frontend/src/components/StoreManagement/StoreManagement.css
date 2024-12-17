@@ -436,7 +436,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 350px;
+    width: 400px;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -468,7 +468,7 @@
 }
 
 .edit-modal-store button {
-    padding: 10px;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     color: #fff;

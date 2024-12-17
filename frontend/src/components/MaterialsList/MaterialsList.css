@@ -348,7 +348,7 @@ ul li {
 .edit-modal-materials input,
 .edit-modal-materials select {
     width: 100%;
-    padding: 4px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
