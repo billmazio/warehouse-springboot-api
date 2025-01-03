@@ -344,7 +344,7 @@ const StoreManagement = () => {
             )}
             {/* Distribution Form */}
             {showDistributionForm && (
-                <div className="distribution-form">
+                <div className="distribution-modal">
                     <h3>Μεταφορά Υλικού</h3>
 
                     <select

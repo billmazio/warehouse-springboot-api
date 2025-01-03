@@ -496,12 +496,7 @@
     transform: scale(1.05);
 }
 
-.edit-modal-store .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
-}
+
 .edit-actions {
     display: flex;
     justify-content: center;
@@ -540,7 +535,7 @@
     background-color: #138496;
 }
 
-.distribution-form {
+.distribution-modal {
     background-color: #fff;
     border-radius: 4px;
     padding: 20px;
@@ -550,64 +545,72 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 350px;
+    width: 400px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    align-items: center;
 }
 
-
-.distribution-form h3 {
-    margin-bottom: 20px;
-    color: #333;
+.distribution-modal h3 {
+    margin-bottom: 15px;
+    text-align: center;
+    color: #2c3e50;
     font-size: 1.2rem;
+
 }
 
-.distribution-form select, .distribution-form input[type="number"] {
+.distribution-modal input,
+.distribution-modal select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     box-sizing: border-box;
     font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
 }
 
-.distribution-form select:focus, .distribution-form input[type="number"]:focus {
+.distribution-modal input:focus,
+.distribution-modal select:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    outline: none;
 }
 
-.distribution-form button {
-    background-color: #28a745;
-    color: #fff;
-    border: none;
+.distribution-modal button {
     padding: 10px 20px;
-    font-size: 1rem;
-    border-radius: 5px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s;
+
+}
+
+.button-container {
     display: flex;
     justify-content: center;
-
+    gap: 15px;
 }
 
-.distribution-form button:hover {
+.distribution-modal .distribution-button {
+    background-color: #28a745;
+}
+
+.distribution-modal .distribution-button:hover {
     background-color: #218838;
+    transform: scale(1.05);
 }
 
-.distribution-form .cancel-button {
+.distribution-modal .cancel-button {
     background-color: #dc3545;
-    margin-left: 10px;
 }
 
-.distribution-form .cancel-button:hover {
-    background-color: #c82333; /* Darker red on hover */
+.distribution-modal .cancel-button:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
 }
 
 
-.distribution-form .button-container { display: flex; /* Use flexbox */ justify-content: center; /* Center the buttons horizontally */ gap: 10px; /* Space between buttons */ margin-top: 20px; /* Space above the button container */ }
 
