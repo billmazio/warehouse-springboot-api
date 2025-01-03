@@ -85,6 +85,7 @@ public class MaterialServiceImpl implements MaterialService {
 
 
 
+
     @Transactional
     public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {
         Material material = materialRepository.findById(materialId)
