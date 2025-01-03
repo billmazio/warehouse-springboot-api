@@ -40,18 +40,21 @@ public class OrderController {
     public ResponseEntity<List<OrderDTO>> findAll() {
         return ResponseEntity.ok(orderService.findAll());
     }
+    
 
-    @PatchMapping("/{id}/accept")
-    public ResponseEntity<Void> accept(@PathVariable Long id) {
+    @PostMapping("/{id}/accept")
+    public ResponseEntity<Void> acceptOrder(@PathVariable Long id) {
         try {
             orderService.accept(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (OrderNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PatchMapping("/{id}/deny")
+    @PostMapping("/{id}/deny")
     public ResponseEntity<Void> deny(@PathVariable Long id) {
         try {
             orderService.deny(id);
@@ -71,3 +74,7 @@ public class OrderController {
         }
     }
 }
+
+
+
+

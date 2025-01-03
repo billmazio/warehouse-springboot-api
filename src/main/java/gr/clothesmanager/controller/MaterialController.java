@@ -44,9 +44,6 @@ public class MaterialController {
         }
     }
 
-
-
-
     @PostMapping("/{materialId}/distribute")
     public ResponseEntity<Void> distributeMaterial(
             @PathVariable Long materialId,
