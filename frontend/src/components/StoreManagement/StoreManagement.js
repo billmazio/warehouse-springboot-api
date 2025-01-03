@@ -14,6 +14,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
 
+const centralStoreId = 1;
+
 const StoreManagement = () => {
     const [stores, setStores] = useState([]);
     const [loggedInUserRole, setLoggedInUserRole] = useState("");
@@ -372,11 +374,13 @@ const StoreManagement = () => {
                         }
                     >
                         <option value="">Επιλέξτε Αποθήκη Προορισμού</option>
-                        {stores.map((store) => (
-                            <option key={store.id} value={store.id}>
-                                {store.title}
-                            </option>
-                        ))}
+                        {stores
+                            .filter((store) => store.id !== centralStoreId) // Exclude the central store
+                            .map((store) => (
+                                <option key={store.id} value={store.id}>
+                                    {store.title}
+                                </option>
+                            ))}
                     </select>
 
                     <input
@@ -401,7 +405,8 @@ const StoreManagement = () => {
                     </div>
                 </div>
             )}
-            
+
+
             {/* Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">

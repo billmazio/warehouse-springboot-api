@@ -233,6 +233,7 @@ export const distributeMaterial = async (payload) => {
     }
 };
 
+
 export const fetchSizes = async () => {
     const response = await api.get("/api/sizes");
     return response.data;
