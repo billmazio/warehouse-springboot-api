@@ -83,13 +83,13 @@ public class MaterialServiceImpl implements MaterialService {
                 .collect(Collectors.toList());
     }
 
-
-
-
     @Transactional
     public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {
+        LOGGER.info("Starting distribution: materialId={}, receiverStoreId={}, quantity={}", materialId, receiverStoreId, quantity);
+
         Material material = materialRepository.findById(materialId)
                 .orElseThrow(() -> new RuntimeException("Material not found"));
+        LOGGER.info("Fetched material: {}", material);
 
         if (material.getQuantity() < quantity) {
             throw new RuntimeException("Not enough material available for distribution");
@@ -97,10 +97,36 @@ public class MaterialServiceImpl implements MaterialService {
 
         Store receiverStore = storeRepository.findById(receiverStoreId)
                 .orElseThrow(() -> new RuntimeException("Store not found"));
+        LOGGER.info("Fetched receiver store: {}", receiverStore);
 
-        // Update the material's quantity in the central store
+        // Deduct quantity from central store
         material.setQuantity(material.getQuantity() - quantity);
         materialRepository.save(material);
+        LOGGER.info("Updated central store material quantity to {}", material.getQuantity());
+
+        // Check if material exists in receiver store with the same text and size
+        Optional<Material> receiverMaterialOpt = materialRepository.findByTextAndSize_IdAndStore_Id(
+                material.getText(), material.getSize().getId(), receiverStoreId);
+        LOGGER.info("Receiver material exists: {}", receiverMaterialOpt.isPresent());
+
+        Material receiverMaterial;
+        if (receiverMaterialOpt.isPresent()) {
+            // Update quantity in receiver store
+            receiverMaterial = receiverMaterialOpt.get();
+            receiverMaterial.setQuantity(receiverMaterial.getQuantity() + quantity);
+            LOGGER.info("Updated receiver material quantity to {}", receiverMaterial.getQuantity());
+        } else {
+            // Create new material in receiver store
+            receiverMaterial = new Material(
+                    material.getText(),
+                    quantity,
+                    material.getSize(),
+                    receiverStore
+            );
+            LOGGER.info("Created new material in receiver store: {}", receiverMaterial);
+        }
+        materialRepository.save(receiverMaterial);
+        LOGGER.info("Saved receiver material");
 
         // Record the distribution
         MaterialDistribution distribution = new MaterialDistribution();
@@ -109,7 +135,10 @@ public class MaterialServiceImpl implements MaterialService {
         distribution.setQuantity(quantity);
         distribution.setDistributionDate(LocalDate.now());
         materialDistributionRepository.save(distribution);
+        LOGGER.info("Recorded material distribution: {}", distribution);
     }
+
+
 
     @Transactional
     public MaterialDTO findById(Long id) throws MaterialNotFoundException {

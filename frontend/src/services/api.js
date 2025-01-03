@@ -4,16 +4,16 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 // Create an Axios instance
 const api = axios.create({
-    baseURL: API_BASE_URL, // Set the base URL for all API calls
-    timeout: 10000, // Optional: Set a timeout for requests (10 seconds)
+    baseURL: API_BASE_URL,
+    timeout: 10000,
 });
 
 // Add a request interceptor to include the token in headers
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token"); // Retrieve token from localStorage
+        const token = localStorage.getItem("token");
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`; // Add token to Authorization header
+            config.headers.Authorization = `Bearer ${token}`;
         } else {
             console.warn("No token found in localStorage! Some requests may fail.");
         }
@@ -25,15 +25,15 @@ api.interceptors.request.use(
     }
 );
 
-// Add a response interceptor for global error handling
+
 api.interceptors.response.use(
-    (response) => response, // Simply return the response if no error
+    (response) => response,
     (error) => {
         console.error("Error in Axios response interceptor:", error.response || error.message);
 
         if (error.response?.status === 401) {
             console.warn("Unauthorized! Redirecting to login...");
-            window.location.href = "/login"; // Redirect to login page
+            window.location.href = "/login"; //
         }
 
         if (error.response?.status === 403) {
@@ -44,12 +44,9 @@ api.interceptors.response.use(
     }
 );
 
-// Add reusable API functions
-
-// Fetch all users
 export const fetchUsers = async () => {
     try {
-        const response = await api.get("/api/users"); // API call to fetch users
+        const response = await api.get("/api/users");
         return response.data;
     } catch (err) {
         console.error("Error in fetchUsers:", err.response || err.message);
@@ -57,11 +54,9 @@ export const fetchUsers = async () => {
     }
 };
 
-
-// Delete a user
 export const deleteUser = async (userId) => {
     try {
-        const response = await api.delete(`/api/users/${userId}`); // API call to delete user
+        const response = await api.delete(`/api/users/${userId}`);
         return response.data;
     } catch (err) {
         console.error("Error in deleteUser:", err.response || err.message);
@@ -87,7 +82,6 @@ export const createUser = async (userData) => {
 };
 
 
-// Fetch dashboard data
 export const fetchDashboardData = async () => {
     try {
         const response = await api.get("/api/dashboard");
@@ -98,7 +92,7 @@ export const fetchDashboardData = async () => {
     }
 };
 
-// Fetch user details
+
 export const fetchUserDetails = async () => {
     try {
         const response = await api.get("/api/users/details");
@@ -112,7 +106,7 @@ export const fetchUserDetails = async () => {
 export const fetchStores = async () => {
     try {
         const response = await api.get("/api/stores"); // Use the correct endpoint
-        return response.data; // Ensure this returns an array of stores
+        return response.data;
     } catch (err) {
         console.error("Error fetching stores:", err.response || err.message);
         throw err;
@@ -183,7 +177,7 @@ export const fetchMaterialsByStoreId = async (storeId, page = 0, size = 5, text 
         const response = await api.get("/api/materials/paginated", {
             params: { storeId, page, size, text, sizeId },
         });
-        return response.data; // { content, totalPages, number }
+        return response.data;
     } catch (error) {
         console.error("Error fetching store materials:", error);
         throw error;
@@ -223,24 +217,26 @@ export const deleteMaterial = async (id) => {
     }
 };
 
-export const fetchSizes = async () => {
-    const response = await api.get("/api/sizes"); // Replace with your API endpoint
-    return response.data;
-};
-
 export const distributeMaterial = async (payload) => {
     try {
         const response = await api.post(
             `/api/materials/${payload.materialId}/distribute`,
-            payload
+            {
+                receiverStoreId: payload.receiverStoreId,
+                quantity: payload.quantity,
+            }
         );
         return response.data;
     } catch (error) {
-        console.error("Error distributing material:", error.response || error.message);
+        console.error("Error distributing material:", error);
         throw error;
     }
 };
 
+export const fetchSizes = async () => {
+    const response = await api.get("/api/sizes");
+    return response.data;
+};
 
 
 export const acceptOrder = async (orderId) => {
@@ -256,7 +252,7 @@ export const acceptOrder = async (orderId) => {
 
 
 // Logout
-export const logout = async () => {
+/*export const logout = async () => {
     try {
         const response = await api.post("/auth/logout");
         localStorage.removeItem("token");
@@ -265,7 +261,7 @@ export const logout = async () => {
         console.error("Error in logout:", err.response || err.message);
         throw err;
     }
-};
+};*/
 
 // Export the Axios instance
 export default api;

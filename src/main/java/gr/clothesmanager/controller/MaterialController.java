@@ -1,5 +1,6 @@
 package gr.clothesmanager.controller;
 
+import gr.clothesmanager.dto.DistributionRequestDTO;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.service.MaterialServiceImpl;
@@ -47,11 +48,16 @@ public class MaterialController {
     @PostMapping("/{materialId}/distribute")
     public ResponseEntity<Void> distributeMaterial(
             @PathVariable Long materialId,
-            @RequestParam Long receiverStoreId,
-            @RequestParam Integer quantity) {
-        materialService.distributeMaterial(materialId, receiverStoreId, quantity);
+            @RequestBody DistributionRequestDTO distributionRequest) {
+
+        materialService.distributeMaterial(
+                materialId,
+                distributionRequest.getReceiverStoreId(),
+                distributionRequest.getQuantity()
+        );
         return ResponseEntity.ok().build();
     }
+
 
     @GetMapping
     public ResponseEntity<List<MaterialDTO>> findAll(
