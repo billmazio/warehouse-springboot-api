@@ -128,11 +128,6 @@ const Dashboard = () => {
                             <h3>Διαχείριση Ενδυμάτων</h3>
                             <p>Καταχωρημένα: {dashboardData.materials}</p>
                         </div>
-                        <div className="card" onClick={() => handleNavigation("/dashboard/manage-sizes")}>
-                            <i className="fa fa-ruler card-icon"></i>
-                            <h3>Διαχείριση Μεγεθών</h3>
-                            <p>Συνολικά Μεγέθη: {dashboardData.sizes}</p>
-                        </div>
                         <div className="card" onClick={() => handleNavigation("/dashboard/manage-orders")}>
                             <i className="fa fa-shopping-cart card-icon"></i>
                             <h3>Παραγγελίες</h3>

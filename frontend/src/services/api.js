@@ -2,13 +2,13 @@ import axios from "axios";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
-// Create an Axios instance
+
 const api = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
 });
 
-// Add a request interceptor to include the token in headers
+
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
@@ -240,7 +240,7 @@ export const fetchSizes = async () => {
 };
 
 
-export const acceptOrder = async (orderId) => {
+/*export const acceptOrder = async (orderId) => {
     try {
         const response = await api.post(`/api/orders/${orderId}/accept`);
         return response.data;
@@ -248,7 +248,7 @@ export const acceptOrder = async (orderId) => {
         console.error("Error accepting order:", error.response || error.message);
         throw error;
     }
-};
+};*/
 
 
 
