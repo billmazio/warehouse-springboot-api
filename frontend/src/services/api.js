@@ -166,6 +166,17 @@ export const fetchStoreDetails = async (storeId) => {
     }
 };
 
+export const fetchMaterials = async () => {
+    try {
+        const response = await api.get('/api/materials');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching materials:', error);
+        throw error;
+    }
+};
+
+
 
 export const fetchMaterialsByStoreId = async (storeId, page = 0, size = 5, text = "", sizeId = "") => {
     try {
@@ -216,6 +227,32 @@ export const fetchSizes = async () => {
     const response = await api.get("/api/sizes"); // Replace with your API endpoint
     return response.data;
 };
+
+export const distributeMaterial = async (payload) => {
+    try {
+        const response = await api.post(
+            `/api/materials/${payload.materialId}/distribute`,
+            payload
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error distributing material:", error.response || error.message);
+        throw error;
+    }
+};
+
+
+
+export const acceptOrder = async (orderId) => {
+    try {
+        const response = await api.post(`/api/orders/${orderId}/accept`);
+        return response.data;
+    } catch (error) {
+        console.error("Error accepting order:", error.response || error.message);
+        throw error;
+    }
+};
+
 
 
 // Logout
