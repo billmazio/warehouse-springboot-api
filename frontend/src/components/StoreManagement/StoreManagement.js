@@ -379,7 +379,6 @@ const StoreManagement = () => {
                         ))}
                     </select>
 
-                    {/* Quantity Input */}
                     <input
                         type="number"
                         placeholder="Ποσότητα"
@@ -392,20 +391,17 @@ const StoreManagement = () => {
                         }
                     />
 
-                    <button className="transfer-button" onClick={handleDistributeMaterial}>
-                        Μεταφορά
-                    </button>
-                    <button
-                        className="cancel-button"
-                        onClick={() => setShowDistributionForm(false)}
-                    >
-                        Ακύρωση
-                    </button>
+                    <div className="button-container">
+                        <button className="cancel-button" onClick={() => setShowDistributionForm(false)}>
+                            Ακύρωση
+                        </button>
+                        <button className="distribution-button" onClick={handleDistributeMaterial}>
+                            Μεταφορά
+                        </button>
+                    </div>
                 </div>
             )}
-
-
-
+            
             {/* Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">
