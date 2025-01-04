@@ -7,15 +7,13 @@ import UserManagement from "./components/UserManagement/UserManagement";
 import StoreManagement from "./components/StoreManagement/StoreManagement";
 import CentralMaterialsList from "./components/MaterialsList/CentralMaterialsList";
 import StoreMaterialsList from "./components/MaterialsList/StoreMaterialsList";
+import OrderManagement from "./components/OrderManagement/OrderManagement";  // Import the new component
 
 const App = () => {
     return (
         <Router>
             <Routes>
-                {/* Login Route */}
                 <Route path="/login" element={<Login />} />
-
-                {/* Protected Dashboard Route */}
                 <Route
                     path="/dashboard"
                     element={
@@ -28,9 +26,8 @@ const App = () => {
                     <Route path="manage-stores" element={<StoreManagement />} />
                     <Route path="manage-materials" element={<CentralMaterialsList />} />
                     <Route path="manage-stores/:storeId/materials" element={<StoreMaterialsList />} />
+                    <Route path="manage-orders" element={<OrderManagement />} />  {/* Add this route */}
                 </Route>
-
-                {/* Fallback Route */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Router>

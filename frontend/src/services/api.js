@@ -240,16 +240,65 @@ export const fetchSizes = async () => {
 };
 
 
-/*export const acceptOrder = async (orderId) => {
+export const fetchOrders = async () => {
     try {
-        const response = await api.post(`/api/orders/${orderId}/accept`);
+        const response = await api.get('/api/orders');
         return response.data;
     } catch (error) {
-        console.error("Error accepting order:", error.response || error.message);
+        console.error('Error fetching orders:', error);
         throw error;
     }
-};*/
+};
 
+export const fetchOrderById = async (id) => {
+    try {
+        const response = await api.get(`/api/orders/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching order:', error);
+        throw error;
+    }
+};
+
+export const createOrder = async (order) => {
+    try {
+        const response = await api.post('/api/orders', order);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating order:', error);
+        throw error;
+    }
+};
+
+export const acceptOrder = async (id) => {
+    try {
+        const response = await api.post(`/api/orders/${id}/accept`);
+        return response.data;
+    } catch (error) {
+        console.error('Error accepting order:', error);
+        throw error;
+    }
+};
+
+export const denyOrder = async (id) => {
+    try {
+        const response = await api.post(`/api/orders/${id}/deny`);
+        return response.data;
+    } catch (error) {
+        console.error('Error denying order:', error);
+        throw error;
+    }
+};
+
+export const deleteOrder = async (id) => {
+    try {
+        const response = await api.delete(`/api/orders/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        throw error;
+    }
+};
 
 
 // Logout
@@ -266,3 +315,9 @@ export const fetchSizes = async () => {
 
 // Export the Axios instance
 export default api;
+
+
+
+
+
+
