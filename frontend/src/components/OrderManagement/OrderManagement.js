@@ -209,23 +209,21 @@ const OrderManagement = () => {
             <table className="order-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Ποσότητα</th>
-                    <th>Ημερομηνία Παραγγελίας</th>
-                    <th>User ID</th>
-                    <th>Αποθήκη</th>
-                    <th>Υλικό</th>
-                    <th>Κατάσταση</th>
-                    <th>Πουλημένο</th>
-                    <th>Απόθεμα</th>
-                    <th>Μέγεθος</th>
-                    <th>Ενέργειες</th>
+                    <th>ΠΟΣΟΤΗΤΑ</th>
+                    <th>ΗΜΕΡΟΜΗΝΙΑ ΠΑΡΑΓΓΕΛΙΑΣ</th>
+                    <th>ΧΡΗΣΤΗΣ</th>
+                    <th>ΑΠΟΘΗΚΗ</th>
+                    <th>ΥΛΙΚΟ</th>
+                    <th>ΚΑΤΑΣΤΑΣΗ</th>
+                    <th>ΠΟΥΛΗΜΕΝΟ</th>
+                    <th>ΑΠΟΘΕΜΑ</th>
+                    <th>ΜΕΓΕΘΟΣ</th>
+                    <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
                 <tbody>
                 {orders.map((order) => (
                     <tr key={order.id}>
-                        <td>{order.id}</td>
                         <td>{order.quantity}</td>
                         <td>{order.dateOfOrder}</td>
                         <td>{order.user?.id}</td>

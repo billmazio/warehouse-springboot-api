@@ -145,10 +145,10 @@ const CentralMaterialsList = () => {
             <table className="materials-table">
                 <thead>
                 <tr>
-                    <th>Προϊόν</th>
-                    <th>Μέγεθος</th>
-                    <th>Ποσότητα</th>
-                    <th>Ενέργειες</th>
+                    <th>ΠΡΟΪΟΝ</th>
+                    <th>ΜΕΓΕΘΟΣ</th>
+                    <th>ΠΟΣΟΤΗΤΑ</th>
+                    <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
                 <tbody>
