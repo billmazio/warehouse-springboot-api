@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial, editMaterial, fetchUserDetails } from "../../services/api";
+import { fetchAllMaterialsPaginated, fetchSizes, deleteMaterial, editMaterial, fetchUserDetails, fetchStores } from "../../services/api";
 import "./MaterialsList.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,6 +10,7 @@ const CentralMaterialsList = () => {
 
     const [materials, setMaterials] = useState([]);
     const [sizes, setSizes] = useState([]);
+    const [stores, setStores] = useState([]);
     const [filterText, setFilterText] = useState("");
     const [filterSize, setFilterSize] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
@@ -20,6 +21,7 @@ const CentralMaterialsList = () => {
     const [materialToDelete, setMaterialToDelete] = useState(null);
     const [loggedInUserRole, setLoggedInUserRole] = useState("");
     const [error, setError] = useState("");
+
 
     // Fetch user role
     useEffect(() => {
@@ -37,7 +39,7 @@ const CentralMaterialsList = () => {
         loadUserDetails();
     }, []);
 
-    // Fetch materials and sizes
+    // Fetch materials, sizes, and stores
     const loadMaterials = useCallback(async () => {
         try {
             const response = await fetchAllMaterialsPaginated(currentPage, 5, filterText, filterSize);
@@ -59,10 +61,21 @@ const CentralMaterialsList = () => {
         }
     }, []);
 
+    const loadStores = useCallback(async () => {
+        try {
+            const storesData = await fetchStores();
+            setStores(storesData);
+        } catch (err) {
+            setError("Failed to fetch stores.");
+            console.error(err);
+        }
+    }, []);
+
     useEffect(() => {
         loadMaterials();
         loadSizes();
-    }, [loadMaterials, loadSizes]);
+        loadStores();
+    }, [loadMaterials, loadSizes, loadStores]);
 
     // Edit handlers
     const handleEditClick = (material) => {
@@ -105,10 +118,14 @@ const CentralMaterialsList = () => {
         } catch (err) {
             console.error("Αποτυχία διαγραφής προϊόντος", err);
             toast.error("Αποτυχία διαγραφής προϊόντος.");
-
-    } finally {
+        } finally {
             closeConfirmationDialog();
         }
+    };
+
+    const getStoreTitle = (storeId) => {
+        const store = stores.find(store => store.id === storeId);
+        return store ? store.title : '';
     };
 
     return (
@@ -119,8 +136,8 @@ const CentralMaterialsList = () => {
             </button>
 
             <h2>Διαχείριση Ενδυμάτων</h2>
+            {error && <p className="error-message">{error}</p>}
 
-            {/* Filters */}
             <div className="materials-create-form">
                 <input
                     type="text"
@@ -148,6 +165,7 @@ const CentralMaterialsList = () => {
                     <th>ΠΡΟΪΟΝ</th>
                     <th>ΜΕΓΕΘΟΣ</th>
                     <th>ΠΟΣΟΤΗΤΑ</th>
+                    <th>ΑΠΟΘΗΚΗ</th>
                     <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
@@ -158,6 +176,8 @@ const CentralMaterialsList = () => {
                             <td>{material.text}</td>
                             <td>{material.sizeName}</td>
                             <td>{material.quantity}</td>
+                            <td>{getStoreTitle(material.storeId)}</td> {/* Get store title instead of ID */}
+
                             <td>
                                 {loggedInUserRole === "SUPER_ADMIN" && (
                                     <>
