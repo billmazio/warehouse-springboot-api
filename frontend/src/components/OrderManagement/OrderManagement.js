@@ -14,7 +14,6 @@ const OrderManagement = () => {
     const [stores, setStores] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [uniqueMaterials, setUniqueMaterials] = useState([]);
-    const [filteredSizes, setFilteredSizes] = useState([]);
     const [error, setError] = useState("");
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -61,14 +60,6 @@ const OrderManagement = () => {
         loadData();
     }, []);
 
-    useEffect(() => {
-        if (newOrder.materialId) {
-            const materialSizes = sizes.filter(size => size.materialId === newOrder.materialId);
-            setFilteredSizes(materialSizes);
-        } else {
-            setFilteredSizes([]);
-        }
-    }, [newOrder.materialId, sizes]);
 
     const openConfirmationDialog = (order) => {
         setOrderToDelete(order);
@@ -188,7 +179,7 @@ const OrderManagement = () => {
                     onChange={(e) => setNewOrder({...newOrder, sizeId: e.target.value})}
                 >
                     <option value="">Επιλέξτε Μέγεθος</option>
-                    {filteredSizes.map(size => (
+                    {sizes.map(size => (
                         <option key={size.id} value={size.id}>
                             {size.name}
                         </option>

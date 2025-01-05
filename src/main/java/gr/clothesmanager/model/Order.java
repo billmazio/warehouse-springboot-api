@@ -22,7 +22,7 @@ public class Order {
     private Integer quantity;
 
     @Column(name = "date_of_order")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "dd/mm/yyyy")
     private Date dateOfOrder;
 
     @ManyToOne(fetch = FetchType.EAGER)
