@@ -5,10 +5,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.sql.Date;
-
 @Entity
-@AllArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
@@ -50,19 +49,5 @@ public class Order {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", dateOfOrder=" + dateOfOrder +
-                ", quantity=" + quantity +
-                ", sold=" + sold +
-                ", status=" + status +
-                ", stock=" + stock +
-                ", material=" + material +
-                ", size=" + size +
-                ", store=" + store +
-                ", user=" + user +
-                '}';
-    }
+
 }

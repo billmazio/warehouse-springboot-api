@@ -21,10 +21,10 @@ public class OrderDTO {
     private Integer sold;
     private Integer status;
     private Integer stock;
-    private Long materialId;
-    private Long sizeId;
-    private Long storeId;
-    private Long userId;
+    private String materialText;
+    private String sizeName;
+    private String storeTitle;
+    private String userName;
 
     public static OrderDTO fromModel(Order order) {
         if (order == null) return null;
@@ -36,44 +36,41 @@ public class OrderDTO {
                 .sold(order.getSold())
                 .status(order.getStatus())
                 .stock(order.getStock())
-                .materialId(order.getMaterial() != null ? order.getMaterial().getId() : null)
-                .sizeId(order.getSize() != null ? order.getSize().getId() : null)
-                .storeId(order.getStore() != null ? order.getStore().getId() : null)
-                .userId(order.getUser() != null ? order.getUser().getId() : null)
+                .materialText(order.getMaterial() != null ? order.getMaterial().getText() : null)
+                .sizeName(order.getSize() != null ? order.getSize().getName() : null)
+                .storeTitle(order.getStore() != null ? order.getStore().getTitle() : null)
+                .userName(order.getUser() != null ? order.getUser().getUsername() : null)
                 .build();
     }
 
     public Order toModel() {
         Order order = new Order();
-        order.setDateOfOrder(this.dateOfOrder);
-        order.setQuantity(this.quantity);
-        order.setSold(this.sold);
-        order.setStatus(this.status);
-        order.setStock(this.stock);
-        order.setMaterial(new Material(this.materialId));
-        order.setSize(new Size(this.sizeId));
-        order.setStore(new Store(this.storeId));
-        order.setUser(new User(this.userId));
-
-
+        order.setId(id);
+        order.setDateOfOrder(dateOfOrder);
+        order.setQuantity(quantity);
+        order.setSold(sold);
+        order.setStatus(status);
+        order.setStock(stock);
+        order.setMaterial(new Material(materialText));
+        order.setSize(new Size(sizeName));
+        order.setStore(new Store(storeTitle));
+        order.setUser(new User(userName));
         return order;
     }
-
-
 
     @Override
     public String toString() {
         return "OrderDTO{" +
                 "id=" + id +
-                ", quantity=" + quantity +
                 ", dateOfOrder=" + dateOfOrder +
-                ", userId=" + userId +
-                ", storeId=" + storeId +
-                ", materialId=" + materialId +
-                ", status=" + status +
+                ", quantity=" + quantity +
                 ", sold=" + sold +
+                ", status=" + status +
                 ", stock=" + stock +
-                ", sizeId=" + sizeId +
+                ", materialText='" + materialText + '\'' +
+                ", sizeName='" + sizeName + '\'' +
+                ", storeTitle='" + storeTitle + '\'' +
+                ", userName='" + userName + '\'' +
                 '}';
     }
 }

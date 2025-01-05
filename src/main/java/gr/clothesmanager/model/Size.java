@@ -27,7 +27,4 @@ public class Size {
         this.name = name;
     }
 
-    public Size(Long id) {
-        this.id = id;
-    }
 }

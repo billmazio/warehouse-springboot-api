@@ -36,8 +36,10 @@ public class Material {
         this.size = size;
         this.store = store;
     }
-    public Material(Long id) { this.id = id; }
 
+    public Material(String text) {
+        this.text = text;
+    }
 }
 
 

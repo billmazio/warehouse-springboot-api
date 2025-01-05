@@ -1,81 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { format, isValid } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { fetchOrders, createOrder, deleteOrder, fetchUsers, fetchMaterials, fetchStores, fetchSizes } from "../../services/api";
+import { createOrder, fetchUsers, fetchStores, fetchMaterials, fetchSizes, fetchOrders } from "../../services/api"; // Assuming fetch functions
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./OrderManagement.css";
 
-const centralStoreId = 1;
-
 const OrderManagement = () => {
     const navigate = useNavigate();
-    const [orders, setOrders] = useState([]);
-    const [users, setUsers] = useState([]);
     const [stores, setStores] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [materials, setMaterials] = useState([]);
     const [sizes, setSizes] = useState([]);
-    const [uniqueMaterials, setUniqueMaterials] = useState([]);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);  // Loading state for async data
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [orderToDelete, setOrderToDelete] = useState(null);
+    const [orders, setOrders] = useState([]);
     const [newOrder, setNewOrder] = useState({
-        quantity: "",
+        quantity: 0,
         dateOfOrder: "",
-        userId: "",
-        storeId: "",
-        materialId: "",
-        status: "",
-        sold: "",
-        stock: "",
-        sizeId: ""
-    });
-    const [distributionData, setDistributionData] = useState({
-        receiverStoreId: "",
+        status: 1,
+        stock: 0,
+        sold: 0,
+        materialText: "",
+        sizeName: "",
+        storeTitle: "",
+        userName: "",
     });
 
     useEffect(() => {
         const loadData = async () => {
-            setLoading(true);  // Set loading true at the start of fetching
             try {
-                const orderData = await fetchOrders();
-                setOrders(orderData);
+                const [storeData, userData, materialData, sizeData, orderData] = await Promise.all([
+                    fetchStores(),
+                    fetchUsers(),
+                    fetchMaterials(),
+                    fetchSizes(),
+                    fetchOrders(),
+                ]);
 
-                const userData = await fetchUsers();
-                setUsers(userData);
-
-                const storeData = await fetchStores();
                 setStores(storeData);
-
-                const materialData = await fetchMaterials();
-                const sizeData = await fetchSizes();
+                setUsers(userData);
+                setMaterials(materialData);
                 setSizes(sizeData);
-
-                // Extract unique materials
-                const uniqueMaterialTypes = [...new Set(materialData.map(material => material.text))];
-                setUniqueMaterials(uniqueMaterialTypes);
+                setOrders(orderData);
             } catch (err) {
-                setError("Αποτυχία ανάκτησης δεδομένων.");
-                console.error("Σφάλμα:", err);
-            } finally {
-                setLoading(false);  // Set loading false once data is fetched
+                console.error("Error fetching data:", err);
+                toast.error("Αποτυχία φόρτωσης δεδομένων.");
             }
         };
 
         loadData();
     }, []);
 
-    const formatDate = (date) => {
-        if (!date || !isValid(new Date(date))) return '';  // Return empty string if date is invalid
-        return format(new Date(date), 'MM/dd/yyyy');
-    };
-
-    const handleDateChange = (e) => {
-        const date = e.target.value;
-        setNewOrder({...newOrder, dateOfOrder: date});
-    };
     const handleCreate = async () => {
-        const requiredFields = ["quantity", "dateOfOrder", "userId", "storeId", "materialId", "sizeId"];
+        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName", "status", "sold", "stock"];
         const missingFields = requiredFields.filter(field => !newOrder[field]);
 
         if (missingFields.length > 0) {
@@ -84,53 +59,25 @@ const OrderManagement = () => {
         }
 
         try {
-            console.log("New Order Data:", newOrder); // Debugging: log entire newOrder object to check values
             const createdOrder = await createOrder(newOrder);
-            console.log("Created Order:", createdOrder); // Debugging: log API response
-
             setOrders([...orders, createdOrder]);
             setNewOrder({
-                quantity: "",
+                quantity: 0,
                 dateOfOrder: "",
-                userId: "",
-                storeId: "",
-                materialId: "",
-                status: "",
-                sold: "",
-                stock: "",
-                sizeId: ""
+                status: 1,
+                stock: 0,
+                sold: 0,
+                materialText: "",
+                sizeName: "",
+                storeTitle: "",
+                userName: "",
             });
             toast.success("Η παραγγελία δημιουργήθηκε με επιτυχία.");
         } catch (err) {
-            console.error("Σφάλμα κατά τη δημιουργία παραγγελίας:", err);
             toast.error("Αποτυχία δημιουργίας παραγγελίας.");
         }
     };
 
-
-
-    const openConfirmationDialog = (order) => {
-        setOrderToDelete(order);
-        setShowConfirmation(true);
-    };
-
-    const closeConfirmationDialog = () => {
-        setShowConfirmation(false);
-        setOrderToDelete(null);
-    };
-
-    const confirmDelete = async () => {
-        if (!orderToDelete) return;
-        try {
-            await deleteOrder(orderToDelete.id);
-            setOrders(orders.filter((order) => order.id !== orderToDelete.id));
-            toast.success(`Η παραγγελία με ID "${orderToDelete.id}" διαγράφηκε με επιτυχία.`);
-        } catch (err) {
-            console.error("Σφάλμα κατά τη διαγραφή παραγγελίας:", err);
-            toast.error("Αποτυχία διαγραφής παραγγελίας.");
-        }
-        closeConfirmationDialog();
-    };
 
     return (
         <div className="order-management-container">
@@ -139,157 +86,121 @@ const OrderManagement = () => {
                 Πίσω στην Κεντρική Διαχείριση
             </button>
 
-            <h2>Διαχείριση Παραγγελιών</h2>
-            {error && <p className="error-message">{error}</p>}
+            <h2>Δημιουργία Παραγγελίας</h2>
+            <div className="order-create-form">
+                <input
+                    type="number"
+                    placeholder="Ποσότητα"
+                    value={newOrder.quantity}
+                    onChange={(e) => setNewOrder({ ...newOrder, quantity: e.target.value })}
+                />
+                <input
+                    type="date"
+                    placeholder="Ημερομηνία Παραγγελίας"
+                    value={newOrder.dateOfOrder}
+                    onChange={(e) => setNewOrder({ ...newOrder, dateOfOrder: e.target.value })}
+                />
+                <input
+                    type="number"
+                    placeholder="Απόθεμα"
+                    value={newOrder.stock}
+                    onChange={(e) => setNewOrder({ ...newOrder, stock: e.target.value })}
+                />
+                <input
+                    type="number"
+                    placeholder="Πωλήσεις"
+                    value={newOrder.sold}
+                    onChange={(e) => setNewOrder({ ...newOrder, sold: e.target.value })}
+                />
+                <select
+                    value={newOrder.materialText}
+                    onChange={(e) => setNewOrder({ ...newOrder, materialText: e.target.value })}
+                >
+                    <option value="" disabled>Επιλογή Υλικού</option>
+                    {materials.map((material) => (
+                        <option key={material.id} value={material.text}>
+                            {material.text}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={newOrder.sizeName}
+                    onChange={(e) => setNewOrder({ ...newOrder, sizeName: e.target.value })}
+                >
+                    <option value="" disabled>Επιλογή Μεγέθους</option>
+                    {sizes.map((size) => (
+                        <option key={size.id} value={size.name}>
+                            {size.name}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={newOrder.storeTitle}
+                    onChange={(e) => setNewOrder({ ...newOrder, storeTitle: e.target.value })}
+                >
+                    <option value="" disabled>Επιλογή Αποθήκης</option>
+                    {stores.map((store) => (
+                        <option key={store.id} value={store.title}>
+                            {store.title}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={newOrder.userName}
+                    onChange={(e) => setNewOrder({ ...newOrder, userName: e.target.value })}
+                >
+                    <option value="" disabled>Επιλογή Χρήστη</option>
+                    {users.map((user) => (
+                        <option key={user.id} value={user.username}>
+                            {user.username}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={newOrder.status}
+                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
+                >
+                    <option value={1}>Σε Εκκρεμότητα</option>
+                    <option value={2}>Ολοκληρωμένη</option>
+                    <option value={3}>Ακυρωμένη</option>
+                </select>
 
-            {/* Loading Spinner */}
-            {loading && <p>Φόρτωση δεδομένων...</p>}
+                <button className="create-button" onClick={handleCreate}>
+                    Δημιουργία Παραγγελίας
+                </button>
+            </div>
 
-            {!loading && (
-                <div className="order-create-form">
-                    <input
-                        type="number"
-                        placeholder="Ποσότητα"
-                        value={newOrder.quantity}
-                        onChange={(e) => setNewOrder({...newOrder, quantity: e.target.value})}
-                    />
-
-                    <input
-                        type="date"
-                        placeholder="Ημερομηνία Παραγγελίας"
-                        value={newOrder.dateOfOrder}
-                        onChange={handleDateChange}
-                    />
-                    <select
-                        value={newOrder.userId}
-                        onChange={(e) => setNewOrder({...newOrder, userId: e.target.value})}
-                    >
-                        <option value="">Επιλέξτε Χρήστη</option>
-                        {users.map(user => (
-                            <option key={user.id} value={user.id}>
-                                {user.username}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={distributionData.receiverStoreId}
-                        onChange={(e) =>
-                            setDistributionData({
-                                ...distributionData,
-                                receiverStoreId: e.target.value,
-                            })
-                        }
-                    >
-                        <option value="">Επιλέξτε Αποθήκη Προορισμού</option>
-                        {stores
-                            .filter((store) => store.id !== centralStoreId) // Exclude the central store
-                            .map((store) => (
-                                <option key={store.id} value={store.id}>
-                                    {store.title}
-                                </option>
-                            ))}
-                    </select>
-                    <select
-                        value={newOrder.materialId}
-                        onChange={(e) => setNewOrder({...newOrder, materialId: e.target.value})}
-                    >
-                        <option value="">Επιλέξτε Υλικό</option>
-                        {uniqueMaterials.map((material, index) => (
-                            <option key={index} value={material}>
-                                {material}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={newOrder.sizeId}
-                        onChange={(e) => setNewOrder({...newOrder, sizeId: e.target.value})}
-                    >
-                        <option value="">Επιλέξτε Μέγεθος</option>
-                        {sizes.map(size => (
-                            <option key={size.id} value={size.id}>
-                                {size.name}
-                            </option>
-                        ))}
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="Κατάσταση"
-                        value={newOrder.status}
-                        onChange={(e) => setNewOrder({...newOrder, status: e.target.value})}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Πωλήσεις"
-                        value={newOrder.sold}
-                        onChange={(e) => setNewOrder({...newOrder, sold: e.target.value})}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Απόθεμα"
-                        value={newOrder.stock}
-                        onChange={(e) => setNewOrder({...newOrder, stock: e.target.value})}
-                    />
-                    <button className="create-button" onClick={handleCreate}>
-                        Δημιουργία Παραγγελίας
-                    </button>
-                </div>
-            )}
-
+            <h2>Λίστα Παραγγελιών</h2>
             <table className="order-table">
                 <thead>
                 <tr>
-                    <th>ΠΟΣΟΤΗΤΑ</th>
-                    <th>ΗΜΕΡΟΜΗΝΙΑ ΠΑΡΑΓΓΕΛΙΑΣ</th>
-                    <th>ΧΡΗΣΤΗΣ</th>
-                    <th>ΑΠΟΘΗΚΗ</th>
-                    <th>ΥΛΙΚΟ</th>
-                    <th>ΚΑΤΑΣΤΑΣΗ</th>
-                    <th>ΠΟΥΛΗΜΕΝΟ</th>
-                    <th>ΑΠΟΘΕΜΑ</th>
-                    <th>ΕΝΕΡΓΕΙΕΣ</th>
+                    <th>Ημερομηνία</th>
+                    <th>Ποσότητα</th>
+                    <th>Απόθεμα</th>
+                    <th>Πωλήσεις</th>
+                    <th>Υλικό</th>
+                    <th>Μέγεθος</th>
+                    <th>Αποθήκη</th>
+                    <th>Χρήστης</th>
+                    <th>Κατάσταση</th>
                 </tr>
                 </thead>
                 <tbody>
                 {orders.map((order) => (
                     <tr key={order.id}>
+                        <td>{order.dateOfOrder}</td>
                         <td>{order.quantity}</td>
-                        <td>{formatDate(order.dateOfOrder)}</td>
-                        <td>{order.user?.username || 'Unknown User'}</td>
-                        <td>{order.stores?.title || 'Unknown Store'}</td>
-                        <td>{order.materials?.text || 'Unknown Material'}</td>
-                        <td>{order.status}</td>
-                        <td>{order.sold}</td>
                         <td>{order.stock}</td>
-                        <td>
-                            <button
-                                className="delete-button"
-                                onClick={() => openConfirmationDialog(order)}
-                            >
-                                Delete
-                            </button>
-                        </td>
+                        <td>{order.sold}</td>
+                        <td>{order.materialText}</td>
+                        <td>{order.sizeName}</td>
+                        <td>{order.storeTitle}</td>
+                        <td>{order.userName}</td>
+                        <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-
-            {showConfirmation && (
-                <div className="confirmation-dialog">
-                    <div className="confirmation-content">
-                        <p>
-                            Are you sure you want to delete Order ID <strong>{orderToDelete?.id}</strong>?
-                        </p>
-                        <div className="button-group">
-                            <button className="cancel-button" onClick={closeConfirmationDialog}>
-                                Cancel
-                            </button>
-                            <button className="confirm-button" onClick={confirmDelete}>
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

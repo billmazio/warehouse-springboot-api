@@ -43,8 +43,8 @@ public class Store {
         this.enable = enable;
     }
 
-    public Store(Long id) {
-        this.id = id;
+    public Store(String title) {
+        this.title = title;
     }
 
     @Override

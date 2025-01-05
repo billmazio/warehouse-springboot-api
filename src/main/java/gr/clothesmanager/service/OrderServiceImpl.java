@@ -33,37 +33,29 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        // Ensure that the user, store, material, and size are populated before saving
-        if (orderDTO.getUserId() != null && orderDTO.getStoreId() != null && orderDTO.getMaterialId() != null && orderDTO.getSizeId() != null) {
-            // Fetch and log entities
-            User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
-            Store store = storeRepository.findById(orderDTO.getStoreId()).orElseThrow(() -> new RuntimeException("Store not found"));
-            Material material = materialRepository.findById(orderDTO.getMaterialId()).orElseThrow(() -> new RuntimeException("Material not found"));
-            Size size = sizeRepository.findById(orderDTO.getSizeId()).orElseThrow(() -> new RuntimeException("Size not found"));
+        Order order = orderDTO.toModel();
 
-            LOGGER.info("Fetched User: {}", user);
-            LOGGER.info("Fetched Store: {}", store);
-            LOGGER.info("Fetched Material: {}", material);
-            LOGGER.info("Fetched Size: {}", size);
+        Material material = materialRepository.findByText(orderDTO.getMaterialText())
+                .orElseThrow(() -> new RuntimeException("Material not found"));
+        Size size = sizeRepository.findByName(orderDTO.getSizeName())
+                .orElseThrow(() -> new RuntimeException("Size not found"));
+        Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+        User user = userRepository.findByUsername(orderDTO.getUserName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Order order = orderDTO.toModel();
-            order.setUser(user);
-            order.setStore(store);
-            order.setMaterial(material);
-            order.setSize(size);
-            order.setSold(orderDTO.getSold());
-            order.setStatus(orderDTO.getStatus());
-            order.setStock(orderDTO.getStock());
-            order.setQuantity(orderDTO.getQuantity());
-            order.setDateOfOrder(orderDTO.getDateOfOrder());
+        order.setMaterial(material);
+        order.setSize(size);
+        order.setStore(store);
+        order.setUser(user);
 
-            Order savedOrder = orderRepository.save(order);
-            LOGGER.info("Order saved with ID: {}", savedOrder.getId());
-            return OrderDTO.fromModel(savedOrder);
-        } else {
-            throw new RuntimeException("Missing required fields for user, store, material, or size");
-        }
+        Order savedOrder = orderRepository.save(order);
+        LOGGER.info("Order saved with ID: {}", savedOrder.getId());
+
+        return OrderDTO.fromModel(savedOrder);
     }
+
+
 
 
     @Transactional

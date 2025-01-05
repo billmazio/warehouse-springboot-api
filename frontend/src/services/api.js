@@ -259,16 +259,28 @@ export const fetchOrderById = async (id) => {
         throw error;
     }
 };
-
 export const createOrder = async (orderData) => {
     try {
-        const response = await api.post('/api/orders', orderData); // Use axios here
+        // Make sure to include the full backend URL if needed
+        const response = await api.post("/api/orders",  {
+            dateOfOrder: orderData.dateOfOrder,
+            quantity: orderData.quantity,
+            sold: orderData.sold,
+            status: orderData.status,
+            stock: orderData.stock,
+            materialId: orderData.materialId,
+            sizeId: orderData.sizeId,
+            storeId: orderData.storeId,
+            userId: orderData.userId,
+        });
         return response.data;
     } catch (error) {
-        console.error('Error creating order:', error);
+        console.error('Error creating order:', error.response || error.message);
         throw error;
     }
 };
+
+
 
 
 export const acceptOrder = async (id) => {

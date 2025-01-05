@@ -52,8 +52,8 @@ public class User {
         this.store = store;
     }
 
-    public User(Long id) {
-        this.id = id;
+    public User(String username) {
+        this.username = username;
     }
 
     @Override
