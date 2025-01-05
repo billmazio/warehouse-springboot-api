@@ -19,6 +19,7 @@ const OrderManagement = () => {
         stock: 0,
         sold: 0,
         materialText: "",
+        materialStoreId: "",
         sizeName: "",
         storeTitle: "",
         userName: "",
@@ -50,7 +51,7 @@ const OrderManagement = () => {
     }, []);
 
     const handleCreate = async () => {
-        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName", "status", "sold", "stock"];
+        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "materialStoreId", "sizeName", "status", "sold", "stock"];
         const missingFields = requiredFields.filter(field => !newOrder[field]);
 
         if (missingFields.length > 0) {
@@ -68,6 +69,7 @@ const OrderManagement = () => {
                 stock: 0,
                 sold: 0,
                 materialText: "",
+                materialStoreId: "",
                 sizeName: "",
                 storeTitle: "",
                 userName: "",
@@ -78,6 +80,9 @@ const OrderManagement = () => {
         }
     };
 
+    // Filter materials and sizes based on the selected store
+    const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
+    const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
 
     return (
         <div className="order-management-container">
@@ -113,13 +118,28 @@ const OrderManagement = () => {
                     onChange={(e) => setNewOrder({ ...newOrder, sold: e.target.value })}
                 />
                 <select
+                    value={newOrder.storeTitle}
+                    onChange={(e) => setNewOrder({ ...newOrder, storeTitle: e.target.value })}
+                >
+                    <option value="" disabled>Επιλογή Αποθήκης</option>
+                    {stores.map((store) => (
+                        <option key={store.id} value={store.title}>
+                            {store.title}
+                        </option>
+                    ))}
+                </select>
+                <select
                     value={newOrder.materialText}
-                    onChange={(e) => setNewOrder({ ...newOrder, materialText: e.target.value })}
+                    onChange={(e) => setNewOrder({
+                        ...newOrder,
+                        materialText: e.target.value.split('-')[0].trim(),
+                        materialStoreId: e.target.value.split('-')[1].trim()
+                    })}
                 >
                     <option value="" disabled>Επιλογή Υλικού</option>
-                    {materials.map((material) => (
-                        <option key={material.id} value={material.text}>
-                            {material.text}
+                    {filteredMaterials.map((material) => (
+                        <option key={material.id} value={`${material.text} - ${material.storeId}`}>
+                            {material.text} - {material.storeTitle}
                         </option>
                     ))}
                 </select>
@@ -128,20 +148,9 @@ const OrderManagement = () => {
                     onChange={(e) => setNewOrder({ ...newOrder, sizeName: e.target.value })}
                 >
                     <option value="" disabled>Επιλογή Μεγέθους</option>
-                    {sizes.map((size) => (
+                    {filteredSizes.map((size) => (
                         <option key={size.id} value={size.name}>
                             {size.name}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    value={newOrder.storeTitle}
-                    onChange={(e) => setNewOrder({ ...newOrder, storeTitle: e.target.value })}
-                >
-                    <option value="" disabled>Επιλογή Αποθήκης</option>
-                    {stores.map((store) => (
-                        <option key={store.id} value={store.title}>
-                            {store.title}
                         </option>
                     ))}
                 </select>
