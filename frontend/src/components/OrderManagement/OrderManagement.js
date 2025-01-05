@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchOrders, createOrder, deleteOrder, fetchUsers, fetchSizes, fetchMaterials, fetchStores } from "../../services/api";
+import { fetchOrders, createOrder, deleteOrder, fetchUsers, fetchMaterials, fetchStores, fetchSizes } from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./OrderManagement.css";
@@ -13,7 +13,8 @@ const OrderManagement = () => {
     const [users, setUsers] = useState([]);
     const [stores, setStores] = useState([]);
     const [sizes, setSizes] = useState([]);
-    const [materials, setMaterials] = useState([]);
+    const [uniqueMaterials, setUniqueMaterials] = useState([]);
+    const [filteredSizes, setFilteredSizes] = useState([]);
     const [error, setError] = useState("");
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -29,7 +30,6 @@ const OrderManagement = () => {
         sizeId: ""
     });
     const [distributionData, setDistributionData] = useState({
-        materialId: "",
         receiverStoreId: "",
     });
 
@@ -45,11 +45,13 @@ const OrderManagement = () => {
                 const storeData = await fetchStores();
                 setStores(storeData);
 
+                const materialData = await fetchMaterials();
                 const sizeData = await fetchSizes();
                 setSizes(sizeData);
 
-                const materialData = await fetchMaterials();
-                setMaterials(materialData);
+                // Extract unique materials
+                const uniqueMaterialTypes = [...new Set(materialData.map(material => material.text))];
+                setUniqueMaterials(uniqueMaterialTypes);
             } catch (err) {
                 setError("Αποτυχία ανάκτησης δεδομένων.");
                 console.error("Σφάλμα:", err);
@@ -58,6 +60,15 @@ const OrderManagement = () => {
 
         loadData();
     }, []);
+
+    useEffect(() => {
+        if (newOrder.materialId) {
+            const materialSizes = sizes.filter(size => size.materialId === newOrder.materialId);
+            setFilteredSizes(materialSizes);
+        } else {
+            setFilteredSizes([]);
+        }
+    }, [newOrder.materialId, sizes]);
 
     const openConfirmationDialog = (order) => {
         setOrderToDelete(order);
@@ -166,9 +177,20 @@ const OrderManagement = () => {
                     onChange={(e) => setNewOrder({...newOrder, materialId: e.target.value})}
                 >
                     <option value="">Επιλέξτε Υλικό</option>
-                    {materials.map(material => (
-                        <option key={material.id} value={material.id}>
-                            {material.text} - Μέγεθος: {material.sizeName}
+                    {uniqueMaterials.map((material, index) => (
+                        <option key={index} value={material}>
+                            {material}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={newOrder.sizeId}
+                    onChange={(e) => setNewOrder({...newOrder, sizeId: e.target.value})}
+                >
+                    <option value="">Επιλέξτε Μέγεθος</option>
+                    {filteredSizes.map(size => (
+                        <option key={size.id} value={size.id}>
+                            {size.name}
                         </option>
                     ))}
                 </select>
@@ -190,17 +212,6 @@ const OrderManagement = () => {
                     value={newOrder.stock}
                     onChange={(e) => setNewOrder({...newOrder, stock: e.target.value})}
                 />
-                <select
-                    value={newOrder.sizeId}
-                    onChange={(e) => setNewOrder({...newOrder, sizeId: e.target.value})}
-                >
-                    <option value="">Επιλέξτε Μέγεθος</option>
-                    {sizes.map(size => (
-                        <option key={size.id} value={size.id}>
-                            {size.name}
-                        </option>
-                    ))}
-                </select>
                 <button className="create-button" onClick={handleCreate}>
                     Δημιουργία Παραγγελίας
                 </button>
@@ -217,7 +228,6 @@ const OrderManagement = () => {
                     <th>ΚΑΤΑΣΤΑΣΗ</th>
                     <th>ΠΟΥΛΗΜΕΝΟ</th>
                     <th>ΑΠΟΘΕΜΑ</th>
-                    <th>ΜΕΓΕΘΟΣ</th>
                     <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
@@ -226,13 +236,12 @@ const OrderManagement = () => {
                     <tr key={order.id}>
                         <td>{order.quantity}</td>
                         <td>{order.dateOfOrder}</td>
-                        <td>{order.user?.id}</td>
-                        <td>{order.stores?.id}</td>
-                        <td>{order.materials?.id}</td>
+                        <td>{order.user?.username}</td>
+                        <td>{order.stores?.title}</td>
+                        <td>{order.materials?.text}</td>
                         <td>{order.status}</td>
                         <td>{order.sold}</td>
                         <td>{order.stock}</td>
-                        <td>{order.size?.id}</td>
                         <td>
                             <button
                                 className="delete-button"
