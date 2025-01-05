@@ -43,6 +43,9 @@ public class Store {
         this.enable = enable;
     }
 
+    public Store(Long id) {
+        this.id = id;
+    }
 
     @Override
     public boolean equals(Object o) {

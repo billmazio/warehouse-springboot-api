@@ -52,6 +52,10 @@ public class User {
         this.store = store;
     }
 
+    public User(Long id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

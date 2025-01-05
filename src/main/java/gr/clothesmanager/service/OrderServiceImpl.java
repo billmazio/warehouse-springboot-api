@@ -2,14 +2,10 @@ package gr.clothesmanager.service;
 
 
 import gr.clothesmanager.dto.OrderDTO;
+import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.interfaces.OrderService;
-import gr.clothesmanager.model.Material;
-import gr.clothesmanager.model.MaterialDistribution;
-import gr.clothesmanager.model.Order;
-import gr.clothesmanager.model.Store;
-import gr.clothesmanager.repository.MaterialRepository;
-import gr.clothesmanager.repository.OrderRepository;
-import gr.clothesmanager.repository.StoreRepository;
+import gr.clothesmanager.model.*;
+import gr.clothesmanager.repository.*;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +28,31 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final MaterialRepository materialRepository;
     private final StoreRepository storeRepository;
-
+    private final UserRepository userRepository;
+    private final SizeRepository sizeRepository;
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        Order order = orderDTO.toModel();
-        Order savedOrder = orderRepository.save(order);
-        LOGGER.info("Order saved with ID: {}", savedOrder.getId());
-        return OrderDTO.fromModel(savedOrder);
+        // Ensure that the user, store, and material are populated before saving
+        if (orderDTO.getUserId() != null && orderDTO.getStoreId() != null && orderDTO.getMaterialId() != null) {
+            User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+            Store store = storeRepository.findById(orderDTO.getStoreId()).orElseThrow(() -> new RuntimeException("Store not found"));
+            Material material = materialRepository.findById(orderDTO.getMaterialId()).orElseThrow(() -> new RuntimeException("Material not found"));
+            Size size = sizeRepository.findById(orderDTO.getSizeId()).orElseThrow(() -> new RuntimeException("Size not found"));
+
+            Order order = orderDTO.toModel();
+            order.setUser(user);
+            order.setStore(store);
+            order.setMaterial(material);
+            order.setSize(size);
+
+            Order savedOrder = orderRepository.save(order);
+            LOGGER.info("Order saved with ID: {}", savedOrder.getId());
+            return OrderDTO.fromModel(savedOrder);
+        } else {
+            throw new RuntimeException("Missing required fields for user, store, or material");
+        }
     }
+
 
     @Transactional
     public OrderDTO findById(Long id) throws OrderNotFoundException {

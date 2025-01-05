@@ -260,15 +260,16 @@ export const fetchOrderById = async (id) => {
     }
 };
 
-export const createOrder = async (order) => {
+export const createOrder = async (orderData) => {
     try {
-        const response = await api.post('/api/orders', order);
+        const response = await api.post('/api/orders', orderData); // Use axios here
         return response.data;
     } catch (error) {
         console.error('Error creating order:', error);
         throw error;
     }
 };
+
 
 export const acceptOrder = async (id) => {
     try {

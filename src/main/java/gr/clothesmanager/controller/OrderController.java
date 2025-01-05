@@ -21,10 +21,15 @@ public class OrderController {
     private final OrderServiceImpl orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) throws OrderAlreadyExistsException {
-        OrderDTO savedOrder = orderService.save(orderDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) {
+        try {
+            OrderDTO savedOrder = orderService.save(orderDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {

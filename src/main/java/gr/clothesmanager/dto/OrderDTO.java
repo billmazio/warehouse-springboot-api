@@ -16,42 +16,50 @@ import java.sql.Date;
 @Builder
 public class OrderDTO {
     private Long id;
-    private Integer quantity;
     private Date dateOfOrder;
-    private Long userId;
-    private Long storeId;
-    private Long materialId;
-    private Integer status;
+    private Integer quantity;
     private Integer sold;
+    private Integer status;
     private Integer stock;
+    private Long materialId;
     private Long sizeId;
-
+    private Long storeId;
+    private Long userId;
 
     public static OrderDTO fromModel(Order order) {
         if (order == null) return null;
 
         return OrderDTO.builder()
                 .id(order.getId())
-                .quantity(order.getQuantity())
                 .dateOfOrder(order.getDateOfOrder())
-                .userId(order.getUser() != null ? order.getUser().getId() : null)
-                .storeId(order.getStore() != null ? order.getStore().getId() : null)
-                .materialId(order.getMaterial() != null ? order.getMaterial().getId() : null)
-                .status(order.getStatus())
+                .quantity(order.getQuantity())
                 .sold(order.getSold())
+                .status(order.getStatus())
                 .stock(order.getStock())
+                .materialId(order.getMaterial() != null ? order.getMaterial().getId() : null)
                 .sizeId(order.getSize() != null ? order.getSize().getId() : null)
+                .storeId(order.getStore() != null ? order.getStore().getId() : null)
+                .userId(order.getUser() != null ? order.getUser().getId() : null)
                 .build();
     }
 
-
     public Order toModel() {
         Order order = new Order();
-        order.setId(this.id);
-        order.setQuantity(this.quantity);
         order.setDateOfOrder(this.dateOfOrder);
+        order.setQuantity(this.quantity);
+        order.setSold(this.sold);
+        order.setStatus(this.status);
+        order.setStock(this.stock);
+        order.setMaterial(new Material(this.materialId));
+        order.setSize(new Size(this.sizeId));
+        order.setStore(new Store(this.storeId));
+        order.setUser(new User(this.userId));
+
+
         return order;
     }
+
+
 
     @Override
     public String toString() {
