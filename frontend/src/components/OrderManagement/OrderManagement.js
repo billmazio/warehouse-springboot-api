@@ -74,21 +74,20 @@ const OrderManagement = () => {
         const date = e.target.value;
         setNewOrder({...newOrder, dateOfOrder: date});
     };
-
     const handleCreate = async () => {
         const requiredFields = ["quantity", "dateOfOrder", "userId", "storeId", "materialId", "sizeId"];
         const missingFields = requiredFields.filter(field => !newOrder[field]);
 
         if (missingFields.length > 0) {
             toast.warning(`Missing required fields: ${missingFields.join(", ")}`);
-            console.log("Missing fields:", missingFields);
             return;
         }
 
-        console.log("New Order Data:", newOrder);
-
         try {
+            console.log("New Order Data:", newOrder); // Debugging: log entire newOrder object to check values
             const createdOrder = await createOrder(newOrder);
+            console.log("Created Order:", createdOrder); // Debugging: log API response
+
             setOrders([...orders, createdOrder]);
             setNewOrder({
                 quantity: "",
@@ -101,12 +100,13 @@ const OrderManagement = () => {
                 stock: "",
                 sizeId: ""
             });
-            toast.success("Order created successfully.");
+            toast.success("Η παραγγελία δημιουργήθηκε με επιτυχία.");
         } catch (err) {
-            console.error("Error creating order:", err);
-            toast.error("Failed to create order.");
+            console.error("Σφάλμα κατά τη δημιουργία παραγγελίας:", err);
+            toast.error("Αποτυχία δημιουργίας παραγγελίας.");
         }
     };
+
 
 
     const openConfirmationDialog = (order) => {
