@@ -22,7 +22,7 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     Optional<Material> findByTextAndStoreId(String text, Long storeId);
 
     @Query("SELECT m FROM Material m WHERE LOWER(m.text) = LOWER(:text)")
-    Optional<Material> findByText(@Param("text") String text);
+    List<Material> findByText(@Param("text") String text);
 
 
     @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")

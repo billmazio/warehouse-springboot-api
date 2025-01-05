@@ -33,10 +33,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        Order order = orderDTO.toModel();
+        // Fetch and handle multiple results for material
+        List<Material> materials = materialRepository.findByText(orderDTO.getMaterialText());
+        if (materials.isEmpty()) {
+            throw new RuntimeException("Material not found");
+        }
+        Material material = materials.get(0); // Choose the first one or implement your own logic
 
-        Material material = materialRepository.findByText(orderDTO.getMaterialText())
-                .orElseThrow(() -> new RuntimeException("Material not found"));
         Size size = sizeRepository.findByName(orderDTO.getSizeName())
                 .orElseThrow(() -> new RuntimeException("Size not found"));
         Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
@@ -44,16 +47,20 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByUsername(orderDTO.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Create and set complete entities for validation
+        Order order = orderDTO.toModel();
         order.setMaterial(material);
         order.setSize(size);
         order.setStore(store);
         order.setUser(user);
 
+        // Save Order
         Order savedOrder = orderRepository.save(order);
         LOGGER.info("Order saved with ID: {}", savedOrder.getId());
 
         return OrderDTO.fromModel(savedOrder);
     }
+
 
 
 

@@ -268,10 +268,10 @@ export const createOrder = async (orderData) => {
             sold: orderData.sold,
             status: orderData.status,
             stock: orderData.stock,
-            materialId: orderData.materialId,
-            sizeId: orderData.sizeId,
-            storeId: orderData.storeId,
-            userId: orderData.userId,
+            materialText: orderData.materialText,
+            sizeName: orderData.sizeName,
+            storeTitle:orderData.storeTitle,
+            userName:orderData.userName,
         });
         return response.data;
     } catch (error) {
