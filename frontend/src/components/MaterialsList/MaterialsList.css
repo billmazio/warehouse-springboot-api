@@ -103,9 +103,6 @@
 }
 
 
-.store-filters button:hover {
-    background-color: #218838;
-}
 
 ul {
     list-style-type: none;
@@ -209,7 +206,7 @@ ul li {
     background-color: #dc3545;
 }
 
-/* Confirmation Dialog Actions */
+
 .materials-confirmation-actions .materials-cancel-button,
 .materials-confirmation-actions .materials-confirm-button {
     background-color: white;
