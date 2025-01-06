@@ -233,16 +233,16 @@ const OrderManagement = () => {
             <table className="order-table">
                 <thead>
                 <tr>
-                    <th>Ημερομηνία</th>
-                    <th>Ποσότητα</th>
-                    <th>Απόθεμα</th>
-                    <th>Πωλήσεις</th>
-                    <th>Υλικό</th>
-                    <th>Μέγεθος</th>
-                    <th>Αποθήκη</th>
-                    <th>Χρήστης</th>
-                    <th>Κατάσταση</th>
-                    <th>Ενέργειες</th>
+                    <th>ΗΜΕΡΟΜΗΝΙΑ</th>
+                    <th>ΠΟΣΟΤΗΤΑ</th>
+                    <th>ΑΠΟΘΕΜΑ</th>
+                    <th>ΠΩΛΗΣΕΙΣ</th>
+                    <th>ΥΛΙΚΟ</th>
+                    <th>ΜΕΓΕΘΟΣ</th>
+                    <th>ΑΠΟΘΗΚΗ</th>
+                    <th>ΧΡΗΣΤΗΣ</th>
+                    <th>ΚΑΤΑΣΤΑΣΗ</th>
+                    <th>ΕΝΕΡΓΕΙΕΣ</th>
                 </tr>
                 </thead>
                 <tbody>
