@@ -62,26 +62,26 @@
     }
 
 .stores-table th {
-    background-color: #007bff; /* Blue background for headers */
-    color: #fff; /* White text for better contrast */
+    background-color: #007bff;
+    color: #fff;
     padding: 10px;
     font-weight: bold;
     text-align: center;
-    border-right: 1px solid #ddd; /* Optional: Light border between columns */
+    border-right: 1px solid #ddd;
 }
 
 .stores-table th:last-child {
-    border-right: none; /* Remove border for the last column header */
+    border-right: none;
 }
 
 .stores-table td {
     padding: 10px;
     text-align: center;
-    border-bottom: 1px solid #ddd; /* Optional: Light border between rows */
+    border-bottom: 1px solid #ddd;
 }
 
 .stores-table tr:last-child td {
-    border-bottom: none; /* Remove bottom border for the last row */
+    border-bottom: none;
 }
 
 .stores-table tr:hover {
