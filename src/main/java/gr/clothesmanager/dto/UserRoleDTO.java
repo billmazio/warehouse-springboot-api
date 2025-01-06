@@ -1,7 +1,5 @@
 package gr.clothesmanager.dto;
 
-import gr.clothesmanager.core.enums.AppPermission;
-import gr.clothesmanager.model.RolePermission;
 import gr.clothesmanager.model.UserRole;
 import lombok.*;
 
@@ -21,8 +19,6 @@ public class UserRoleDTO {
     private Long id;
     private String name;
     private String tag;
-    private List<AppPermission> permissions;
-    private List<RolePermission> rolePermissions;
     private Set<Long> userIds;
 
     public UserRoleDTO(Long id, String name, String tag) {
@@ -46,7 +42,6 @@ public class UserRoleDTO {
                 .id(id)
                 .name(name)
                 .tag(tag)
-                .permissions(new ArrayList<>(permissions))
                 .build();
     }
 

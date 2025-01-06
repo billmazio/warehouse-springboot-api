@@ -2,16 +2,11 @@ package gr.clothesmanager.service;
 
 import gr.clothesmanager.interfaces.RoleService;
 import gr.clothesmanager.model.UserRole;
-import gr.clothesmanager.repository.AppViewRepository;
 import gr.clothesmanager.repository.UserRoleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
