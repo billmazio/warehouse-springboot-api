@@ -3,6 +3,7 @@ package gr.clothesmanager.controller;
 import gr.clothesmanager.dto.OrderDTO;
 import gr.clothesmanager.interfaces.OrderService;
 import gr.clothesmanager.service.OrderServiceImpl;
+import gr.clothesmanager.service.exceptions.InsufficientStockException;
 import gr.clothesmanager.service.exceptions.OrderAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.validation.Valid;
@@ -21,14 +22,17 @@ public class OrderController {
     private final OrderServiceImpl orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<?> save(@Valid @RequestBody OrderDTO orderDTO) {
         try {
             OrderDTO savedOrder = orderService.save(orderDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input: " + e.getMessage());
+        } catch (InsufficientStockException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 
 
     @GetMapping("/{id}")

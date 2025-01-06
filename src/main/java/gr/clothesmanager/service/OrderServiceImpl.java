@@ -6,6 +6,7 @@ import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.interfaces.OrderService;
 import gr.clothesmanager.model.*;
 import gr.clothesmanager.repository.*;
+import gr.clothesmanager.service.exceptions.InsufficientStockException;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,35 +32,49 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final SizeRepository sizeRepository;
 
+
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        // Fetch and handle multiple results for material
-        List<Material> materials = materialRepository.findByText(orderDTO.getMaterialText());
-        if (materials.isEmpty()) {
-            throw new RuntimeException("Material not found");
-        }
-        Material material = materials.get(0); // Choose the first one or implement your own logic
+        Optional<Material> materialOpt = materialRepository.findByTextAndSizeNameAndStoreTitle(
+                orderDTO.getMaterialText(), orderDTO.getSizeName(), orderDTO.getStoreTitle());
 
-        Size size = sizeRepository.findByName(orderDTO.getSizeName())
-                .orElseThrow(() -> new RuntimeException("Size not found"));
-        Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+        if (materialOpt.isEmpty()) {
+            throw new RuntimeException("Material not found for the specified size and store");
+        }
+
+        Material material = materialOpt.get();
+        int requestedQuantity = orderDTO.getQuantity();
+
+        if (material.getQuantity() < requestedQuantity) {
+            throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
+        }
+
+        Size size = material.getSize();
+        Store store = material.getStore();
         User user = userRepository.findByUsername(orderDTO.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Create and set complete entities for validation
+        // Create and set order
         Order order = orderDTO.toModel();
         order.setMaterial(material);
         order.setSize(size);
         order.setStore(store);
         order.setUser(user);
 
-        // Save Order
+        // Save the order
         Order savedOrder = orderRepository.save(order);
-        LOGGER.info("Order saved with ID: {}", savedOrder.getId());
+
+        // Deduct the stock and save the material
+        material.setQuantity(material.getQuantity() - requestedQuantity);
+        materialRepository.save(material);
+
+        LOGGER.info("Order saved with ID: {} and updated material stock. Remaining quantity: {}",
+                savedOrder.getId(), material.getQuantity());
 
         return OrderDTO.fromModel(savedOrder);
     }
+
+
 
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws OrderNotFoundException {

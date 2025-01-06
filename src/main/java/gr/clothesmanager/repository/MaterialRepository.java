@@ -40,6 +40,16 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                            @Param("sizeId") Long sizeId,
                                            Pageable pageable);
 
+
+    @Query("SELECT m FROM Material m " +
+            "WHERE LOWER(m.text) = LOWER(:text) " +
+            "AND LOWER(m.size.name) = LOWER(:sizeName) " +
+            "AND LOWER(m.store.title) = LOWER(:storeTitle)")
+    Optional<Material> findByTextAndSizeNameAndStoreTitle(@Param("text") String text,
+                                                          @Param("sizeName") String sizeName,
+                                                          @Param("storeTitle") String storeTitle);
+
+
     @Query("SELECT m FROM Material m " +
             "WHERE (:text IS NULL OR LOWER(m.text) LIKE LOWER(CONCAT('%', :text, '%'))) " +
             "AND (:sizeId IS NULL OR m.size.id = :sizeId)")
