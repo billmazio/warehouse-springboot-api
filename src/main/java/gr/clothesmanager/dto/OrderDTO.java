@@ -8,7 +8,6 @@ import gr.clothesmanager.model.User;
 import lombok.*;
 
 import java.sql.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,10 +16,10 @@ import java.sql.Date;
 public class OrderDTO {
     private Long id;
     private Date dateOfOrder;
-    private Integer quantity;
-    private Integer sold;
+    private Integer quantity;      // Quantity ordered
+    private Integer sold;          // Quantity sold (derived from order quantity)
+    private Integer stock;         // Remaining stock (derived from material)
     private Integer status;
-    private Integer stock;
     private String materialText;
     private String sizeName;
     private String storeTitle;
@@ -33,9 +32,9 @@ public class OrderDTO {
                 .id(order.getId())
                 .dateOfOrder(order.getDateOfOrder())
                 .quantity(order.getQuantity())
-                .sold(order.getSold())
+                .sold(order.getQuantity())  // Sold is the same as the order quantity
+                .stock(order.getMaterial().getQuantity())  // Remaining stock from material
                 .status(order.getStatus())
-                .stock(order.getStock())
                 .materialText(order.getMaterial() != null ? order.getMaterial().getText() : null)
                 .sizeName(order.getSize() != null ? order.getSize().getName() : null)
                 .storeTitle(order.getStore() != null ? order.getStore().getTitle() : null)
@@ -48,13 +47,8 @@ public class OrderDTO {
         order.setId(id);
         order.setDateOfOrder(dateOfOrder);
         order.setQuantity(quantity);
-        order.setSold(sold);
         order.setStatus(status);
-        order.setStock(stock);
-        order.setMaterial(new Material(materialText));
-        order.setSize(new Size(sizeName));
-        order.setStore(new Store(storeTitle));
-        order.setUser(new User(userName));
+        // Relationships (material, size, store, user) should be set separately in the service layer
         return order;
     }
 
@@ -65,8 +59,8 @@ public class OrderDTO {
                 ", dateOfOrder=" + dateOfOrder +
                 ", quantity=" + quantity +
                 ", sold=" + sold +
-                ", status=" + status +
                 ", stock=" + stock +
+                ", status=" + status +
                 ", materialText='" + materialText + '\'' +
                 ", sizeName='" + sizeName + '\'' +
                 ", storeTitle='" + storeTitle + '\'' +

@@ -24,14 +24,8 @@ public class Order {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "sold")
-    private Integer sold;
-
     @Column(name = "status")
     private Integer status;
-
-    @Column(name = "stock")
-    private Integer stock;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "material_id", referencedColumnName = "id", nullable = false)
@@ -48,6 +42,6 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
-
-
 }
+
+

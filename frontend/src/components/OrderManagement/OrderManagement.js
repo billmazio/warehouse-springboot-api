@@ -16,14 +16,13 @@ const OrderManagement = () => {
         quantity: 0,
         dateOfOrder: "",
         status: 1,
-        stock: 0,
-        sold: 0,
         materialText: "",
         materialStoreId: "",
         sizeName: "",
         storeTitle: "",
         userName: "",
     });
+
 
     const [editingOrder, setEditingOrder] = useState(null); // Track which order is being edited
 
@@ -53,7 +52,7 @@ const OrderManagement = () => {
     }, []);
 
     const handleCreate = async () => {
-        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "materialStoreId", "sizeName", "status", "sold", "stock"];
+        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName", "status"];
         const missingFields = requiredFields.filter(field => !newOrder[field]);
 
         if (missingFields.length > 0) {
@@ -63,13 +62,11 @@ const OrderManagement = () => {
 
         try {
             const createdOrder = await createOrder(newOrder);
-            setOrders([...orders, createdOrder]);
+            setOrders([...orders, createdOrder]); // Use the returned order with updated stock and sold values
             setNewOrder({
                 quantity: 0,
                 dateOfOrder: "",
                 status: 1,
-                stock: 0,
-                sold: 0,
                 materialText: "",
                 materialStoreId: "",
                 sizeName: "",
@@ -82,7 +79,7 @@ const OrderManagement = () => {
         }
     };
 
-    // Handle edit button click
+
     const handleEdit = async () => {
         if (!editingOrder) return;
 
@@ -90,14 +87,24 @@ const OrderManagement = () => {
 
         try {
             const updated = await editOrder(updatedOrder.id, updatedOrder);
-            setOrders(orders.map(order => order.id === updated.id ? updated : order));
+            setOrders(orders.map(order => order.id === updated.id ? updated : order)); // Use the returned order with updated values
             toast.success("Η παραγγελία ενημερώθηκε με επιτυχία.");
             setEditingOrder(null); // Close the edit form after successful update
-            setNewOrder({ ...updated }); // Pre-fill new order form with updated data
+            setNewOrder({
+                quantity: 0,
+                dateOfOrder: "",
+                status: 1,
+                materialText: "",
+                materialStoreId: "",
+                sizeName: "",
+                storeTitle: "",
+                userName: "",
+            });
         } catch (err) {
             toast.error("Αποτυχία ενημέρωσης παραγγελίας.");
         }
     };
+
 
     // Handle delete button click
     const handleDelete = async (orderId) => {
@@ -109,6 +116,7 @@ const OrderManagement = () => {
             toast.error("Αποτυχία διαγραφής παραγγελίας.");
         }
     };
+
 
     // Filter materials and sizes based on the selected store
     const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
@@ -125,7 +133,7 @@ const OrderManagement = () => {
 
     return (
         <div className="order-management-container">
-            <ToastContainer />
+            <ToastContainer/>
             <button onClick={() => navigate("/dashboard")} className="back-button">
                 Πίσω στην Κεντρική Διαχείριση
             </button>
@@ -143,18 +151,6 @@ const OrderManagement = () => {
                     placeholder="Ημερομηνία Παραγγελίας"
                     value={newOrder.dateOfOrder}
                     onChange={(e) => setNewOrder({...newOrder, dateOfOrder: e.target.value})}
-                />
-                <input
-                    type="number"
-                    placeholder="Απόθεμα"
-                    value={newOrder.stock}
-                    onChange={(e) => setNewOrder({...newOrder, stock: e.target.value})}
-                />
-                <input
-                    type="number"
-                    placeholder="Πωλήσεις"
-                    value={newOrder.sold}
-                    onChange={(e) => setNewOrder({...newOrder, sold: e.target.value})}
                 />
                 <select
                     value={newOrder.storeTitle}
@@ -185,8 +181,6 @@ const OrderManagement = () => {
                         </option>
                     ))}
                 </select>
-
-
                 <select
                     value={newOrder.sizeName}
                     onChange={(e) => setNewOrder({...newOrder, sizeName: e.target.value})}
@@ -257,7 +251,6 @@ const OrderManagement = () => {
                         <td>{order.userName}</td>
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                         <td>
-
                             <div className="order-action-buttons">
                                 <button className="order-edit-button" onClick={() => handleEdit(order.id)}>Επεξεργασία
                                 </button>
@@ -265,12 +258,12 @@ const OrderManagement = () => {
                                         onClick={() => handleDelete(order.id)}>Διαγραφή
                                 </button>
                             </div>
-
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
+
         </div>
     );
 };
