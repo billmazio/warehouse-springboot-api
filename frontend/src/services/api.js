@@ -292,27 +292,6 @@ export const editOrder = async (id, updatedData) => {
 };
 
 
-
-export const acceptOrder = async (id) => {
-    try {
-        const response = await api.post(`/api/orders/${id}/accept`);
-        return response.data;
-    } catch (error) {
-        console.error('Error accepting order:', error);
-        throw error;
-    }
-};
-
-export const denyOrder = async (id) => {
-    try {
-        const response = await api.post(`/api/orders/${id}/deny`);
-        return response.data;
-    } catch (error) {
-        console.error('Error denying order:', error);
-        throw error;
-    }
-};
-
 export const deleteOrder = async (id) => {
     try {
         const response = await api.delete(`/api/orders/${id}`);

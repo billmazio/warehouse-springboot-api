@@ -33,8 +33,6 @@ public class OrderController {
         }
     }
 
-
-
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
         try {
@@ -61,27 +59,6 @@ public class OrderController {
     }
     
 
-    @PostMapping("/{id}/accept")
-    public ResponseEntity<Void> acceptOrder(@PathVariable Long id) {
-        try {
-            orderService.accept(id);
-            return ResponseEntity.ok().build();
-        } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping("/{id}/deny")
-    public ResponseEntity<Void> deny(@PathVariable Long id) {
-        try {
-            orderService.deny(id);
-            return ResponseEntity.noContent().build();
-        } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

@@ -58,8 +58,6 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                     Pageable pageable);
 
 
-    @Query("SELECT m FROM Material m WHERE m.store.id = :storeId AND m.id = :materialId")
-    Optional<Material> findByStoreIdAndMaterialId(@Param("storeId") Long storeId, @Param("materialId") Long materialId);
 
     Optional<Material> findByTextAndSize_IdAndStore_Id(String text, Long sizeId, Long storeId);
 

@@ -14,9 +14,5 @@ public interface OrderService {
 
     List<OrderDTO> findAll();
 
-    void accept(Long id) throws OrderNotFoundException;
-
-    void deny(Long id) throws OrderNotFoundException;
-
     void delete(Long id) throws OrderNotFoundException;
 }

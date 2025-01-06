@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-   // @Query("SELECT o FROM Order o WHERE o.status = :status")
 
     @Query("SELECT COUNT(o) FROM Order o")
     int countOrders();

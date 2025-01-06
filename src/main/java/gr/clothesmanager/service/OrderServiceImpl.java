@@ -71,7 +71,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws OrderNotFoundException {
         // Fetch existing order
@@ -87,21 +86,17 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByUsername(orderDTO.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Calculate the stock difference
         int oldQuantity = order.getQuantity();
         int newQuantity = orderDTO.getQuantity();
         int quantityDifference = newQuantity - oldQuantity;
 
-        // Check if stock adjustment is possible
         if (material.getQuantity() < quantityDifference) {
             throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
         }
 
-        // Update material stock
         material.setQuantity(material.getQuantity() - quantityDifference);
         materialRepository.save(material);
 
-        // Update order fields
         order.setQuantity(newQuantity);
         order.setDateOfOrder(orderDTO.getDateOfOrder());
         order.setStatus(orderDTO.getStatus());
@@ -110,20 +105,14 @@ public class OrderServiceImpl implements OrderService {
         order.setStore(store);
         order.setUser(user);
 
-        // Save updated order
         Order updatedOrder = orderRepository.save(order);
         LOGGER.info("Order updated with ID: {}", updatedOrder.getId());
 
-        // Create and return updated OrderDTO
         OrderDTO responseDTO = OrderDTO.fromModel(updatedOrder);
         responseDTO.setSold(newQuantity);            // Set sold quantity (same as new quantity)
         responseDTO.setStock(material.getQuantity()); // Set remaining stock
         return responseDTO;
     }
-
-
-
-
 
     @Transactional
     public OrderDTO findById(Long id) throws OrderNotFoundException {
@@ -141,87 +130,6 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderDTO::fromModel)
                 .collect(Collectors.toList());
     }
-
-    @Transactional
-    public void deny(Long id) throws OrderNotFoundException {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
-        order.setStatus(1);  // Order denied
-        orderRepository.save(order);
-        LOGGER.info("Order denied with ID: {}", id);
-    }
-
-/*    @Transactional
-    public void accept(Long id) throws OrderNotFoundException {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
-        order.setStatus(2); // Order accepted
-        orderRepository.save(order);
-
-        Material material = order.getMaterial();
-        if (material != null) {
-            material.setQuantity(material.getQuantity() - order.getQuantity());
-            materialRepository.save(material);
-            LOGGER.info("Order accepted with ID: {}. Material stock updated.", id);
-        } else {
-            LOGGER.warn("Order with ID {} has no associated material.", id);
-        }
-    }*/
-
-    @Transactional
-    public void accept(Long id) throws OrderNotFoundException {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
-        order.setStatus(2); // Order accepted
-        orderRepository.save(order);
-
-        Material material = order.getMaterial();
-        if (material != null) {
-            distributeMaterial(material.getId(), order.getStore().getId(), order.getQuantity());
-            LOGGER.info("Order accepted with ID: {}. Material stock updated and transferred.", id);
-        } else {
-            LOGGER.warn("Order with ID {} has no associated material.", id);
-        }
-    }
-
-    @Transactional
-    public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {
-        // Fetch material from the central store
-        Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new RuntimeException("Material not found"));
-
-        if (material.getQuantity() < quantity) {
-            throw new RuntimeException("Not enough material available for distribution");
-        }
-
-        // Deduct the quantity from the central store
-        material.setQuantity(material.getQuantity() - quantity);
-        materialRepository.save(material);
-
-        // Fetch the receiver store
-        Store receiverStore = storeRepository.findById(receiverStoreId)
-                .orElseThrow(() -> new RuntimeException("Store not found"));
-
-        // Add the quantity to the receiver store
-        Optional<Material> receiverMaterialOpt = materialRepository.findByStoreIdAndMaterialId(receiverStoreId, materialId);
-        if (receiverMaterialOpt.isPresent()) {
-            Material receiverMaterial = receiverMaterialOpt.get();
-            receiverMaterial.setQuantity(receiverMaterial.getQuantity() + quantity);
-            materialRepository.save(receiverMaterial);
-        } else {
-            Material newMaterial = new Material();
-            newMaterial.setStore(receiverStore);
-            newMaterial.setText(material.getText());
-            newMaterial.setQuantity(quantity);
-            newMaterial.setSize(material.getSize());
-            materialRepository.save(newMaterial);
-        }
-
-        // Log the distribution (you can extend this part to store the distribution in a database if needed)
-        LOGGER.info("Distributed {} units of Material ID {} from central store to Store ID {} on {}",
-                quantity, materialId, receiverStoreId, LocalDate.now());
-    }
-
 
 
     @Transactional
