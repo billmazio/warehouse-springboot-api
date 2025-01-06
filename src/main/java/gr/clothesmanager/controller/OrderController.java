@@ -9,6 +9,7 @@ import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,14 +71,16 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/orders/paginated")
-    public ResponseEntity<Page<OrderDTO>> findAllOrders(
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<OrderDTO>> getOrdersPaginated(
             @RequestParam(required = false) Long storeId,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String materialText,
             @RequestParam(required = false) String sizeName,
-            Pageable pageable) {
-        Page<OrderDTO> orders = orderService.findAllPaginatedWithFilters(storeId, userId, materialText, sizeName, pageable);
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        Page<OrderDTO> orders = orderService.findOrdersPaginatedWithFilters(storeId, userId, materialText, sizeName, PageRequest.of(page, size));
         return ResponseEntity.ok(orders);
     }
 

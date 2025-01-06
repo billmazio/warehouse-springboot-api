@@ -32,32 +32,37 @@ const OrderManagement = () => {
         userName: "",
     });
 
-    const [editingOrder, setEditingOrder] = useState(null); // Track which order is being edited
+    const [editingOrder, setEditingOrder] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const pageSize = 5;
+
+    const loadData = async (page = 0, size = 5) => {
+        try {
+            const [storeData, userData, materialData, sizeData, orderData] = await Promise.all([
+                fetchStores(),
+                fetchUsers(),
+                fetchMaterials(),
+                fetchSizes(),
+                fetchOrders(page, size, null, null, "", ""), // Adjust filters as needed
+            ]);
+
+            setStores(storeData);
+            setUsers(userData);
+            setMaterials(materialData);
+            setSizes(sizeData);
+            setOrders(orderData.content || []); // Ensure orders is always an array
+            setTotalPages(orderData.totalPages || 0);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            toast.error("Αποτυχία φόρτωσης δεδομένων.");
+        }
+    };
+
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [storeData, userData, materialData, sizeData, orderData] = await Promise.all([
-                    fetchStores(),
-                    fetchUsers(),
-                    fetchMaterials(),
-                    fetchSizes(),
-                    fetchOrders(),
-                ]);
-
-                setStores(storeData);
-                setUsers(userData);
-                setMaterials(materialData);
-                setSizes(sizeData);
-                setOrders(orderData);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-                toast.error("Αποτυχία φόρτωσης δεδομένων.");
-            }
-        };
-
-        loadData();
-    }, []);
+        loadData(currentPage, pageSize);
+    }, [currentPage, pageSize]);
 
     const handleCreate = async () => {
         const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName"];
@@ -167,6 +172,11 @@ const OrderManagement = () => {
         }
     };
 
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
     const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
@@ -335,6 +345,17 @@ const OrderManagement = () => {
                 ))}
                 </tbody>
             </table>
+            <div className="pagination-controls">
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
+                    Προηγούμενη
+                </button>
+                <span>
+                    Σελίδα {currentPage + 1} από {totalPages}
+                </span>
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage + 1 === totalPages}>
+                    Επόμενη
+                </button>
+            </div>
 
         </div>
     );

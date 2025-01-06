@@ -240,25 +240,20 @@ export const fetchSizes = async () => {
 };
 
 
-export const fetchOrders = async () => {
+export const fetchOrders = async (page = 0, size = 5, storeId = null, userId = null, materialText = "", sizeName = "") => {
     try {
-        const response = await api.get('/api/orders');
-        return response.data;
+        const response = await api.get("/api/orders/paginated", {
+            params: { page, size, storeId, userId, materialText, sizeName },
+        });
+        return response.data; // Assuming response contains { content, totalPages, number }
     } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
         throw error;
     }
 };
 
-export const fetchOrderById = async (id) => {
-    try {
-        const response = await api.get(`/api/orders/${id}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching order:', error);
-        throw error;
-    }
-};
+
+
 export const createOrder = async (orderData) => {
     try {
         // Make sure to include the full backend URL if needed

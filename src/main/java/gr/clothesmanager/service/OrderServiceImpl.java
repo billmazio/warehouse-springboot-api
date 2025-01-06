@@ -133,7 +133,6 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional
     public void delete(Long id) throws OrderNotFoundException {
         if (!orderRepository.existsById(id)) {
@@ -143,29 +142,20 @@ public class OrderServiceImpl implements OrderService {
         LOGGER.info("Order deleted with ID: {}", id);
     }
 
-    private OrderDTO convertToDTO(Order order) {
-        OrderDTO dto = new OrderDTO();
-        dto.setId(order.getId());
-        dto.setDateOfOrder(order.getDateOfOrder());
-        dto.setQuantity(order.getQuantity());
-        dto.setStatus(order.getStatus());
-        dto.setMaterialText(order.getMaterial().getText());
-        dto.setSizeName(order.getSize().getName());
-        dto.setStoreTitle(order.getStore().getTitle());
-        dto.setUserName(order.getUser().getUsername());
-        return dto;
-    }
-
     @Transactional
-    public Page<OrderDTO> findAllPaginatedWithFilters(Long storeId, Long userId, String materialText, String sizeName, Pageable pageable) {
+    public Page<OrderDTO> findOrdersPaginatedWithFilters(Long storeId, Long userId, String materialText, String sizeName, Pageable pageable) {
         LOGGER.info("Fetching orders with optional filters. Store ID: {}, User ID: {}, Material Text: {}, Size Name: {}", storeId, userId, materialText, sizeName);
 
-        // Fetch orders with optional filters
-        Page<Order> ordersPage = orderRepository.findAllByFilters(storeId, userId, materialText, sizeName, pageable);
+        Page<Order> ordersPage;
+        if (storeId == null && userId == null && (materialText == null || materialText.isEmpty()) && (sizeName == null || sizeName.isEmpty())) {
+            ordersPage = orderRepository.findAll(pageable);
+        } else {
 
-        // Convert each Order entity to OrderDTO
-        return ordersPage.map(this::convertToDTO);
+            ordersPage = orderRepository.findAllByFilters(storeId, userId, materialText, sizeName, pageable);
+        }
+        return ordersPage.map(OrderDTO::fromModel);
     }
+
 
 }
 
