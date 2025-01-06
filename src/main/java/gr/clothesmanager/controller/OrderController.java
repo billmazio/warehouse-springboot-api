@@ -45,6 +45,16 @@ public class OrderController {
     public ResponseEntity<List<OrderDTO>> findAll() {
         return ResponseEntity.ok(orderService.findAll());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
+        try {
+            OrderDTO updatedOrder = orderService.updateOrder(id, orderDTO);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     
 
     @PostMapping("/{id}/accept")

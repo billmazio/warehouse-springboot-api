@@ -281,6 +281,16 @@ export const createOrder = async (orderData) => {
 };
 
 
+export const editOrder = async (id, updatedData) => {
+    try {
+        const response = await api.put(`/api/orders/${id}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating order:", error.response || error.message);
+        throw error;
+    }
+};
+
 
 
 export const acceptOrder = async (id) => {

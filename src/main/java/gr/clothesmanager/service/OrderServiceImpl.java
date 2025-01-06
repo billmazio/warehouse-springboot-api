@@ -61,7 +61,38 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTO.fromModel(savedOrder);
     }
 
+    @Transactional
+    public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws OrderNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
 
+        // You can map the fields from orderDTO to the order object.
+        order.setQuantity(orderDTO.getQuantity());
+        order.setDateOfOrder(orderDTO.getDateOfOrder());
+        order.setStatus(orderDTO.getStatus());
+        order.setStock(orderDTO.getStock());
+        order.setSold(orderDTO.getSold());
+
+        // Update the associated entities like material, size, store, user
+        Material material = materialRepository.findByText(orderDTO.getMaterialText()).get(0); // Assuming this fetches the correct material
+        Size size = sizeRepository.findByName(orderDTO.getSizeName())
+                .orElseThrow(() -> new RuntimeException("Size not found"));
+        Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+        User user = userRepository.findByUsername(orderDTO.getUserName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        order.setMaterial(material);
+        order.setSize(size);
+        order.setStore(store);
+        order.setUser(user);
+
+        // Save updated order
+        Order updatedOrder = orderRepository.save(order);
+        LOGGER.info("Order updated with ID: {}", updatedOrder.getId());
+
+        return OrderDTO.fromModel(updatedOrder);
+    }
 
 
 

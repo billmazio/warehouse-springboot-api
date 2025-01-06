@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createOrder, fetchUsers, fetchStores, fetchMaterials, fetchSizes, fetchOrders } from "../../services/api"; // Assuming fetch functions
+import { createOrder, fetchUsers, fetchStores, fetchMaterials, fetchSizes, fetchOrders, editOrder, deleteOrder } from "../../services/api"; // Added editOrder and deleteOrder
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./OrderManagement.css";
@@ -24,6 +24,8 @@ const OrderManagement = () => {
         storeTitle: "",
         userName: "",
     });
+
+    const [editingOrder, setEditingOrder] = useState(null); // Track which order is being edited
 
     useEffect(() => {
         const loadData = async () => {
@@ -80,9 +82,46 @@ const OrderManagement = () => {
         }
     };
 
+    // Handle edit button click
+    const handleEdit = async () => {
+        if (!editingOrder) return;
+
+        const updatedOrder = { ...editingOrder, ...newOrder };
+
+        try {
+            const updated = await editOrder(updatedOrder.id, updatedOrder);
+            setOrders(orders.map(order => order.id === updated.id ? updated : order));
+            toast.success("Η παραγγελία ενημερώθηκε με επιτυχία.");
+            setEditingOrder(null); // Close the edit form after successful update
+            setNewOrder({ ...updated }); // Pre-fill new order form with updated data
+        } catch (err) {
+            toast.error("Αποτυχία ενημέρωσης παραγγελίας.");
+        }
+    };
+
+    // Handle delete button click
+    const handleDelete = async (orderId) => {
+        try {
+            await deleteOrder(orderId);
+            setOrders(orders.filter(order => order.id !== orderId));
+            toast.success("Η παραγγελία διαγράφηκε επιτυχώς.");
+        } catch (err) {
+            toast.error("Αποτυχία διαγραφής παραγγελίας.");
+        }
+    };
+
     // Filter materials and sizes based on the selected store
     const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
     const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
+
+    const uniqueMaterials = filteredMaterials.reduce((acc, material) => {
+        if (!acc.some((item) => item.text === material.text)) {
+            acc.push(material);
+        }
+        return acc;
+    }, []);
+
+
 
     return (
         <div className="order-management-container">
@@ -97,29 +136,29 @@ const OrderManagement = () => {
                     type="number"
                     placeholder="Ποσότητα"
                     value={newOrder.quantity}
-                    onChange={(e) => setNewOrder({ ...newOrder, quantity: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, quantity: e.target.value})}
                 />
                 <input
                     type="date"
                     placeholder="Ημερομηνία Παραγγελίας"
                     value={newOrder.dateOfOrder}
-                    onChange={(e) => setNewOrder({ ...newOrder, dateOfOrder: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, dateOfOrder: e.target.value})}
                 />
                 <input
                     type="number"
                     placeholder="Απόθεμα"
                     value={newOrder.stock}
-                    onChange={(e) => setNewOrder({ ...newOrder, stock: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, stock: e.target.value})}
                 />
                 <input
                     type="number"
                     placeholder="Πωλήσεις"
                     value={newOrder.sold}
-                    onChange={(e) => setNewOrder({ ...newOrder, sold: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, sold: e.target.value})}
                 />
                 <select
                     value={newOrder.storeTitle}
-                    onChange={(e) => setNewOrder({ ...newOrder, storeTitle: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, storeTitle: e.target.value})}
                 >
                     <option value="" disabled>Επιλογή Αποθήκης</option>
                     {stores.map((store) => (
@@ -130,22 +169,27 @@ const OrderManagement = () => {
                 </select>
                 <select
                     value={newOrder.materialText}
-                    onChange={(e) => setNewOrder({
-                        ...newOrder,
-                        materialText: e.target.value.split('-')[0].trim(),
-                        materialStoreId: e.target.value.split('-')[1].trim()
-                    })}
+                    onChange={(e) => {
+                        const selectedMaterial = uniqueMaterials.find((material) => material.text === e.target.value);
+                        setNewOrder({
+                            ...newOrder,
+                            materialText: e.target.value,
+                            materialStoreId: selectedMaterial ? selectedMaterial.id : "",
+                        });
+                    }}
                 >
                     <option value="" disabled>Επιλογή Υλικού</option>
-                    {filteredMaterials.map((material) => (
-                        <option key={material.id} value={`${material.text} - ${material.storeId}`}>
-                            {material.text} - {material.storeTitle}
+                    {uniqueMaterials.map((material) => (
+                        <option key={material.id} value={material.text}>
+                            {material.text}
                         </option>
                     ))}
                 </select>
+
+
                 <select
                     value={newOrder.sizeName}
-                    onChange={(e) => setNewOrder({ ...newOrder, sizeName: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, sizeName: e.target.value})}
                 >
                     <option value="" disabled>Επιλογή Μεγέθους</option>
                     {filteredSizes.map((size) => (
@@ -156,7 +200,7 @@ const OrderManagement = () => {
                 </select>
                 <select
                     value={newOrder.userName}
-                    onChange={(e) => setNewOrder({ ...newOrder, userName: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, userName: e.target.value})}
                 >
                     <option value="" disabled>Επιλογή Χρήστη</option>
                     {users.map((user) => (
@@ -167,7 +211,7 @@ const OrderManagement = () => {
                 </select>
                 <select
                     value={newOrder.status}
-                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
+                    onChange={(e) => setNewOrder({...newOrder, status: e.target.value})}
                 >
                     <option value={1}>Σε Εκκρεμότητα</option>
                     <option value={2}>Ολοκληρωμένη</option>
@@ -177,6 +221,11 @@ const OrderManagement = () => {
                 <button className="create-button" onClick={handleCreate}>
                     Δημιουργία Παραγγελίας
                 </button>
+                {editingOrder && (
+                    <button className="edit-button" onClick={handleEdit}>
+                        Ενημέρωση Παραγγελίας
+                    </button>
+                )}
             </div>
 
             <h2>Λίστα Παραγγελιών</h2>
@@ -192,6 +241,7 @@ const OrderManagement = () => {
                     <th>Αποθήκη</th>
                     <th>Χρήστης</th>
                     <th>Κατάσταση</th>
+                    <th>Ενέργειες</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -206,6 +256,10 @@ const OrderManagement = () => {
                         <td>{order.storeTitle}</td>
                         <td>{order.userName}</td>
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
+                        <td>
+                            <button onClick={() => setEditingOrder(order)}>Επεξεργασία</button>
+                            <button onClick={() => handleDelete(order.id)}>Διαγραφή</button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
