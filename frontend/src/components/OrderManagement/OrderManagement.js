@@ -150,9 +150,13 @@ const OrderManagement = () => {
                 <input
                     type="number"
                     placeholder="Ποσότητα"
-                    value={newOrder.quantity}
-                    onChange={(e) => setNewOrder({...newOrder, quantity: e.target.value})}
+                    value={newOrder.quantity || ""} // Show placeholder when quantity is 0 or empty
+                    onChange={(e) => setNewOrder({
+                        ...newOrder,
+                        quantity: e.target.value ? parseInt(e.target.value) : 0
+                    })}
                 />
+
                 <input
                     type="date"
                     placeholder="Ημερομηνία Παραγγελίας"
@@ -233,8 +237,8 @@ const OrderManagement = () => {
             <table className="order-table">
                 <thead>
                 <tr>
-                    <th>ΗΜΕΡΟΜΗΝΙΑ</th>
                     <th>ΠΟΣΟΤΗΤΑ</th>
+                    <th>ΗΜΕΡΟΜΗΝΙΑ</th>
                     <th>ΑΠΟΘΕΜΑ</th>
                     <th>ΠΩΛΗΣΕΙΣ</th>
                     <th>ΥΛΙΚΟ</th>
@@ -248,8 +252,8 @@ const OrderManagement = () => {
                 <tbody>
                 {orders.map((order) => (
                     <tr key={order.id}>
-                        <td>{order.dateOfOrder}</td>
                         <td>{order.quantity}</td>
+                        <td>{order.dateOfOrder}</td>
                         <td>{order.stock}</td>
                         <td>{order.sold}</td>
                         <td>{order.materialText}</td>
@@ -259,8 +263,12 @@ const OrderManagement = () => {
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                         <td>
                             <div className="order-action-buttons">
-                                <button className="order-edit-button" onClick={() => handleEditButtonClick(order.id)}>Επεξεργασία</button>
-                                <button className="order-delete-button" onClick={() => handleDelete(order.id)}>Διαγραφή</button>
+                                <button className="order-edit-button"
+                                        onClick={() => handleEditButtonClick(order.id)}>Επεξεργασία
+                                </button>
+                                <button className="order-delete-button"
+                                        onClick={() => handleDelete(order.id)}>Διαγραφή
+                                </button>
                             </div>
                         </td>
                     </tr>
