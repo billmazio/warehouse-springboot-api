@@ -8,6 +8,8 @@ import gr.clothesmanager.service.exceptions.OrderAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,8 +59,6 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
@@ -69,6 +69,18 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @GetMapping("/orders/paginated")
+    public ResponseEntity<Page<OrderDTO>> findAllOrders(
+            @RequestParam(required = false) Long storeId,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String materialText,
+            @RequestParam(required = false) String sizeName,
+            Pageable pageable) {
+        Page<OrderDTO> orders = orderService.findAllPaginatedWithFilters(storeId, userId, materialText, sizeName, pageable);
+        return ResponseEntity.ok(orders);
+    }
+
 }
 
 

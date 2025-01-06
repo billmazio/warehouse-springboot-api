@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -140,6 +142,31 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteById(id);
         LOGGER.info("Order deleted with ID: {}", id);
     }
+
+    private OrderDTO convertToDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setDateOfOrder(order.getDateOfOrder());
+        dto.setQuantity(order.getQuantity());
+        dto.setStatus(order.getStatus());
+        dto.setMaterialText(order.getMaterial().getText());
+        dto.setSizeName(order.getSize().getName());
+        dto.setStoreTitle(order.getStore().getTitle());
+        dto.setUserName(order.getUser().getUsername());
+        return dto;
+    }
+
+    @Transactional
+    public Page<OrderDTO> findAllPaginatedWithFilters(Long storeId, Long userId, String materialText, String sizeName, Pageable pageable) {
+        LOGGER.info("Fetching orders with optional filters. Store ID: {}, User ID: {}, Material Text: {}, Size Name: {}", storeId, userId, materialText, sizeName);
+
+        // Fetch orders with optional filters
+        Page<Order> ordersPage = orderRepository.findAllByFilters(storeId, userId, materialText, sizeName, pageable);
+
+        // Convert each Order entity to OrderDTO
+        return ordersPage.map(this::convertToDTO);
+    }
+
 }
 
 

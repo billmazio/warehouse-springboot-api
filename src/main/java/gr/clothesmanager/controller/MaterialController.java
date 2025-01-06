@@ -2,7 +2,6 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.DistributionRequestDTO;
 import gr.clothesmanager.dto.MaterialDTO;
-import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
@@ -10,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
