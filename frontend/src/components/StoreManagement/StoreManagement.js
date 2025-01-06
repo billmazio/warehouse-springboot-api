@@ -14,8 +14,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./StoreManagement.css";
 
-const centralStoreId = 1;
-
 const StoreManagement = () => {
     const [stores, setStores] = useState([]);
     const [loggedInUserRole, setLoggedInUserRole] = useState("");
@@ -347,6 +345,27 @@ const StoreManagement = () => {
                 <div className="distribution-modal">
                     <h3>Μεταφορά Υλικού</h3>
 
+                    {/* First Dropdown: Select Store */}
+                    <select
+                        value={distributionData.storeId}
+                        onChange={(e) => {
+                            const selectedStoreId = e.target.value;
+                            setDistributionData({
+                                ...distributionData,
+                                storeId: selectedStoreId,
+                                materialId: "", // Reset material selection when store changes
+                            });
+                        }}
+                    >
+                        <option value="">Επιλέξτε Αποθήκη Προέλευσης</option>
+                        {stores.map((store) => (
+                            <option key={store.id} value={store.id}>
+                                {store.title}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* Second Dropdown: Select Material (Filtered by Selected Store) */}
                     <select
                         value={distributionData.materialId}
                         onChange={(e) =>
@@ -355,15 +374,19 @@ const StoreManagement = () => {
                                 materialId: e.target.value,
                             })
                         }
+                        disabled={!distributionData.storeId} // Disable if no store is selected
                     >
                         <option value="">Επιλέξτε Υλικό</option>
-                        {materials.map((material) => (
-                            <option key={material.id} value={material.id}>
-                                {material.text} - Μέγεθος: {material.sizeName}
-                            </option>
-                        ))}
+                        {materials
+                            .filter((material) => material.storeId === Number(distributionData.storeId))
+                            .map((material) => (
+                                <option key={material.id} value={material.id}>
+                                    {material.text} - Μέγεθος: {material.sizeName}
+                                </option>
+                            ))}
                     </select>
 
+                    {/* Third Dropdown: Select Receiver Store */}
                     <select
                         value={distributionData.receiverStoreId}
                         onChange={(e) =>
@@ -375,7 +398,7 @@ const StoreManagement = () => {
                     >
                         <option value="">Επιλέξτε Αποθήκη Προορισμού</option>
                         {stores
-                            .filter((store) => store.id !== centralStoreId) // Exclude the central store
+                            .filter((store) => store.id !== Number(distributionData.storeId)) // Exclude selected source store
                             .map((store) => (
                                 <option key={store.id} value={store.id}>
                                     {store.title}
@@ -383,6 +406,7 @@ const StoreManagement = () => {
                             ))}
                     </select>
 
+                    {/* Input for Quantity */}
                     <input
                         type="number"
                         placeholder="Ποσότητα"
@@ -407,6 +431,7 @@ const StoreManagement = () => {
             )}
 
 
+
             {/* Confirmation Dialog */}
             {showConfirmation && (
                 <div className="confirmation-dialog">
@@ -420,7 +445,7 @@ const StoreManagement = () => {
                                 className="store-cancel-button"
                                 onClick={closeConfirmationDialog}
                             >
-                                Ακύρωση
+                            Ακύρωση
                             </button>
                             <button
                                 className="store-confirm-button"
