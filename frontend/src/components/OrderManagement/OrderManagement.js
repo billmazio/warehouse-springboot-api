@@ -9,7 +9,6 @@ import {
     fetchOrders,
     editOrder,
     deleteOrder,
-    deleteStore
 } from "../../services/api"; // Added editOrder and deleteOrder
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -122,15 +121,6 @@ const OrderManagement = () => {
         }
     };
 
-    const handleDelete = async (orderId) => {
-        try {
-            await deleteOrder(orderId);
-            setOrders(orders.filter(order => order.id !== orderId));
-            toast.success("Η παραγγελία διαγράφηκε επιτυχώς.");
-        } catch (err) {
-            toast.error("Αποτυχία διαγραφής παραγγελίας.");
-        }
-    };
 
     const handleEditButtonClick = (orderId) => {
         const orderToEdit = orders.find(order => order.id === orderId);
@@ -324,9 +314,18 @@ const OrderManagement = () => {
                                 </button>
                                 {isConfirmationOpen && (
                                     <div className="confirmation-dialog">
-                                        <p>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την παραγγελία;</p>
-                                        <button onClick={confirmDelete}>Ναι</button>
-                                        <button onClick={closeConfirmationDialog}>Όχι</button>
+                                        <div className="confirmation-content">
+                                            <p>Είστε σίγουροι ότι θέλετε να διαγράψετε το
+                                                προϊόν <strong>{orderToDelete.materialText}</strong>;</p>
+                                            <div className="order-button-group">
+                                                <button className="order-cancel-button"
+                                                        onClick={closeConfirmationDialog}>Ακύρωση
+                                                </button>
+                                                <button className="order-confirm-button"
+                                                        onClick={confirmDelete}>Επιβεβαίωση
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
