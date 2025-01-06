@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createOrder, fetchUsers, fetchStores, fetchMaterials, fetchSizes, fetchOrders, editOrder, deleteOrder } from "../../services/api"; // Added editOrder and deleteOrder
+import {
+    createOrder,
+    fetchUsers,
+    fetchStores,
+    fetchMaterials,
+    fetchSizes,
+    fetchOrders,
+    editOrder,
+    deleteOrder,
+    deleteStore
+} from "../../services/api"; // Added editOrder and deleteOrder
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./OrderManagement.css";
@@ -51,11 +61,21 @@ const OrderManagement = () => {
     }, []);
 
     const handleCreate = async () => {
-        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName", "status"];
+        const requiredFields = ["quantity", "dateOfOrder", "userName", "storeTitle", "materialText", "sizeName"];
         const missingFields = requiredFields.filter(field => !newOrder[field]);
 
         if (missingFields.length > 0) {
-            toast.warning(`Missing required fields: ${missingFields.join(", ")}`);
+            const fieldTranslations = {
+                quantity: "Ποσότητα",
+                dateOfOrder: "Ημερομηνία Παραγγελίας",
+                userName: "Χρήστης",
+                storeTitle: "Αποθήκη",
+                materialText: "Υλικό",
+                sizeName: "Μέγεθος"
+            };
+
+            const translatedFields = missingFields.map(field => fieldTranslations[field]).join(", ");
+            toast.warning(`Λείπουν απαιτούμενα πεδία: ${translatedFields}`);
             return;
         }
 
@@ -77,6 +97,7 @@ const OrderManagement = () => {
             toast.error("Αποτυχία δημιουργίας παραγγελίας.");
         }
     };
+
 
     const handleEdit = async () => {
         if (!editingOrder) return;
@@ -127,6 +148,35 @@ const OrderManagement = () => {
             });
         }
     };
+
+    const [orderToDelete, setOrderToDelete] = useState(null);
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+
+    const openConfirmationDialog = (order) => {
+        setOrderToDelete(order);
+        setIsConfirmationOpen(true);
+    };
+
+    const closeConfirmationDialog = () => {
+        setOrderToDelete(null);
+        setIsConfirmationOpen(false);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await deleteOrder(orderToDelete.id);
+            setOrders(orders.filter((order) => order.id !== orderToDelete.id));
+            toast.success(`Η παραγγελία με ID "${orderToDelete.id}" διαγράφηκε επιτυχώς.`);
+        } catch (err) {
+            console.error("Error deleting order:", err);
+            toast.error(
+                `Δεν μπορείτε να διαγράψετε την παραγγελία με ID "${orderToDelete.id}" επειδή περιέχει συνδεδεμένα δεδομένα.`
+            );
+        } finally {
+            closeConfirmationDialog();
+        }
+    };
+
 
     const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
     const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
@@ -266,9 +316,20 @@ const OrderManagement = () => {
                                 <button className="order-edit-button"
                                         onClick={() => handleEditButtonClick(order.id)}>Επεξεργασία
                                 </button>
-                                <button className="order-delete-button"
-                                        onClick={() => handleDelete(order.id)}>Διαγραφή
+                                <button
+                                    className="order-delete-button"
+                                    onClick={() => openConfirmationDialog(order)}
+                                >
+                                    Διαγραφή
                                 </button>
+                                {isConfirmationOpen && (
+                                    <div className="confirmation-dialog">
+                                        <p>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την παραγγελία;</p>
+                                        <button onClick={confirmDelete}>Ναι</button>
+                                        <button onClick={closeConfirmationDialog}>Όχι</button>
+                                    </div>
+                                )}
+
                             </div>
                         </td>
                     </tr>
