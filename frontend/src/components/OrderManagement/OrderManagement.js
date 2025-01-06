@@ -23,7 +23,6 @@ const OrderManagement = () => {
         userName: "",
     });
 
-
     const [editingOrder, setEditingOrder] = useState(null); // Track which order is being edited
 
     useEffect(() => {
@@ -79,17 +78,14 @@ const OrderManagement = () => {
         }
     };
 
-
     const handleEdit = async () => {
         if (!editingOrder) return;
 
-        const updatedOrder = { ...editingOrder, ...newOrder };
-
         try {
-            const updated = await editOrder(updatedOrder.id, updatedOrder);
-            setOrders(orders.map(order => order.id === updated.id ? updated : order)); // Use the returned order with updated values
+            const updatedOrder = await editOrder(editingOrder.id, newOrder); // Send updated data to the backend
+            setOrders(orders.map(order => order.id === updatedOrder.id ? updatedOrder : order)); // Update order list
             toast.success("Η παραγγελία ενημερώθηκε με επιτυχία.");
-            setEditingOrder(null); // Close the edit form after successful update
+            setEditingOrder(null); // Clear editing state
             setNewOrder({
                 quantity: 0,
                 dateOfOrder: "",
@@ -105,8 +101,6 @@ const OrderManagement = () => {
         }
     };
 
-
-    // Handle delete button click
     const handleDelete = async (orderId) => {
         try {
             await deleteOrder(orderId);
@@ -117,8 +111,23 @@ const OrderManagement = () => {
         }
     };
 
+    const handleEditButtonClick = (orderId) => {
+        const orderToEdit = orders.find(order => order.id === orderId);
+        if (orderToEdit) {
+            setEditingOrder(orderToEdit); // Track the order being edited
+            setNewOrder({
+                quantity: orderToEdit.quantity,
+                dateOfOrder: orderToEdit.dateOfOrder,
+                status: orderToEdit.status,
+                materialText: orderToEdit.materialText,
+                materialStoreId: orderToEdit.materialStoreId,
+                sizeName: orderToEdit.sizeName,
+                storeTitle: orderToEdit.storeTitle,
+                userName: orderToEdit.userName,
+            });
+        }
+    };
 
-    // Filter materials and sizes based on the selected store
     const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
     const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
 
@@ -128,8 +137,6 @@ const OrderManagement = () => {
         }
         return acc;
     }, []);
-
-
 
     return (
         <div className="order-management-container">
@@ -212,7 +219,7 @@ const OrderManagement = () => {
                     <option value={3}>Ακυρωμένη</option>
                 </select>
 
-                <button className="create-button" onClick={handleCreate}>
+                <button className="create-button" onClick={handleCreate} disabled={editingOrder !== null}>
                     Δημιουργία Παραγγελίας
                 </button>
                 {editingOrder && (
@@ -252,11 +259,8 @@ const OrderManagement = () => {
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                         <td>
                             <div className="order-action-buttons">
-                                <button className="order-edit-button" onClick={() => handleEdit(order.id)}>Επεξεργασία
-                                </button>
-                                <button className="order-delete-button"
-                                        onClick={() => handleDelete(order.id)}>Διαγραφή
-                                </button>
+                                <button className="order-edit-button" onClick={() => handleEditButtonClick(order.id)}>Επεξεργασία</button>
+                                <button className="order-delete-button" onClick={() => handleDelete(order.id)}>Διαγραφή</button>
                             </div>
                         </td>
                     </tr>
