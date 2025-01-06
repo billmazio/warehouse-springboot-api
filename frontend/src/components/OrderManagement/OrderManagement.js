@@ -257,8 +257,15 @@ const OrderManagement = () => {
                         <td>{order.userName}</td>
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                         <td>
-                            <button onClick={() => setEditingOrder(order)}>Επεξεργασία</button>
-                            <button onClick={() => handleDelete(order.id)}>Διαγραφή</button>
+
+                            <div className="order-action-buttons">
+                                <button className="order-edit-button" onClick={() => handleEdit(order.id)}>Επεξεργασία
+                                </button>
+                                <button className="order-delete-button"
+                                        onClick={() => handleDelete(order.id)}>Διαγραφή
+                                </button>
+                            </div>
+
                         </td>
                     </tr>
                 ))}
