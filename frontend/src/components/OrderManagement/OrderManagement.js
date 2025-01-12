@@ -9,6 +9,8 @@ import {
     fetchOrders,
     editOrder,
     deleteOrder,
+    fetchUserDetails,
+
 } from "../../services/api"; // Added editOrder and deleteOrder
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,6 +19,7 @@ import "./OrderManagement.css";
 const OrderManagement = () => {
     const navigate = useNavigate();
     const [stores, setStores] = useState([]);
+    const [loggedInUserRole, setLoggedInUserRole] = useState("");
     const [users, setUsers] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [sizes, setSizes] = useState([]);
@@ -39,11 +42,12 @@ const OrderManagement = () => {
 
     const loadData = async (page = 0, size = 5) => {
         try {
-            const [storeData, userData, materialData, sizeData, orderData] = await Promise.all([
+            const [storeData, userData, materialData, sizeData, loggedInUser, orderData] = await Promise.all([
                 fetchStores(),
                 fetchUsers(),
                 fetchMaterials(),
                 fetchSizes(),
+                fetchUserDetails(),
                 fetchOrders(page, size, null, null, "", ""), // Adjust filters as needed
             ]);
 
@@ -53,6 +57,12 @@ const OrderManagement = () => {
             setSizes(sizeData);
             setOrders(orderData.content || []); // Ensure orders is always an array
             setTotalPages(orderData.totalPages || 0);
+
+            const roles = loggedInUser.roles.map((role) => role.name);
+            if (roles.includes('SUPER_ADMIN')) {
+                setLoggedInUserRole('SUPER_ADMIN');
+            }
+
         } catch (err) {
             console.error("Error fetching data:", err);
             toast.error("Αποτυχία φόρτωσης δεδομένων.");
@@ -286,6 +296,24 @@ const OrderManagement = () => {
                         Ενημέρωση Παραγγελίας
                     </button>
                 )}
+
+                <button
+                    className="cancel-button"
+                    onClick={() =>
+                        setNewOrder({
+                            quantity: 0,
+                            dateOfOrder: "",
+                            status: 1,
+                            materialText: "",
+                            materialStoreId: "",
+                            sizeName: "",
+                            storeTitle: "",
+                            userName: "",
+                        })
+                    }
+                >
+                    Ακύρωση
+                </button>
             </div>
 
             <h2>Λίστα Παραγγελιών</h2>
@@ -315,6 +343,7 @@ const OrderManagement = () => {
                         <td>{order.userName}</td>
                         <td>{order.status === 1 ? "Σε Εκκρεμότητα" : order.status === 2 ? "Ολοκληρωμένη" : "Ακυρωμένη"}</td>
                         <td>
+                            {loggedInUserRole === "SUPER_ADMIN" && (
                             <div className="order-action-buttons">
                                 <button className="order-edit-button"
                                         onClick={() => handleEditButtonClick(order.id)}>Επεξεργασία
@@ -325,6 +354,7 @@ const OrderManagement = () => {
                                 >
                                     Διαγραφή
                                 </button>
+
                                 {isConfirmationOpen && (
                                     <div className="confirmation-dialog">
                                         <div className="confirmation-content">
@@ -341,8 +371,8 @@ const OrderManagement = () => {
                                         </div>
                                     </div>
                                 )}
-
                             </div>
+                            )}
                         </td>
                     </tr>
                 ))}
