@@ -290,7 +290,6 @@ const OrderManagement = () => {
                     <th>ΠΟΣΟΤΗΤΑ</th>
                     <th>ΗΜΕΡΟΜΗΝΙΑ</th>
                     <th>ΑΠΟΘΕΜΑ</th>
-                    <th>ΠΩΛΗΣΕΙΣ</th>
                     <th>ΥΛΙΚΟ</th>
                     <th>ΜΕΓΕΘΟΣ</th>
                     <th>ΑΠΟΘΗΚΗ</th>
@@ -305,7 +304,6 @@ const OrderManagement = () => {
                         <td>{order.quantity}</td>
                         <td>{order.dateOfOrder}</td>
                         <td>{order.stock}</td>
-                        <td>{order.sold}</td>
                         <td>{order.materialText}</td>
                         <td>{order.sizeName}</td>
                         <td>{order.storeTitle}</td>

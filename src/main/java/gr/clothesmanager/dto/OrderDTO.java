@@ -1,10 +1,5 @@
 package gr.clothesmanager.dto;
-
-import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.Order;
-import gr.clothesmanager.model.Size;
-import gr.clothesmanager.model.Store;
-import gr.clothesmanager.model.User;
 import lombok.*;
 
 import java.sql.Date;
@@ -17,7 +12,6 @@ public class OrderDTO {
     private Long id;
     private Date dateOfOrder;
     private Integer quantity;      // Quantity ordered
-    private Integer sold;          // Quantity sold (derived from order quantity)
     private Integer stock;         // Remaining stock (derived from material)
     private Integer status;
     private String materialText;
@@ -32,7 +26,6 @@ public class OrderDTO {
                 .id(order.getId())
                 .dateOfOrder(order.getDateOfOrder())
                 .quantity(order.getQuantity())
-                .sold(order.getQuantity())  // Sold is the same as the order quantity
                 .stock(order.getMaterial().getQuantity())  // Remaining stock from material
                 .status(order.getStatus())
                 .materialText(order.getMaterial() != null ? order.getMaterial().getText() : null)
@@ -58,7 +51,6 @@ public class OrderDTO {
                 "id=" + id +
                 ", dateOfOrder=" + dateOfOrder +
                 ", quantity=" + quantity +
-                ", sold=" + sold +
                 ", stock=" + stock +
                 ", status=" + status +
                 ", materialText='" + materialText + '\'' +

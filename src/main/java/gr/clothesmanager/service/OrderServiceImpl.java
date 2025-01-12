@@ -67,7 +67,6 @@ public class OrderServiceImpl implements OrderService {
 
         // Create response DTO with sold and remaining stock information
         OrderDTO responseDTO = OrderDTO.fromModel(savedOrder);
-        responseDTO.setSold(requestedQuantity);            // Set sold quantity
         responseDTO.setStock(material.getQuantity());      // Set remaining stock
         return responseDTO;
     }
@@ -111,7 +110,6 @@ public class OrderServiceImpl implements OrderService {
         LOGGER.info("Order updated with ID: {}", updatedOrder.getId());
 
         OrderDTO responseDTO = OrderDTO.fromModel(updatedOrder);
-        responseDTO.setSold(newQuantity);            // Set sold quantity (same as new quantity)
         responseDTO.setStock(material.getQuantity()); // Set remaining stock
         return responseDTO;
     }
