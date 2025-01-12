@@ -178,7 +178,11 @@ const OrderManagement = () => {
         }
     };
 
-    const filteredMaterials = materials.filter(material => material.storeTitle === newOrder.storeTitle);
+    const filteredMaterials = materials.filter(
+        (material) => material.storeTitle === newOrder.storeTitle
+    );
+
+
     const filteredSizes = sizes.filter(size => filteredMaterials.some(material => material.sizeId === size.id));
 
     const uniqueMaterials = filteredMaterials.reduce((acc, material) => {
@@ -224,6 +228,7 @@ const OrderManagement = () => {
                         </option>
                     ))}
                 </select>
+
                 <select
                     value={newOrder.materialText}
                     onChange={(e) => {
