@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStore(store);
         order.setUser(userRepository.findByUsername(orderDTO.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found")));
-        order.setStatus(1); // Example status for 'Completed'
+        order.setStatus(orderDTO.getStatus());
         Order savedOrder = orderRepository.save(order);
 
         // Create response DTO with sold and remaining stock information
