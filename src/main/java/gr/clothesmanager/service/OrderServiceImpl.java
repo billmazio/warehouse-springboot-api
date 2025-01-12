@@ -109,13 +109,20 @@ public class OrderServiceImpl implements OrderService {
         int newQuantity = orderDTO.getQuantity();
         int quantityDifference = newQuantity - oldQuantity;
 
-        if (material.getQuantity() < quantityDifference) {
-            throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
-        }
+        // Check if the order is being canceled
+        if (order.getStatus() != 3 && orderDTO.getStatus() == 3) {
+            // Restore stock by adding the old quantity back to the material
+            material.setQuantity(material.getQuantity() + oldQuantity);
+            materialRepository.save(material);
+        } else if (orderDTO.getStatus() != 3) {
+            // Handle stock deduction if the status is not canceled and quantity changes
+            if (material.getQuantity() < quantityDifference) {
+                throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
+            }
 
-        // Update material stock
-        material.setQuantity(material.getQuantity() - quantityDifference);
-        materialRepository.save(material);
+            material.setQuantity(material.getQuantity() - quantityDifference);
+            materialRepository.save(material);
+        }
 
         // Update order details
         order.setQuantity(newQuantity);
