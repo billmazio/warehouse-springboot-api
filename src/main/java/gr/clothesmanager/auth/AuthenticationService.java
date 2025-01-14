@@ -32,7 +32,7 @@ public class AuthenticationService {
         User user = customUserDetailsService.getCurrentUser();
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+            throw new IllegalArgumentException("Ο τρέχων κωδικός είναι λάθος");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -48,7 +48,7 @@ public class AuthenticationService {
 
             User user = userRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            
+
             return jwtService.generateStandardToken(
                     user.getUsername(), // Subject
                     user.getRoles().stream().map(UserRole::getName).findFirst().orElse("ROLE_USER"),

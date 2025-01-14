@@ -32,7 +32,7 @@ public class ApplicationConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();  // Use BCryptPasswordEncoder instead of NoOpPasswordEncoder
+    return new BCryptPasswordEncoder();
   }
 }
 

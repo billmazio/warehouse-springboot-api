@@ -36,7 +36,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final TokenBlacklistService tokenBlacklistService;
     private final JwtService jwtService;
-    private final CustomUserDetailsService customUserDetailsService;
+
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String expiredToken) {
@@ -64,7 +64,7 @@ public class AuthenticationController {
             authenticationService.changePassword(request);
             return ResponseEntity.ok("Password changed successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to change password: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Αποτυχία αλλαγής κωδικού: " + e.getMessage());
         }
     }
 
