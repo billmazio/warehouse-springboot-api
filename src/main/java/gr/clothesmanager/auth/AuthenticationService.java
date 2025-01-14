@@ -1,32 +1,22 @@
 package gr.clothesmanager.auth;
 
-import gr.clothesmanager.auth.dto.AuthenticationRequest;
-import gr.clothesmanager.auth.dto.AuthenticationResponse;
 import gr.clothesmanager.auth.dto.ChangePasswordRequest;
 import gr.clothesmanager.auth.dto.LoginRequest;
 import gr.clothesmanager.core.CustomUserDetailsService;
-import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.UserService;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.security.JwtService;
-import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -56,11 +46,9 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
 
-            // Retrieve the user from the database
             User user = userRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-
-            // Generate a JWT token
+            
             return jwtService.generateStandardToken(
                     user.getUsername(), // Subject
                     user.getRoles().stream().map(UserRole::getName).findFirst().orElse("ROLE_USER"),

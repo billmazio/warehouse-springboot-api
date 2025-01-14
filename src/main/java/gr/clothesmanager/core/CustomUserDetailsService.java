@@ -1,6 +1,7 @@
 package gr.clothesmanager.core;
 
 import gr.clothesmanager.model.User;
+import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream()
-                        .map(role -> role.getName()).toArray(String[]::new))
+                        .map(UserRole::getName).toArray(String[]::new))
                 .accountLocked(user.getEnable() != 1)  // Map enable to accountLocked
                 .build();
     }
