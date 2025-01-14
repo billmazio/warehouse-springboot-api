@@ -2,7 +2,9 @@ package gr.clothesmanager.core;
 
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,5 +28,19 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .map(role -> role.getName()).toArray(String[]::new))
                 .accountLocked(user.getEnable() != 1)  // Map enable to accountLocked
                 .build();
+    }
+
+
+    @Transactional
+    public User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        } else {
+            throw new RuntimeException("No authenticated user found");
+        }
     }
 }

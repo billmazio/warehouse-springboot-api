@@ -1,14 +1,15 @@
 package gr.clothesmanager.auth.dto;
 
 import gr.clothesmanager.model.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthenticationResponse {
     private String token;
     private String username;

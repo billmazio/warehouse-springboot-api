@@ -3,6 +3,7 @@ package gr.clothesmanager.auth;
 
 import gr.clothesmanager.auth.dto.AuthenticationRequest;
 import gr.clothesmanager.auth.dto.AuthenticationResponse;
+import gr.clothesmanager.auth.dto.ChangePasswordRequest;
 import gr.clothesmanager.auth.dto.LoginRequest;
 import gr.clothesmanager.core.CustomUserDetailsService;
 import gr.clothesmanager.interfaces.UserService;
@@ -57,7 +58,15 @@ public class AuthenticationController {
         }
     }
 
-
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        try {
+            authenticationService.changePassword(request);
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to change password: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {

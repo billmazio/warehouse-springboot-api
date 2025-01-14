@@ -2,14 +2,18 @@ package gr.clothesmanager.auth;
 
 import gr.clothesmanager.auth.dto.AuthenticationRequest;
 import gr.clothesmanager.auth.dto.AuthenticationResponse;
+import gr.clothesmanager.auth.dto.ChangePasswordRequest;
 import gr.clothesmanager.auth.dto.LoginRequest;
+import gr.clothesmanager.core.CustomUserDetailsService;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.UserService;
+import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.security.JwtService;
 import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +36,22 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public void changePassword(ChangePasswordRequest request) {
+        User user = customUserDetailsService.getCurrentUser();
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+
 
     public String authenticateAndGenerateToken(LoginRequest loginRequest) {
         try {
-            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
@@ -47,8 +63,8 @@ public class AuthenticationService {
             // Generate a JWT token
             return jwtService.generateStandardToken(
                     user.getUsername(), // Subject
-                    user.getRoles().stream().map(role -> role.getName()).findFirst().orElse("ROLE_USER"), // Role
-                    "identifier" // Example identifier (can be customized)
+                    user.getRoles().stream().map(UserRole::getName).findFirst().orElse("ROLE_USER"),
+                    "identifier"
             );
         } catch (AuthenticationException e) {
             throw new RuntimeException("Invalid credentials");
