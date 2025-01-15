@@ -1,5 +1,6 @@
 package gr.clothesmanager.controller;
 
+import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.auth.dto.ResponseMessageDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.service.UserServiceImpl;
@@ -23,21 +24,23 @@ public class UserController {
 
     private final UserServiceImpl userService;
     private final StoreServiceImpl storeService;
+    private final AuthorizationService authorizationService;
 
-    // Fetch all users
     @GetMapping
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    // Fetch a single user by ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserNotFoundException {
         UserDTO user = userService.findUserById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
         return ResponseEntity.ok(user);
     }
+
 
     @PostMapping("/{userId}/roles/{roleName}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -53,6 +56,12 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+        try {
+            authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         try {
             if (userDTO.getStore() == null) {
                 throw new IllegalArgumentException("Store ID is required.");
@@ -70,17 +79,16 @@ public class UserController {
         }
     }
 
-
-
-    // Delete a user
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws UserNotFoundException {
+        authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Get logged-in user details
+
     @GetMapping("/details")
     public ResponseEntity<UserDTO> getLoggedInUserDetails() throws UserNotFoundException {
         UserDTO loggedInUser = userService.getAuthenticatedUserDetails();
