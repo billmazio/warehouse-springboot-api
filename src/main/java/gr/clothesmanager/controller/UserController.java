@@ -11,6 +11,7 @@ import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,17 +53,13 @@ public class UserController {
         return ResponseEntity.ok(new ResponseMessageDTO("success", "Role assigned successfully"));
     }
 
-    // Create a new user
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
         try {
+            // Custom authorization check
             authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
-        try {
             if (userDTO.getStore() == null) {
                 throw new IllegalArgumentException("Store ID is required.");
             }
@@ -73,20 +70,37 @@ public class UserController {
         } catch (UserAlreadyExistsException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", "Username already exists")); // Return a 409 Conflict response
+        } catch (AccessDeniedException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "You are not authorized to create users"));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "An error occurred"));
         }
     }
 
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws UserNotFoundException {
-        authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            // Custom authorization check
+            authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
-        userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
+            userService.deleteUserById(id);
+            return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε χρήστες."));
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Ο χρήστης δεν βρέθηκε."));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του χρήστη."));
+        }
     }
+
 
 
     @GetMapping("/details")
