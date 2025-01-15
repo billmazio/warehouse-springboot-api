@@ -1,9 +1,10 @@
 package gr.clothesmanager.auth.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResponseMessageDTO {
     private String status;
