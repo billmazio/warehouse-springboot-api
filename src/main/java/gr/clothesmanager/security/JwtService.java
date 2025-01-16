@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -15,19 +16,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static javax.crypto.Cipher.SECRET_KEY;
-
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
+
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
+
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
-    private static final String SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
-    private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
 
 
     public String extractId(String token) {
@@ -37,34 +37,6 @@ public class JwtService {
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
-    }
-
-    public Long getCId(String token) {
-        return Long.parseLong(extractClaim(token, Claims::getId));
-    }
-
-    public String getStringClaim(String token, String claim) {
-        return extractAllClaims(token).get(claim, String.class);
-    }
-
-    public String generateStandardToken(String id, String role, String identifier) {
-        var claims = new HashMap<String, Object>();
-        claims.put("role", role);
-        claims.put("identifier", identifier);
-        return Jwts
-                .builder()
-                .setIssuer("self") // todo
-                .setClaims(claims)
-                .setSubject(id)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String id = extractId(token);
-        return (id.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {
@@ -89,13 +61,28 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // Generate access token
     public String generateToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // Generate refresh token
+    public String generateRefreshToken(String userId) {
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean isTokenValid(String token, String userId) {
+        final String tokenUserId = extractId(token);
+        return (tokenUserId.equals(userId) && !isTokenExpired(token));
+    }
 }

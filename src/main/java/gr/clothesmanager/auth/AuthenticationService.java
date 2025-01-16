@@ -49,13 +49,10 @@ public class AuthenticationService {
             User user = userRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            return jwtService.generateStandardToken(
-                    user.getUsername(), // Subject
-                    user.getRoles().stream().map(UserRole::getName).findFirst().orElse("ROLE_USER"),
-                    "identifier"
-            );
+            return jwtService.generateToken(user.getUsername());
         } catch (AuthenticationException e) {
             throw new RuntimeException("Invalid credentials");
         }
     }
+
 }

@@ -1,6 +1,5 @@
 package gr.clothesmanager.security;
 
-import gr.clothesmanager.service.UserServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -20,10 +19,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
@@ -34,46 +36,62 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+
         try {
             String jwt = extractJwt(request);
 
-            if (jwt != null && !tokenBlacklistService.isTokenRevoked(jwt)) {
-                String userId = jwtService.extractId(jwt);
-                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-                    if (jwtService.isTokenValid(jwt, userDetails)) {
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    } else {
-                        LOGGER.warn("Invalid JWT token for userId: {}", userId);
-                    }
-                }
+            if (jwt == null || tokenBlacklistService.isTokenRevoked(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
             }
 
-        } catch (ExpiredJwtException e) {
+            validateAndAuthenticateToken(jwt, request);
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token has expired.");
-            return;
+        } catch (ExpiredJwtException e) {
+            LOGGER.warn("JWT expired: {}", e.getMessage());
+            setUnauthorizedResponse(response, "Token has expired.");
         } catch (MalformedJwtException e) {
-            LOGGER.error("Malformed JWT token: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Malformed token.");
-            return;
+            LOGGER.error("Malformed JWT: {}", e.getMessage());
+            setUnauthorizedResponse(response, "Malformed token.");
         } catch (Exception e) {
             LOGGER.error("Unexpected error during JWT processing: {}", e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authentication failed.");
-            return;
+            setUnauthorizedResponse(response, "Authentication failed.");
         }
 
         filterChain.doFilter(request, response);
     }
 
+    private void validateAndAuthenticateToken(String jwt, HttpServletRequest request) {
+        String userId = jwtService.extractId(jwt);
+
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+
+            if (jwtService.isTokenValid(jwt, userId)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                LOGGER.warn("Invalid token for userId: {}", userId);
+            }
+        }
+    }
+
+
     private String extractJwt(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        return (authHeader != null && authHeader.startsWith("Bearer ")) ? authHeader.substring(7) : null;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            LOGGER.warn("Authorization header missing or invalid: {}", authHeader);
+            return null;
+        }
+        return authHeader.substring(7);
+    }
+
+    private void setUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 }

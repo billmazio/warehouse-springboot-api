@@ -39,24 +39,29 @@ public class AuthenticationController {
 
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String expiredToken) {
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String refreshToken) {
         try {
-            // Validate the expired token
-            if (!jwtService.isTokenExpired(expiredToken)) {
-                throw new IllegalArgumentException("Token is not expired");
+            // Validate the refresh token
+            if (jwtService.isTokenExpired(refreshToken)) {
+                throw new IllegalArgumentException("Refresh token is expired");
             }
 
-            // Extract user ID from the expired token
-            String userId = jwtService.extractId(expiredToken);
+            // Extract user ID from the refresh token
+            String userId = jwtService.extractId(refreshToken);
 
-            // Generate a new token
-            String newToken = jwtService.generateToken(userId);
+            // Generate a new access token
+            String newAccessToken = jwtService.generateToken(userId);
 
-            return ResponseEntity.ok(newToken);
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", newAccessToken,
+                    "refreshToken", refreshToken // Optionally, issue a new refresh token
+            ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("Invalid or expired token");
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or expired refresh token"));
         }
     }
+
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
