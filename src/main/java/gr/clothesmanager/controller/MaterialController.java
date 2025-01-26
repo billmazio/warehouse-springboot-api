@@ -119,10 +119,8 @@ public class MaterialController {
         try {
             Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
             return ResponseEntity.ok(materials);
-        } catch (AccessDeniedException e) {
+        } catch (AccessDeniedException | UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -131,14 +129,9 @@ public class MaterialController {
     public ResponseEntity<Page<MaterialDTO>> findAllMaterials(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
-            Pageable pageable) {
-            Page<MaterialDTO> materials = null;
-            try {
-                materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
-            } catch (UserNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            return ResponseEntity.ok(materials);
+            Pageable pageable) throws UserNotFoundException {
+        Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
+        return ResponseEntity.ok(materials);
     }
 
 
