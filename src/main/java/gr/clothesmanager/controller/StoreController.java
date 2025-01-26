@@ -9,6 +9,7 @@ import gr.clothesmanager.service.UserServiceImpl;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -117,28 +118,28 @@ public class StoreController {
     }
 
 
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> deleteStore(@PathVariable Long id) {
         try {
-            // Explicit authorization check
-            authorizationService.authorize(
-                    userServiceImpl.getAuthenticatedUserDetails().getUsername(),
-                    "SUPER_ADMIN"
-            );
-
+            // Call service to delete the store
             storeService.deleteStoreById(id);
             return ResponseEntity.noContent().build();
         } catch (StoreNotFoundException ex) {
-            return ResponseEntity.status(404)
-                    .body(Map.of("message", "Store not found."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", ex.getMessage()));
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", ex.getMessage())); // Use detailed message
         } catch (AccessDeniedException ex) {
-            return ResponseEntity.status(403)
-                    .body(Map.of("message", "You do not have permission to delete this store."));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε αποθήκες."));
         } catch (Exception ex) {
-            return ResponseEntity.status(500)
-                    .body(Map.of("message", "An error occurred while deleting the store."));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης."));
         }
     }
+
 
 }

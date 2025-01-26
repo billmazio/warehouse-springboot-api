@@ -6,7 +6,10 @@ import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.StoreService;
 import gr.clothesmanager.model.Store;
+import gr.clothesmanager.repository.MaterialRepository;
+import gr.clothesmanager.repository.OrderRepository;
 import gr.clothesmanager.repository.StoreRepository;
+import gr.clothesmanager.repository.UserRepository;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
 public class StoreServiceImpl implements StoreService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceImpl.class);
     private final StoreRepository storeRepository;
+    private final MaterialRepository materialRepository;
+    private final OrderRepository orderRepository;
     private final AuthorizationService authorizationService;
     private final UserServiceImpl userServiceImpl;
 
@@ -110,22 +115,39 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
-    public void deleteStoreById(Long id) throws StoreNotFoundException {
-        // Authorization check for deleting a store
-        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+    public void deleteStoreById(Long id) throws StoreNotFoundException, UserNotFoundException {
+        // Explicit authorization check
+        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
         LOGGER.info("Attempting to delete store with ID: {}", id);
+
+        // Check if the store exists
         if (!storeRepository.existsById(id)) {
-            throw new StoreNotFoundException("Store not found with ID: " + id);
+            throw new StoreNotFoundException("Η αποθήκη με ID " + id + " δεν βρέθηκε.");
         }
+
+        // Check if the store has related materials or orders
+        boolean hasMaterials = materialRepository.existsByStoreId(id);
+        boolean hasOrders = orderRepository.existsByStoreId(id);
+
+        if (hasMaterials || hasOrders) {
+            String errorMessage = hasMaterials
+                    ? "Η αποθήκη έχει συνδεδεμένα υλικά και δεν μπορεί να διαγραφεί."
+                    : "Η αποθήκη έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.";
+            throw new IllegalStateException(errorMessage);
+        }
+
+        // Attempt to delete the store
         try {
             storeRepository.deleteById(id);
             LOGGER.info("Successfully deleted store with ID: {}", id);
-        } catch (Exception e) {
-            LOGGER.error("Error deleting store: {}", e.getMessage());
-            throw new RuntimeException("Failed to delete store. Check related records.");
+        } catch (Exception ex) {
+            LOGGER.error("Error deleting store: {}", ex.getMessage());
+            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης.", ex);
         }
     }
+
+
 
     private void validateStore(StoreDTO storeDTO) {
         if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
