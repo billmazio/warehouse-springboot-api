@@ -199,13 +199,9 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public void delete(Long id) throws MaterialNotFoundException {
+    public void delete(Long id) throws MaterialNotFoundException, UserNotFoundException {
         // Explicit authorization check
-        try {
-            authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
         LOGGER.info("Attempting to delete material with ID: {}", id);
 

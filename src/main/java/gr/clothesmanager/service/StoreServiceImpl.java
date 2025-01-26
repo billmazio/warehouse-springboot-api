@@ -64,9 +64,9 @@ public class StoreServiceImpl implements StoreService {
     }
 
 
-    @SneakyThrows
+
     @Transactional
-    public List<StoreDTO> findAll() {
+    public List<StoreDTO> findAll() throws UserNotFoundException {
         String username = getAuthenticatedUsername();
         UserDTO userDTO = userServiceImpl.findUserByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -88,9 +88,13 @@ public class StoreServiceImpl implements StoreService {
                 throw new AccessDeniedException("You do not have a store assigned to your account.");
             }
 
-            return storeRepository.findById(userDTO.getStore().getId())
-                    .map(store -> List.of(StoreDTO.fromModel(store)))
-                    .orElseThrow(() -> new StoreNotFoundException("Store not found for your account."));
+            try {
+                return storeRepository.findById(userDTO.getStore().getId())
+                        .map(store -> List.of(StoreDTO.fromModel(store)))
+                        .orElseThrow(() -> new StoreNotFoundException("Store not found for your account."));
+            } catch (StoreNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         throw new AccessDeniedException("You do not have permission to view stores.");

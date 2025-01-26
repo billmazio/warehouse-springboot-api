@@ -3,6 +3,7 @@ package gr.clothesmanager.interfaces;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,5 +18,5 @@ public interface MaterialService {
 
     MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException;
 
-    void delete(Long id) throws MaterialNotFoundException;
+    void delete(Long id) throws MaterialNotFoundException, UserNotFoundException;
 }
