@@ -63,6 +63,8 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     Optional<Material> findByTextAndSize_IdAndStore_Id(String text, Long sizeId, Long storeId);
 
+    boolean existsByStoreId(Long storeId);
+
 }
 
 

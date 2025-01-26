@@ -5,6 +5,8 @@ import gr.clothesmanager.interfaces.UserService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
+import gr.clothesmanager.repository.MaterialRepository;
+import gr.clothesmanager.repository.OrderRepository;
 import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.repository.UserRepository;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
@@ -13,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final MaterialRepository materialRepository;
     private final RoleServiceImpl roleService;
     private final PasswordEncoder passwordEncoder;
 
@@ -86,14 +91,35 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional
-    public void deleteUserById(Long id) throws UserNotFoundException {
-        if (!userRepository.existsById(id)) {
-            LOGGER.error("User with ID '{}' does not exist", id);
-            throw new UserNotFoundException("User with ID " + id + " does not exist");
+    public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " does not exist"));
+
+        // Prevent deletion of SUPER_ADMIN users
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
+        if (isSuperAdmin) {
+            throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN.");
         }
+
+
+        if (user.getStore() != null) {
+            boolean hasMaterials = materialRepository.existsByStoreId(user.getStore().getId());
+            boolean hasOrders = orderRepository.existsByStoreId(user.getStore().getId());
+
+            if (hasMaterials || hasOrders) {
+                throw new DataIntegrityViolationException(
+                        "Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη."
+                );
+            }
+        }
+
+        // Delete the user
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
+
+
 
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {
