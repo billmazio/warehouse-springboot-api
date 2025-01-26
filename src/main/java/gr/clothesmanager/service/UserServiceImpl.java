@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,12 +64,26 @@ public class UserServiceImpl implements UserService {
         return Optional.of(UserDTO.fromModel(user));
     }
 
+
     @Transactional
-    public List<UserDTO> findAllUsers() {
-        List<User> users = userRepository.findAll();
-        LOGGER.info("Fetched {} users from the database", users.size());
-        return users.stream().map(UserDTO::fromModel).collect(Collectors.toList());
+    public List<UserDTO> findAllUsers(String username) throws UserNotFoundException {
+        User loggedInUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
+            return userRepository.findAll().stream()
+                    .map(UserDTO::fromModel)
+                    .collect(Collectors.toList());
+        } else if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
+            return userRepository.findByStoreId(loggedInUser.getStore().getId()).stream()
+                    .map(UserDTO::fromModel)
+                    .collect(Collectors.toList());
+        } else {
+            throw new AccessDeniedException("You do not have permission to view users.");
+        }
     }
+
 
     @Transactional
     public void deleteUserById(Long id) throws UserNotFoundException {

@@ -17,7 +17,7 @@ public interface UserService {
 
     Optional<UserDTO> findUserByUsername(String username) throws UserNotFoundException;
 
-    List<UserDTO> findAllUsers();
+    List<UserDTO> findAllUsers(String username) throws UserNotFoundException;
 
     void deleteUserById(Long id) throws UserNotFoundException;
 }
