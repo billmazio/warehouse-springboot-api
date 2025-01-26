@@ -12,7 +12,7 @@ public interface OrderService {
 
     OrderDTO findById(Long id) throws OrderNotFoundException;
 
-    List<OrderDTO> findAll();
+    List<OrderDTO> findAll(String username);
 
     void delete(Long id) throws OrderNotFoundException;
 }

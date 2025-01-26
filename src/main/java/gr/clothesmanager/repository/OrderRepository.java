@@ -28,5 +28,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                  @Param("sizeName") String sizeName,
                                  Pageable pageable);
 
+    @Query("SELECT o FROM Order o WHERE o.store.id = :storeId")
+    List<Order> findByStoreId(@Param("storeId") Long storeId);
 
 }

@@ -151,14 +151,25 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTO.fromModel(order);
     }
 
+
     @Transactional
-    public List<OrderDTO> findAll() {
-        List<Order> orders = orderRepository.findAll();
-        LOGGER.info("Retrieved all orders. Total count: {}", orders.size());
+    public List<OrderDTO> findAll(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Order> orders;
+        if (user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
+            orders = orderRepository.findAll();
+        } else {
+            orders = orderRepository.findByStoreId(user.getStore().getId());
+        }
+
+        LOGGER.info("Retrieved orders for user: {}. Total count: {}", username, orders.size());
         return orders.stream()
                 .map(OrderDTO::fromModel)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void delete(Long id) throws OrderNotFoundException {
@@ -170,18 +181,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public Page<OrderDTO> findOrdersPaginatedWithFilters(Long storeId, Long userId, String materialText, String sizeName, Pageable pageable) {
-        LOGGER.info("Fetching orders with optional filters. Store ID: {}, User ID: {}, Material Text: {}, Size Name: {}", storeId, userId, materialText, sizeName);
+    public Page<OrderDTO> findOrdersPaginatedWithFilters(String username, Long storeId, String materialText, String sizeName, Pageable pageable) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Page<Order> ordersPage;
-        if (storeId == null && userId == null && (materialText == null || materialText.isEmpty()) && (sizeName == null || sizeName.isEmpty())) {
-            ordersPage = orderRepository.findAll(pageable);
+        if (user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
+            // Super admin can filter orders across all stores
+            ordersPage = orderRepository.findAllByFilters(storeId, null, materialText, sizeName, pageable);
         } else {
-
-            ordersPage = orderRepository.findAllByFilters(storeId, userId, materialText, sizeName, pageable);
+            // Local admin can only filter orders for their store
+            Long localStoreId = user.getStore().getId();
+            ordersPage = orderRepository.findAllByFilters(localStoreId, null, materialText, sizeName, pageable);
         }
+
         return ordersPage.map(OrderDTO::fromModel);
     }
+
 
 
 }

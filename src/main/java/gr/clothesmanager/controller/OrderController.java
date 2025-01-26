@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,8 +49,15 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> findAll() {
-        return ResponseEntity.ok(orderService.findAll());
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<OrderDTO> orders = orderService.findAll(username);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
@@ -71,18 +79,23 @@ public class OrderController {
         }
     }
 
+
     @GetMapping("/paginated")
     public ResponseEntity<Page<OrderDTO>> getOrdersPaginated(
             @RequestParam(required = false) Long storeId,
-            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String materialText,
             @RequestParam(required = false) String sizeName,
             @RequestParam int page,
             @RequestParam int size) {
-
-        Page<OrderDTO> orders = orderService.findOrdersPaginatedWithFilters(storeId, userId, materialText, sizeName, PageRequest.of(page, size));
-        return ResponseEntity.ok(orders);
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Page<OrderDTO> orders = orderService.findOrdersPaginatedWithFilters(username, storeId, materialText, sizeName, PageRequest.of(page, size));
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
+
 
 }
 
