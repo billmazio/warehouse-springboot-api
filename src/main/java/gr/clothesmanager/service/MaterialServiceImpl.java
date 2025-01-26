@@ -7,10 +7,7 @@ import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.MaterialDistribution;
 import gr.clothesmanager.model.Size;
 import gr.clothesmanager.model.Store;
-import gr.clothesmanager.repository.MaterialDistributionRepository;
-import gr.clothesmanager.repository.MaterialRepository;
-import gr.clothesmanager.repository.SizeRepository;
-import gr.clothesmanager.repository.StoreRepository;
+import gr.clothesmanager.repository.*;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -38,6 +35,7 @@ public class MaterialServiceImpl implements MaterialService {
     private final StoreRepository storeRepository;
     private final SizeRepository sizeRepository;
     private final MaterialDistributionRepository materialDistributionRepository;
+    private final OrderRepository orderRepository;
     private final UserServiceImpl userServiceImpl;
 
     @Transactional
@@ -201,11 +199,21 @@ public class MaterialServiceImpl implements MaterialService {
     @Transactional
     public void delete(Long id) throws MaterialNotFoundException {
         LOGGER.info("Deleting material with ID: {}", id);
+
+        // Check if the material exists
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
 
+        boolean hasOrders = orderRepository.existsByMaterial_Id(id);
+        if (hasOrders) {
+            throw new IllegalStateException("Cannot delete material. There are associated orders.");
+        }
+
+
         materialRepository.delete(material);
     }
+
+
 
     private MaterialDTO convertToDTO(Material material) {
         MaterialDTO dto = new MaterialDTO();

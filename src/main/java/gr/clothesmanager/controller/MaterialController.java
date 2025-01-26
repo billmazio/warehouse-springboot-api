@@ -16,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -86,8 +87,6 @@ public class MaterialController {
     }
 
 
-
-
     @PutMapping("/{id}")
     public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) {
         try {
@@ -99,14 +98,19 @@ public class MaterialController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             materialService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (MaterialNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalStateException e) {
+            // Handle associated orders
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         }
     }
+
+
 
 
 
