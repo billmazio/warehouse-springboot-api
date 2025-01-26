@@ -1,5 +1,6 @@
 package gr.clothesmanager.service;
 
+import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.MaterialService;
@@ -37,6 +38,7 @@ public class MaterialServiceImpl implements MaterialService {
     private final MaterialDistributionRepository materialDistributionRepository;
     private final OrderRepository orderRepository;
     private final UserServiceImpl userServiceImpl;
+    private final AuthorizationService authorizationService;
 
     @Transactional
     public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
@@ -198,20 +200,36 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     public void delete(Long id) throws MaterialNotFoundException {
-        LOGGER.info("Deleting material with ID: {}", id);
+        // Explicit authorization check
+        try {
+            authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        LOGGER.info("Attempting to delete material with ID: {}", id);
 
         // Check if the material exists
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
+                .orElseThrow(() -> new MaterialNotFoundException("Το υλικό με ID " + id + " δεν βρέθηκε."));
 
+        // Check if the material has associated orders
         boolean hasOrders = orderRepository.existsByMaterial_Id(id);
+
         if (hasOrders) {
-            throw new IllegalStateException("Cannot delete material. There are associated orders.");
+            throw new IllegalStateException("Το υλικό έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.");
         }
 
-
-        materialRepository.delete(material);
+        // Attempt to delete the material
+        try {
+            materialRepository.delete(material);
+            LOGGER.info("Successfully deleted material with ID: {}", id);
+        } catch (Exception ex) {
+            LOGGER.error("Error deleting material: {}", ex.getMessage());
+            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή του υλικού.", ex);
+        }
     }
+
 
 
 

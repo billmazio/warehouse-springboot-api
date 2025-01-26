@@ -1,7 +1,9 @@
 package gr.clothesmanager.controller;
 
+import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.DistributionRequestDTO;
 import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.Optional;
 public class MaterialController {
 
     private final MaterialServiceImpl materialService;
+    private final AuthorizationService authorizationService;
 
     @PostMapping
     public ResponseEntity<MaterialDTO> save(@Valid @RequestBody MaterialDTO materialDTO) {
@@ -100,15 +104,28 @@ public class MaterialController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
+            // Perform authorization check
+            String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
+
+            // Call the service to delete the material
             materialService.delete(id);
             return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε προϊόντα."));
         } catch (MaterialNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Το προϊόν δεν βρέθηκε."));
         } catch (IllegalStateException e) {
-            // Handle associated orders
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Δεν είναι δυνατή η διαγραφή του προϊόντος, καθώς υπάρχουν σχετικές παραγγελίες."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του προϊόντος."));
         }
     }
+
 
 
 
