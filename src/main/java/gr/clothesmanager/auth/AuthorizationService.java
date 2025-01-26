@@ -7,13 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
 
     private final UserService userService;
 
-    public void authorize(String username, String requiredRole) {
+    public void authorize(String username, String... allowedRoles) {
         UserDTO userDTO;
         try {
             userDTO = userService.findUserByUsername(username)
@@ -23,20 +25,16 @@ public class AuthorizationService {
         }
 
         boolean hasRole = userDTO.getRoles().stream()
-                .anyMatch(role -> role.getName().equalsIgnoreCase(requiredRole));
+                .map(role -> role.getName().toUpperCase()) // Ensure case-insensitivity
+                .anyMatch(role -> Arrays.stream(allowedRoles)
+                        .map(String::toUpperCase)
+                        .anyMatch(role::equals));
 
         if (!hasRole) {
-            throw new AccessDeniedException("User does not have the required role: " + requiredRole);
-        }
-
-        if (requiredRole.equalsIgnoreCase("SUPER_ADMIN") && !isSuperAdmin(userDTO)) {
-            throw new AccessDeniedException("User is not a valid SUPER_ADMIN");
-        }
-
-        if (requiredRole.equalsIgnoreCase("LOCAL_ADMIN") && !isLocalAdmin(userDTO)) {
-            throw new AccessDeniedException("User is not a valid LOCAL_ADMIN");
+            throw new AccessDeniedException("User does not have the required role(s): " + String.join(", ", allowedRoles));
         }
     }
+
 
     private boolean isSuperAdmin(UserDTO userDTO) {
         return userDTO.getRoles().stream()

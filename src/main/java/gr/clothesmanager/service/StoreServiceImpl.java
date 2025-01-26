@@ -1,50 +1,42 @@
 package gr.clothesmanager.service;
 
 
+import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.StoreDTO;
+import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.StoreService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class StoreServiceImpl implements StoreService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceImpl.class);
     private final StoreRepository storeRepository;
+    private final AuthorizationService authorizationService;
+    private final UserServiceImpl userServiceImpl;
 
     @Transactional
-    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException{
-        if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
-            try {
-                throw new StoreNotFoundException("Title is required");
-            } catch (StoreNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (storeDTO.getAddress() == null || storeDTO.getAddress().isEmpty()) {
-            try {
-                throw new StoreNotFoundException("Address is required");
-            } catch (StoreNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (storeDTO.getEnable() == null) {
-            try {
-                throw new StoreNotFoundException("Enable status is required");
-            } catch (StoreNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
+        // Authorization check for creating a store
+        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+
+        validateStore(storeDTO);
 
         Store store = new Store();
         store.setTitle(storeDTO.getTitle());
@@ -56,43 +48,72 @@ public class StoreServiceImpl implements StoreService {
         return StoreDTO.fromModel(savedStore);
     }
 
-
-
     @Transactional
     public StoreDTO findById(Long id) throws StoreNotFoundException {
-        // Find store by ID and map to DTO
+        String username = getAuthenticatedUsername();
+        authorizationService.authorize(username, "SUPER_ADMIN", "LOCAL_ADMIN");
+
         return storeRepository.findById(id)
                 .map(StoreDTO::fromModel)
                 .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
     }
 
+
+    @SneakyThrows
     @Transactional
     public List<StoreDTO> findAll() {
-        // Get all stores and map to DTOs
-        return storeRepository.findAll().stream()
-                .map(StoreDTO::fromModel)
-                .collect(Collectors.toList());
+        String username = getAuthenticatedUsername();
+        UserDTO userDTO = userServiceImpl.findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Check if the user is a SUPER_ADMIN
+        boolean isSuperAdmin = userDTO.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
+
+        if (isSuperAdmin) {
+            return storeRepository.findAll().stream()
+                    .map(StoreDTO::fromModel)
+                    .collect(Collectors.toList());
+        }
+        boolean isLocalAdmin = userDTO.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"));
+
+        if (isLocalAdmin) {
+            if (userDTO.getStore() == null) {
+                throw new AccessDeniedException("You do not have a store assigned to your account.");
+            }
+
+            return storeRepository.findById(userDTO.getStore().getId())
+                    .map(store -> List.of(StoreDTO.fromModel(store)))
+                    .orElseThrow(() -> new StoreNotFoundException("Store not found for your account."));
+        }
+
+        throw new AccessDeniedException("You do not have permission to view stores.");
     }
+
 
     @Transactional
     public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
+        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
 
-        if (storeDTO.getTitle() == null || storeDTO.getAddress() == null) {
-            throw new IllegalArgumentException("Title and Address cannot be null.");
-        }
+        validateStore(storeDTO);
 
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
         store.setEnable(storeDTO.getEnable());
 
         storeRepository.save(store);
+        LOGGER.info("Successfully edited store with ID: {}", id);
     }
-
 
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException {
+        // Authorization check for deleting a store
+        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+
         LOGGER.info("Attempting to delete store with ID: {}", id);
         if (!storeRepository.existsById(id)) {
             throw new StoreNotFoundException("Store not found with ID: " + id);
@@ -106,4 +127,45 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
+    private void validateStore(StoreDTO storeDTO) {
+        if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("Title is required.");
+        }
+        if (storeDTO.getAddress() == null || storeDTO.getAddress().isEmpty()) {
+            throw new IllegalArgumentException("Address is required.");
+        }
+        if (storeDTO.getEnable() == null) {
+            throw new IllegalArgumentException("Enable status is required.");
+        }
+    }
+
+    private String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+    public void authorize(String username, String... allowedRoles) {
+        UserDTO userDTO;
+        try {
+            userDTO = userServiceImpl.findUserByUsername(username)
+                    .orElseThrow(() -> new AccessDeniedException("User not found"));
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        boolean hasRole = userDTO.getRoles().stream()
+                .map(role -> role.getName().toUpperCase()) // Ensure case-insensitivity
+                .anyMatch(role -> Arrays.stream(allowedRoles)
+                        .map(String::toUpperCase)
+                        .anyMatch(role::equals));
+
+        if (!hasRole) {
+            throw new AccessDeniedException("User does not have the required role(s): " + String.join(", ", allowedRoles));
+        }
+    }
+
 }
+
