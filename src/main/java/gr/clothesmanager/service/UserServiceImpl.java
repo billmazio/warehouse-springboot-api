@@ -91,26 +91,31 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional
-    public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException {
-        User user = userRepository.findById(id)
+    public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException, DataIntegrityViolationException {
+        User authenticatedUser = userRepository.findByUsername(getAuthenticatedUsername())
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
+
+        User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " does not exist"));
 
-        // Prevent deletion of SUPER_ADMIN users
-        boolean isSuperAdmin = user.getRoles().stream()
+        // Prevent SUPER_ADMIN from deleting themselves
+        if (authenticatedUser.getId().equals(userToDelete.getId())) {
+            throw new AccessDeniedException("Δεν μπορεί να διαγραφεί ο SUPER_ADMIN.");
+        }
+
+        boolean isSuperAdmin = userToDelete.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
         if (isSuperAdmin) {
             throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN.");
         }
 
-
-        if (user.getStore() != null) {
-            boolean hasMaterials = materialRepository.existsByStoreId(user.getStore().getId());
-            boolean hasOrders = orderRepository.existsByStoreId(user.getStore().getId());
+        // Prevent deletion of users with associated data
+        if (userToDelete.getStore() != null) {
+            boolean hasMaterials = materialRepository.existsByStoreId(userToDelete.getStore().getId());
+            boolean hasOrders = orderRepository.existsByStoreId(userToDelete.getStore().getId());
 
             if (hasMaterials || hasOrders) {
-                throw new DataIntegrityViolationException(
-                        "Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη."
-                );
+                throw new DataIntegrityViolationException("Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη.");
             }
         }
 
@@ -143,7 +148,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
     }
 
-    @Transactional
+
     public UserDTO getAuthenticatedUserDetails() throws UserNotFoundException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;
@@ -160,8 +165,18 @@ public class UserServiceImpl implements UserService {
         return UserDTO.fromModel(user);
     }
 
+    public String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
 
-    @Transactional
+
+
+
     public void assignRoleToUser(Long userId, String roleName) throws UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));

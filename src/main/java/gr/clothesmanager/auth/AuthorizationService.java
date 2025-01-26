@@ -31,7 +31,7 @@ public class AuthorizationService {
                         .anyMatch(role::equals));
 
         if (!hasRole) {
-            throw new AccessDeniedException("User does not have the required role(s): " + String.join(", ", allowedRoles));
+            throw new AccessDeniedException("Ο χρήστης δεν έχει τα απαιτούμενα δικαιώματα: " + String.join(", ", allowedRoles));
         }
     }
 

@@ -169,25 +169,8 @@ public class StoreServiceImpl implements StoreService {
             return principal.toString();
         }
     }
-    public void authorize(String username, String... allowedRoles) {
-        UserDTO userDTO;
-        try {
-            userDTO = userServiceImpl.findUserByUsername(username)
-                    .orElseThrow(() -> new AccessDeniedException("User not found"));
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
-        boolean hasRole = userDTO.getRoles().stream()
-                .map(role -> role.getName().toUpperCase()) // Ensure case-insensitivity
-                .anyMatch(role -> Arrays.stream(allowedRoles)
-                        .map(String::toUpperCase)
-                        .anyMatch(role::equals));
 
-        if (!hasRole) {
-            throw new AccessDeniedException("User does not have the required role(s): " + String.join(", ", allowedRoles));
-        }
-    }
 
 }
 

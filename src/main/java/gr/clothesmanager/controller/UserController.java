@@ -99,19 +99,21 @@ public class UserController {
             userService.deleteUserById(id);
             return ResponseEntity.noContent().build();
         } catch (AccessDeniedException ex) {
+            String errorMessage = ex.getMessage();
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN."));
+                    .body(Map.of("message", errorMessage));
         } catch (UserNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Ο χρήστης δεν βρέθηκε."));
         } catch (DataIntegrityViolationException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη."));
+                    .body(Map.of("message", ex.getMessage())); // Pass the specific message for associated data
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του χρήστη."));
         }
     }
+
 
 
 
