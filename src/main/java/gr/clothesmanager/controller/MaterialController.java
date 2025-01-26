@@ -5,12 +5,14 @@ import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +32,19 @@ public class MaterialController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedMaterial);
         } catch (MaterialAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+    }
+
+    @GetMapping("/{storeId}/materials")
+    public ResponseEntity<List<MaterialDTO>> findMaterialsByStoreId(@PathVariable Long storeId) {
+        try {
+            // Fetch materials for the specified store
+            List<MaterialDTO> materials = materialService.findMaterialsByStoreId(storeId);
+            return ResponseEntity.ok(materials);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -96,22 +111,34 @@ public class MaterialController {
 
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<MaterialDTO>> findMaterialsByStoreId(
-            @RequestParam Long storeId,
+    public ResponseEntity<Page<MaterialDTO>> findMaterialsPaginated(
+            @RequestParam(required = false) Long storeId,
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
             Pageable pageable) {
-        Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
-        return ResponseEntity.ok(materials);
+        try {
+            Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
+            return ResponseEntity.ok(materials);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @GetMapping("/all/paginated")
+
+        @GetMapping("/all/paginated")
     public ResponseEntity<Page<MaterialDTO>> findAllMaterials(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
             Pageable pageable) {
-        Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
-        return ResponseEntity.ok(materials);
+            Page<MaterialDTO> materials = null;
+            try {
+                materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
+            } catch (UserNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            return ResponseEntity.ok(materials);
     }
 
 

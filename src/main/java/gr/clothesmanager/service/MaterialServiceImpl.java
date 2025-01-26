@@ -1,6 +1,7 @@
 package gr.clothesmanager.service;
 
 import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.MaterialDistribution;
@@ -12,12 +13,14 @@ import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,6 +38,7 @@ public class MaterialServiceImpl implements MaterialService {
     private final StoreRepository storeRepository;
     private final SizeRepository sizeRepository;
     private final MaterialDistributionRepository materialDistributionRepository;
+    private final UserServiceImpl userServiceImpl;
 
     @Transactional
     public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
@@ -66,7 +70,17 @@ public class MaterialServiceImpl implements MaterialService {
 
 
     @Transactional
-    public List<MaterialDTO> findMaterialsByStoreId(Long storeId) {
+    public List<MaterialDTO> findMaterialsByStoreId(Long storeId) throws UserNotFoundException {
+        // Fetch the authenticated user's store and role
+        UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
+
+        // If user is a LOCAL_ADMIN, restrict access to their assigned store
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
+            if (!storeId.equals(currentUser.getStore().getId())) {
+                throw new AccessDeniedException("You do not have permission to access materials for this store.");
+            }
+        }
+
         // Fetch materials for the specified store
         List<Material> materials = materialRepository.findByStoreId(storeId);
         return materials.stream()
@@ -74,11 +88,10 @@ public class MaterialServiceImpl implements MaterialService {
                         material.getId(),
                         material.getText(),
                         material.getQuantity(),
-                        material.getSize().getId(),  // Use size ID
-                        material.getSize().getName(), // Fetch size name
+                        material.getSize().getId(),
+                        material.getSize().getName(),
                         material.getStore().getTitle(),
                         storeId
-
                 ))
                 .collect(Collectors.toList());
     }
@@ -207,19 +220,25 @@ public class MaterialServiceImpl implements MaterialService {
 
 
     @Transactional
-    public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) {
-        LOGGER.info("Fetching materials with optional filters. Store ID: {}, Text: {}, Size ID: {}", storeId, text, sizeId);
+    public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) throws UserNotFoundException {
+        UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
 
-        // If `storeId` is null, fetch all materials
+        // If the user is a LOCAL_ADMIN, restrict to their store
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
+            storeId = currentUser.getStore().getId(); // Force storeId to the user's store
+        }
+
+        // Fetch materials based on storeId and filters
         Page<Material> materialsPage;
         if (storeId == null) {
-            materialsPage = materialRepository.findAllByFilters(text, sizeId, pageable);
+            materialsPage = materialRepository.findAllByFilters(text, sizeId, pageable); // For SUPER_ADMIN
         } else {
-            materialsPage = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable);
+            materialsPage = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable); // For LOCAL_ADMIN
         }
 
         return materialsPage.map(this::convertToDTO);
     }
+
 
 
 
