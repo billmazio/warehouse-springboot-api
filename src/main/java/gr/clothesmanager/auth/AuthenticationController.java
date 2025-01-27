@@ -49,23 +49,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             String token = authenticationService.authenticateAndGenerateToken(loginRequest);
-
-            // Set token as HttpOnly cookie
-            Cookie cookie = new Cookie("jwt", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(false); // Use true in production (only with HTTPS)
-            cookie.setPath("/");
-            cookie.setMaxAge(15 * 60); // Token valid for 15 minutes
-            response.addCookie(cookie);
-
-            // For testing, include token in response body
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Login successful");
-            responseBody.put("token", token); // Include the token for frontend debugging (remove in production)
-
+            responseBody.put("token", token); // Send token for the frontend
             return ResponseEntity.ok(responseBody);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
@@ -75,22 +64,17 @@ public class AuthenticationController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            String jwt = token.substring(7);
-            tokenBlacklistService.revokeToken(jwt);
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            tokenBlacklistService.revokeToken(token);
+            return ResponseEntity.ok(Map.of("message", "Logout successful"));
         }
-        return ResponseEntity.ok("Logged out successfully");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No token provided.");
     }
 
-    private String getClientIpAddress(HttpServletRequest request) {
-        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
-        if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
-            return xForwardedForHeader.split(",")[0].trim();
-        } else {
-            return request.getRemoteAddr();
-        }
-    }
+
 
 
 }

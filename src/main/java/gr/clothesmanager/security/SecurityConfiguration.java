@@ -1,5 +1,6 @@
 package gr.clothesmanager.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,8 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -34,14 +35,15 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS setup
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // Allow login
-                        .requestMatchers("/", "/index.html", "/static/**").permitAll() // Permit static resources
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/index.html", "/static/**").permitAll() // Public endpoints
                         .requestMatchers("/dashboard/**").authenticated() // Secure dashboard
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/login"); // Redirect to login page if not authenticated
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized access"); // Return JSON message for APIs
                         })
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -51,14 +53,14 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Allow React dev server
-        configuration.setAllowedMethods(Collections.singletonList("*")); // Allow all HTTP methods
-        configuration.setAllowedHeaders(Collections.singletonList("*")); // Allow all headers
-        configuration.setAllowCredentials(true); // Allow credentials
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Specify allowed methods
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // Specify allowed headers
+        configuration.setExposedHeaders(Arrays.asList("Authorization")); // Allow frontend to access Authorization header
+        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
