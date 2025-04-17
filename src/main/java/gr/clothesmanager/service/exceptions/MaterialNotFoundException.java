@@ -5,6 +5,7 @@ import gr.clothesmanager.core.AppException;
 import java.io.Serial;
 
 public class MaterialNotFoundException extends AppException {
+
     private static final String DEFAULT_CODE = "materialNotFound";
 
     @Serial

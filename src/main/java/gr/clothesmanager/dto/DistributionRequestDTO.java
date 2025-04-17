@@ -10,6 +10,4 @@ import lombok.*;
 public class DistributionRequestDTO {
     private Long receiverStoreId;
     private Integer quantity;
-
-
 }

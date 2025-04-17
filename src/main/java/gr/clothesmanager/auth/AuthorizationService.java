@@ -35,7 +35,6 @@ public class AuthorizationService {
         }
     }
 
-
     private boolean isSuperAdmin(UserDTO userDTO) {
         return userDTO.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
@@ -45,5 +44,4 @@ public class AuthorizationService {
         return userDTO.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"));
     }
-
 }

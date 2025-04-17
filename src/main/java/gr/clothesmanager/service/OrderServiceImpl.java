@@ -34,7 +34,6 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final SizeRepository sizeRepository;
 
-
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
         // Fetch store by title
@@ -79,7 +78,6 @@ public class OrderServiceImpl implements OrderService {
         responseDTO.setStock(material.getQuantity()); // Set remaining stock
         return responseDTO;
     }
-
 
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws OrderNotFoundException {
@@ -142,7 +140,6 @@ public class OrderServiceImpl implements OrderService {
         return responseDTO;
     }
 
-
     @Transactional
     public OrderDTO findById(Long id) throws OrderNotFoundException {
         Order order = orderRepository.findById(id)
@@ -150,7 +147,6 @@ public class OrderServiceImpl implements OrderService {
         LOGGER.info("Order retrieved with ID: {}", id);
         return OrderDTO.fromModel(order);
     }
-
 
     @Transactional
     public List<OrderDTO> findAll(String username) {
@@ -169,7 +165,6 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderDTO::fromModel)
                 .collect(Collectors.toList());
     }
-
 
     @Transactional
     public void delete(Long id) throws OrderNotFoundException {
@@ -197,9 +192,6 @@ public class OrderServiceImpl implements OrderService {
 
         return ordersPage.map(OrderDTO::fromModel);
     }
-
-
-
 }
 
 

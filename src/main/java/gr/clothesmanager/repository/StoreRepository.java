@@ -18,6 +18,5 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     int countStores();
 
     Optional<Store> findByTitle(String title);
-
 }
 

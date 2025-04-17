@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService {
         return UserDTO.fromModel(user);
     }
 
-
     @Transactional
     public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {
         User user = userRepository.findById(id)
@@ -68,7 +67,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with username '" + username + "' not found"));
         return Optional.of(UserDTO.fromModel(user));
     }
-
 
     @Transactional
     public List<UserDTO> findAllUsers(String username) throws UserNotFoundException {
@@ -88,7 +86,6 @@ public class UserServiceImpl implements UserService {
             throw new AccessDeniedException("You do not have permission to view users.");
         }
     }
-
 
     @Transactional
     public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException, DataIntegrityViolationException {
@@ -124,8 +121,6 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
 
-
-
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {
             throw new IllegalArgumentException("Roles cannot be null or empty");
@@ -147,7 +142,6 @@ public class UserServiceImpl implements UserService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
-
 
     public UserDTO getAuthenticatedUserDetails() throws UserNotFoundException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -174,9 +168,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
-
-
     public void assignRoleToUser(Long userId, String roleName) throws UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
@@ -190,5 +181,4 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(role); // Add the new role
         userRepository.save(user);
     }
-
 }

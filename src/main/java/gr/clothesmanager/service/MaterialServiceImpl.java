@@ -67,8 +67,6 @@ public class MaterialServiceImpl implements MaterialService {
         return MaterialDTO.fromModel(material);
     }
 
-
-
     @Transactional
     public List<MaterialDTO> findMaterialsByStoreId(Long storeId) throws UserNotFoundException {
         // Fetch the authenticated user's store and role
@@ -151,8 +149,6 @@ public class MaterialServiceImpl implements MaterialService {
         LOGGER.info("Recorded material distribution: {}", distribution);
     }
 
-
-
     @Transactional
     public MaterialDTO findById(Long id) throws MaterialNotFoundException {
         LOGGER.info("Finding material with ID: {}", id);
@@ -226,9 +222,6 @@ public class MaterialServiceImpl implements MaterialService {
         }
     }
 
-
-
-
     private MaterialDTO convertToDTO(Material material) {
         MaterialDTO dto = new MaterialDTO();
         dto.setId(material.getId());
@@ -238,8 +231,6 @@ public class MaterialServiceImpl implements MaterialService {
         dto.setStoreId(material.getStore().getId());
         return dto;
     }
-
-
 
     @Transactional
     public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) throws UserNotFoundException {
@@ -260,8 +251,4 @@ public class MaterialServiceImpl implements MaterialService {
 
         return materialsPage.map(this::convertToDTO);
     }
-
-
-
-
 }

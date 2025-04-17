@@ -26,5 +26,4 @@ public class Size {
     public Size(String name) {
         this.name = name;
     }
-
 }

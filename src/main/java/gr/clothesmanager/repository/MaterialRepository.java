@@ -21,10 +21,8 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     Optional<Material> findByTextAndStoreId(String text, Long storeId);
 
-
     @Query("SELECT m FROM Material m WHERE m.text = :text AND m.store.title = :storeTitle")
     Optional<Material> findByTextAndStoreTitle(@Param("text") String text, @Param("storeTitle") String storeTitle);
-
 
     @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")
     List<Material> findByOptionalFilters(@org.springframework.lang.Nullable String text, @org.springframework.lang.Nullable Long sizeId);
@@ -41,7 +39,6 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                            @Param("sizeId") Long sizeId,
                                            Pageable pageable);
 
-
     @Query("SELECT m FROM Material m " +
             "WHERE LOWER(m.text) = LOWER(:text) " +
             "AND m.size.id = :sizeId " +
@@ -50,8 +47,6 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                                      @Param("sizeId") Long sizeId,
                                                      @Param("storeId") Long storeId);
 
-
-
     @Query("SELECT m FROM Material m " +
             "WHERE (:text IS NULL OR LOWER(m.text) LIKE LOWER(CONCAT('%', :text, '%'))) " +
             "AND (:sizeId IS NULL OR m.size.id = :sizeId)")
@@ -59,12 +54,9 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                     @Param("sizeId") Long sizeId,
                                     Pageable pageable);
 
-
-
     Optional<Material> findByTextAndSize_IdAndStore_Id(String text, Long sizeId, Long storeId);
 
     boolean existsByStoreId(Long storeId);
-
 }
 
 

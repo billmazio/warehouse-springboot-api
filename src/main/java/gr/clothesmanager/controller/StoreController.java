@@ -40,7 +40,6 @@ public class StoreController {
         }
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id) {
         try {
@@ -51,7 +50,6 @@ public class StoreController {
                     .body(null); // Store not found
         }
     }
-
 
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -80,7 +78,6 @@ public class StoreController {
         }
     }
 
-
     @GetMapping("/{storeId}/materials")
     public ResponseEntity<List<MaterialDTO>> getMaterialsByStore(@PathVariable Long storeId) {
         try {
@@ -91,6 +88,7 @@ public class StoreController {
                     .body(null);
         }
     }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) {
@@ -117,8 +115,6 @@ public class StoreController {
         }
     }
 
-
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> deleteStore(@PathVariable Long id) {
@@ -140,6 +136,4 @@ public class StoreController {
                     .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης."));
         }
     }
-
-
 }

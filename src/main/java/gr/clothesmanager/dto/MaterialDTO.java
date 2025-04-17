@@ -18,10 +18,6 @@ public class MaterialDTO {
     private String storeTitle;
     private Long storeId;
 
-
-
-
-
     public static MaterialDTO fromModel(Material material) {
         if (material == null) return null;
 

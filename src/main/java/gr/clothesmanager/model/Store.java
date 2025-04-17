@@ -63,7 +63,6 @@ public class Store {
         return Objects.hash(id, title, address, enable);
     }
 
-
     @Override
     public String toString() {
         return "Store{" +

@@ -31,7 +31,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .build();
     }
 
-
     @Transactional
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

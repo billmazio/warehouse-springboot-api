@@ -21,7 +21,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-
         private final JwtService jwtService;
         private final TokenBlacklistService tokenBlacklistService;
         private final UserDetailsService userDetailsService;

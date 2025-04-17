@@ -15,7 +15,6 @@ import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 @Service
@@ -63,8 +61,6 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
     }
 
-
-
     @Transactional
     public List<StoreDTO> findAll() throws UserNotFoundException {
         String username = getAuthenticatedUsername();
@@ -99,7 +95,6 @@ public class StoreServiceImpl implements StoreService {
 
         throw new AccessDeniedException("You do not have permission to view stores.");
     }
-
 
     @Transactional
     public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
@@ -151,8 +146,6 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
-
-
     private void validateStore(StoreDTO storeDTO) {
         if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title is required.");
@@ -173,8 +166,5 @@ public class StoreServiceImpl implements StoreService {
             return principal.toString();
         }
     }
-
-
-
 }
 

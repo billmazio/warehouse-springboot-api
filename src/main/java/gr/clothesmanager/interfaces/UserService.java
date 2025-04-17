@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface UserService {
 
-
     UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException;
 
     Optional<UserDTO> findUserById(Long id) throws UserNotFoundException;

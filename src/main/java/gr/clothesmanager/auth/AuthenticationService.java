@@ -38,8 +38,6 @@ public class AuthenticationService {
         userRepository.save(user);
     }
 
-
-
     public String authenticateAndGenerateToken(LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -54,5 +52,4 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid credentials");
         }
     }
-
 }

@@ -34,5 +34,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByStoreId(Long storeId);
 
     boolean existsByMaterial_Id(Long materialId);
-
 }

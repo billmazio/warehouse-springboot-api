@@ -5,6 +5,7 @@ import gr.clothesmanager.core.AppException;
 import java.io.Serial;
 
 public class OrderAlreadyExistsException extends AppException {
+
     private static final String DEFAULT_CODE = "orderAlreadyExists";
 
     @Serial

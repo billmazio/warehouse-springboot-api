@@ -11,9 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ClothesManagerApplication {
 
     public static void main(String[] args) {
-
         SpringApplication.run(ClothesManagerApplication.class, args);
-
     }
-
 }

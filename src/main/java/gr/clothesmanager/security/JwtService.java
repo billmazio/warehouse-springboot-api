@@ -23,8 +23,6 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-
-
     public String extractId(String token) {
         return extractClaim(token, Claims::getSubject);
     }

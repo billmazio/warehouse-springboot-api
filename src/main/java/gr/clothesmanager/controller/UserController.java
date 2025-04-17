@@ -46,7 +46,6 @@ public class UserController {
         }
     }
 
-
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserNotFoundException {
@@ -54,7 +53,6 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
         return ResponseEntity.ok(user);
     }
-
 
     @PostMapping("/{userId}/roles/{roleName}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -91,7 +89,6 @@ public class UserController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
@@ -113,10 +110,6 @@ public class UserController {
                     .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του χρήστη."));
         }
     }
-
-
-
-
 
     @GetMapping("/details")
     public ResponseEntity<UserDTO> getLoggedInUserDetails() throws UserNotFoundException {

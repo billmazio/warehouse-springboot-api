@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Builder
 public class UserDTO {
-
     private Long id;
     private String username;
     private String password;
@@ -24,11 +23,9 @@ public class UserDTO {
     private Set<UserRole> roles;
     private List<Long> orderIds; // List of Order IDs
 
-
     public User toModel() {
         return new User(id, password, username, enable, store != null ? store.toModel() : null);
     }
-
 
     public static UserDTO fromModel(User user) {
         if (user == null) return null;
@@ -43,7 +40,6 @@ public class UserDTO {
                 .orderIds(user.getOrders() != null ? user.getOrders().stream().map(order -> order.getId()).collect(Collectors.toList()) : null)
                 .build();
     }
-
 
     public boolean hasRole(UserRole userRole) {
         return roles != null && roles.contains(userRole.getName());

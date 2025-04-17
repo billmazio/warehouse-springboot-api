@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Builder
 public class UserRoleDTO {
-
     private Long id;
     private String name;
     private String tag;

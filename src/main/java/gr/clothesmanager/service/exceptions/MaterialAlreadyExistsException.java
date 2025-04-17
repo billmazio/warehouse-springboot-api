@@ -6,6 +6,7 @@ import gr.clothesmanager.core.AppException;
 import java.io.Serial;
 
 public class MaterialAlreadyExistsException extends AppException {
+
     private static final String DEFAULT_CODE = "materialAlreadyExists";
 
     @Serial

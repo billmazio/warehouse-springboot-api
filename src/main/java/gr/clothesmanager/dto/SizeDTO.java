@@ -17,7 +17,6 @@ public class SizeDTO {
     private String name;
     private Set<Long> materialIds;
 
-
     public static SizeDTO fromModel(Size size) {
         if (size == null) return null;
 

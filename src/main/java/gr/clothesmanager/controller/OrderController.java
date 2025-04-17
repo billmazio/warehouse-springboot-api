@@ -58,7 +58,6 @@ public class OrderController {
         }
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
         try {
@@ -79,7 +78,6 @@ public class OrderController {
         }
     }
 
-
     @GetMapping("/paginated")
     public ResponseEntity<Page<OrderDTO>> getOrdersPaginated(
             @RequestParam(required = false) Long storeId,
@@ -95,8 +93,6 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-
 }
 
 

@@ -26,5 +26,4 @@ public class RoleServiceImpl implements RoleService {
         if (role != null) return role;
         return roleRepository.save(new UserRole(null, name, tag, null));
     }
-
 }

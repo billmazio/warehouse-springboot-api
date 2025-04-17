@@ -39,7 +39,6 @@ public class User {
     )
     private Set<UserRole> roles;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;

@@ -9,6 +9,7 @@ public class UserNotFoundException extends AppException {
     public UserNotFoundException(String message) {
         super(DEFAULT_CODE, message);
     }
+
     public UserNotFoundException(String code, String message) {
         super(code, message);
     }

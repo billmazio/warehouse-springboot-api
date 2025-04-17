@@ -29,7 +29,6 @@ public class Material {
     @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
     private Store store;
 
-
     public Material(String text, Integer quantity, Size size, Store store) {
         this.text = text;
         this.quantity = quantity;

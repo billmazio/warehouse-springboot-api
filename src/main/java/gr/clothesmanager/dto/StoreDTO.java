@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Builder
 public class StoreDTO {
-
     private Long id;
     private String title;
     private String address;
@@ -66,7 +65,6 @@ public class StoreDTO {
                 .build();
     }
 
-    // Copy an instance of `StoreDTO`
     public StoreDTO copy() {
         return StoreDTO.builder()
                 .id(this.id)

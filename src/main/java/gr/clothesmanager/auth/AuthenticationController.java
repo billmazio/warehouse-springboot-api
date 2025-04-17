@@ -37,7 +37,6 @@ public class AuthenticationController {
     private final TokenBlacklistService tokenBlacklistService;
     private final JwtService jwtService;
 
-
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
         try {
@@ -61,8 +60,6 @@ public class AuthenticationController {
         }
     }
 
-
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
@@ -73,9 +70,5 @@ public class AuthenticationController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No token provided.");
     }
-
-
-
-
 }
 
