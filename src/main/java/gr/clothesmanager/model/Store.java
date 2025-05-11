@@ -50,14 +50,17 @@ public class Store {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Store)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Store store = (Store) o;
-        return id != null && id.equals(store.getId());
+        return Objects.equals(id, store.id) &&
+                Objects.equals(title, store.title) &&
+                Objects.equals(address, store.address) &&
+                Objects.equals(enable, store.enable);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id, title, address, enable);
     }
 
     @Override

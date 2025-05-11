@@ -25,9 +25,6 @@ public class MaterialDistribution {
     @JoinColumn(name = "receiver_store_id", referencedColumnName = "id", nullable = false)
     private Store receiverStore;
 
-    @Column(name = "quantity")
     private Integer quantity;
-
-    @Column(name = "distribution_date")
     private LocalDate distributionDate;
 }

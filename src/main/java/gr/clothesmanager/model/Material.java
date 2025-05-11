@@ -14,11 +14,7 @@ public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "text")
     private String text;
-
-    @Column(name = "quantity")
     private Integer quantity;
 
     @ManyToOne(fetch = FetchType.EAGER)

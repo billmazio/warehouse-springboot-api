@@ -17,14 +17,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date_of_order")
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfOrder;
-
-    @Column(name = "quantity")
     private Integer quantity;
-
-    @Column(name = "status")
     private Integer status;
 
     @ManyToOne(fetch = FetchType.EAGER)

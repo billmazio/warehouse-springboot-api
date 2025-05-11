@@ -17,20 +17,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "password")
     private String password;
-
-    @Column(name = "username")
     private String username;
-
-    @Column(name = "enable")
     private Integer enable;
 
     @OneToMany(mappedBy = "user")
     private Set<Order> orders;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinTable(
             name = "user_roles",
@@ -39,7 +33,7 @@ public class User {
     )
     private Set<UserRole> roles;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;
 
