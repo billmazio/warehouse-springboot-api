@@ -38,10 +38,9 @@ public class UserRole extends AbstractEntity{
     @Override
     public String toString() {
         return "UserRole{" +
-                "id=" + id +
+                "tag='" + tag + '\'' +
                 ", name='" + name + '\'' +
-                ", tag='" + tag + '\'' +
-                ", users=" + users +
+                ", id=" + id +
                 '}';
     }
 }

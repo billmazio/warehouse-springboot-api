@@ -3,6 +3,7 @@ package gr.clothesmanager.controller;
 import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.DistributionRequestDTO;
 import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.dto.PageResponse;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
@@ -125,25 +126,25 @@ public class MaterialController {
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<MaterialDTO>> findMaterialsPaginated(
+    public ResponseEntity<PageResponse<MaterialDTO>> findMaterialsPaginated(
             @RequestParam(required = false) Long storeId,
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
             Pageable pageable) {
         try {
-            Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
-            return ResponseEntity.ok(materials);
+            Page<MaterialDTO> materialsPage = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
+            return ResponseEntity.ok(PageResponse.from(materialsPage));
         } catch (AccessDeniedException | UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
 
     @GetMapping("/all/paginated")
-    public ResponseEntity<Page<MaterialDTO>> findAllMaterials(
+    public ResponseEntity<PageResponse<MaterialDTO>> findAllMaterials(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
             Pageable pageable) throws UserNotFoundException {
-        Page<MaterialDTO> materials = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
-        return ResponseEntity.ok(materials);
+        Page<MaterialDTO> materialsPage = materialService.findAllPaginatedWithFilters(null, text, sizeId, pageable);
+        return ResponseEntity.ok(PageResponse.from(materialsPage));
     }
 }

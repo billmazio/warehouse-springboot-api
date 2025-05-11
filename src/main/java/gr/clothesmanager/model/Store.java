@@ -52,15 +52,12 @@ public class Store {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Store store = (Store) o;
-        return Objects.equals(id, store.id) &&
-                Objects.equals(title, store.title) &&
-                Objects.equals(address, store.address) &&
-                Objects.equals(enable, store.enable);
+        return Objects.equals(id, store.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, address, enable);
+        return Objects.hash(id);
     }
 
     @Override
@@ -70,8 +67,6 @@ public class Store {
                 ", title='" + title + '\'' +
                 ", address='" + address + '\'' +
                 ", enable=" + enable +
-                ", orders=" + orders +
-                ", users=" + users +
                 '}';
     }
 }

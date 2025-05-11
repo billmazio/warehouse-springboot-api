@@ -1,6 +1,7 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.OrderDTO;
+import gr.clothesmanager.dto.PageResponse;
 import gr.clothesmanager.interfaces.OrderService;
 import gr.clothesmanager.service.OrderServiceImpl;
 import gr.clothesmanager.service.exceptions.InsufficientStockException;
@@ -79,7 +80,7 @@ public class OrderController {
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<OrderDTO>> getOrdersPaginated(
+    public ResponseEntity<PageResponse<OrderDTO>> getOrdersPaginated(
             @RequestParam(required = false) Long storeId,
             @RequestParam(required = false) String materialText,
             @RequestParam(required = false) String sizeName,
@@ -87,8 +88,9 @@ public class OrderController {
             @RequestParam int size) {
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Page<OrderDTO> orders = orderService.findOrdersPaginatedWithFilters(username, storeId, materialText, sizeName, PageRequest.of(page, size));
-            return ResponseEntity.ok(orders);
+            Page<OrderDTO> ordersPage = orderService.findOrdersPaginatedWithFilters(
+                    username, storeId, materialText, sizeName, PageRequest.of(page, size));
+            return ResponseEntity.ok(PageResponse.from(ordersPage));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

@@ -143,6 +143,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
     }
 
+    @Transactional
     public UserDTO getAuthenticatedUserDetails() throws UserNotFoundException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;
