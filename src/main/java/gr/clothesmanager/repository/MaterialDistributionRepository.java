@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MaterialDistributionRepository extends JpaRepository<MaterialDistribution, Long> {
     List<MaterialDistribution> findByReceiverStoreId(Long storeId); // Find materials distributed to a store
+
 }

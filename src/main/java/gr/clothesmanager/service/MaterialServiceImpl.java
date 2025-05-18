@@ -198,27 +198,38 @@ public class MaterialServiceImpl implements MaterialService {
     public void delete(Long id) throws MaterialNotFoundException, UserNotFoundException {
         // Explicit authorization check
         authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-
-        LOGGER.info("Attempting to delete material with ID: {}", id);
+        LOGGER.info("Authorization passed for deleting material ID: {}", id);
 
         // Check if the material exists
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new MaterialNotFoundException("Το υλικό με ID " + id + " δεν βρέθηκε."));
+        LOGGER.info("Found material with ID: {} for deletion", id);
 
         // Check if the material has associated orders
         boolean hasOrders = orderRepository.existsByMaterial_Id(id);
+        LOGGER.info("Material has associated orders: {}", hasOrders);
 
         if (hasOrders) {
             throw new IllegalStateException("Το υλικό έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.");
         }
 
-        // Attempt to delete the material
+        // Attempt to delete the material using direct SQL if possible
         try {
-            materialRepository.delete(material);
-            LOGGER.info("Successfully deleted material with ID: {}", id);
+            LOGGER.info("Executing direct delete for material ID: {}", id);
+            materialRepository.deleteDirectlyById(id);
+            materialRepository.flush();
+            LOGGER.info("Material deletion completed for ID: {}", id);
+
+            // Verify deletion
+            boolean stillExists = materialRepository.existsById(id);
+            LOGGER.info("Verification check - Material still exists: {}", stillExists);
+
+            if (stillExists) {
+                throw new RuntimeException("Material was not deleted despite successful operation");
+            }
         } catch (Exception ex) {
-            LOGGER.error("Error deleting material: {}", ex.getMessage());
-            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή του υλικού.", ex);
+            LOGGER.error("Error deleting material: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή του υλικού: " + ex.getMessage(), ex);
         }
     }
 

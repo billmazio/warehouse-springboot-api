@@ -109,7 +109,17 @@ public class MaterialController {
 
             // Call the service to delete the material
             materialService.delete(id);
-            return ResponseEntity.noContent().build();
+
+            // Verify the material was actually deleted before returning success
+            try {
+                materialService.findById(id);
+                // If we reach here, the material still exists
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("message", "Η διαγραφή φαίνεται να απέτυχε. Το προϊόν εξακολουθεί να υπάρχει."));
+            } catch (MaterialNotFoundException e) {
+                // This is what we want - the material was not found after deletion
+                return ResponseEntity.noContent().build();
+            }
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε προϊόντα."));
@@ -121,7 +131,7 @@ public class MaterialController {
                     .body(Map.of("message", "Δεν είναι δυνατή η διαγραφή του προϊόντος, καθώς υπάρχουν σχετικές παραγγελίες."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του προϊόντος."));
+                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του προϊόντος: " + e.getMessage()));
         }
     }
 

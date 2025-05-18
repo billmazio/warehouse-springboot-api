@@ -5,6 +5,7 @@ import gr.clothesmanager.model.Material;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,6 +58,10 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     Optional<Material> findByTextAndSize_IdAndStore_Id(String text, Long sizeId, Long storeId);
 
     boolean existsByStoreId(Long storeId);
+
+    @Modifying
+    @Query("DELETE FROM Material m WHERE m.id = :id")
+    void deleteDirectlyById(@Param("id") Long id);
 }
 
 
