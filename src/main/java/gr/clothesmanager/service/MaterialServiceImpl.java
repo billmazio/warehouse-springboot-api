@@ -52,15 +52,12 @@ public class MaterialServiceImpl implements MaterialService {
             throw new MaterialAlreadyExistsException("Material with the same text already exists in this store.");
         }
 
-        // Fetch the associated size
         Size size = sizeRepository.findById(materialDTO.getSizeId())
                 .orElseThrow(() -> new MaterialAlreadyExistsException("Size not found with ID: " + materialDTO.getSizeId()));
 
-        // Fetch the associated store
         Store store = storeRepository.findById(materialDTO.getStoreId())
                 .orElseThrow(() -> new MaterialAlreadyExistsException("Store not found with ID: " + materialDTO.getStoreId()));
 
-        // Create and save the new material
         Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size, store);
         material = materialRepository.save(material);
 
@@ -69,17 +66,14 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     public List<MaterialDTO> findMaterialsByStoreId(Long storeId) throws UserNotFoundException {
-        // Fetch the authenticated user's store and role
         UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
 
-        // If user is a LOCAL_ADMIN, restrict access to their assigned store
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
             if (!storeId.equals(currentUser.getStore().getId())) {
                 throw new AccessDeniedException("You do not have permission to access materials for this store.");
             }
         }
 
-        // Fetch materials for the specified store
         List<Material> materials = materialRepository.findByStoreId(storeId);
         return materials.stream()
                 .map(material -> new MaterialDTO(
@@ -110,24 +104,20 @@ public class MaterialServiceImpl implements MaterialService {
                 .orElseThrow(() -> new RuntimeException("Store not found"));
         LOGGER.info("Fetched receiver store: {}", receiverStore);
 
-        // Deduct quantity from central store
         material.setQuantity(material.getQuantity() - quantity);
         materialRepository.save(material);
         LOGGER.info("Updated central store material quantity to {}", material.getQuantity());
 
-        // Check if material exists in receiver store with the same text and size
         Optional<Material> receiverMaterialOpt = materialRepository.findByTextAndSize_IdAndStore_Id(
                 material.getText(), material.getSize().getId(), receiverStoreId);
         LOGGER.info("Receiver material exists: {}", receiverMaterialOpt.isPresent());
 
         Material receiverMaterial;
         if (receiverMaterialOpt.isPresent()) {
-            // Update quantity in receiver store
             receiverMaterial = receiverMaterialOpt.get();
             receiverMaterial.setQuantity(receiverMaterial.getQuantity() + quantity);
             LOGGER.info("Updated receiver material quantity to {}", receiverMaterial.getQuantity());
         } else {
-            // Create new material in receiver store
             receiverMaterial = new Material(
                     material.getText(),
                     quantity,
@@ -139,7 +129,6 @@ public class MaterialServiceImpl implements MaterialService {
         materialRepository.save(receiverMaterial);
         LOGGER.info("Saved receiver material");
 
-        // Record the distribution
         MaterialDistribution distribution = new MaterialDistribution();
         distribution.setMaterial(material);
         distribution.setReceiverStore(receiverStore);
@@ -164,7 +153,7 @@ public class MaterialServiceImpl implements MaterialService {
 
         List<Material> materials = materialRepository.findByOptionalFilters(
                 text.orElse(null),
-                sizeId.orElse(null) // Pass null if Optional is empty
+                sizeId.orElse(null)
         );
 
         return materials.stream()
@@ -196,11 +185,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     public void delete(Long id) throws MaterialNotFoundException, UserNotFoundException {
-        // Explicit authorization check
         authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
         LOGGER.info("Authorization passed for deleting material ID: {}", id);
 
-        // Check if the material exists
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new MaterialNotFoundException("Το υλικό με ID " + id + " δεν βρέθηκε."));
         LOGGER.info("Found material with ID: {} for deletion", id);
@@ -213,7 +200,6 @@ public class MaterialServiceImpl implements MaterialService {
             throw new IllegalStateException("Το υλικό έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.");
         }
 
-        // Attempt to delete the material using direct SQL if possible
         try {
             LOGGER.info("Executing direct delete for material ID: {}", id);
             materialRepository.deleteDirectlyById(id);
@@ -247,12 +233,10 @@ public class MaterialServiceImpl implements MaterialService {
     public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) throws UserNotFoundException {
         UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
 
-        // If the user is a LOCAL_ADMIN, restrict to their store
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
             storeId = currentUser.getStore().getId(); // Force storeId to the user's store
         }
 
-        // Fetch materials based on storeId and filters
         Page<Material> materialsPage;
         if (storeId == null) {
             materialsPage = materialRepository.findAllByFilters(text, sizeId, pageable); // For SUPER_ADMIN

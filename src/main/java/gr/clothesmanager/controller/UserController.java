@@ -67,7 +67,6 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
         try {
-            // Custom authorization check
             authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
             if (userDTO.getStore() == null) {
@@ -104,7 +103,7 @@ public class UserController {
                     .body(Map.of("message", "Ο χρήστης δεν βρέθηκε."));
         } catch (DataIntegrityViolationException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", ex.getMessage())); // Pass the specific message for associated data
+                    .body(Map.of("message", ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του χρήστη."));

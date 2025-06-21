@@ -36,7 +36,6 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
-        // Authorization check for creating a store
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
         validateStore(storeDTO);
@@ -67,7 +66,6 @@ public class StoreServiceImpl implements StoreService {
         UserDTO userDTO = userServiceImpl.findUserByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Check if the user is a SUPER_ADMIN
         boolean isSuperAdmin = userDTO.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
 
@@ -115,17 +113,14 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException, UserNotFoundException {
-        // Explicit authorization check
         authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
         LOGGER.info("Attempting to delete store with ID: {}", id);
 
-        // Check if the store exists
         if (!storeRepository.existsById(id)) {
             throw new StoreNotFoundException("Η αποθήκη με ID " + id + " δεν βρέθηκε.");
         }
 
-        // Check if the store has related materials or orders
         boolean hasMaterials = materialRepository.existsByStoreId(id);
         boolean hasOrders = orderRepository.existsByStoreId(id);
 
@@ -136,7 +131,6 @@ public class StoreServiceImpl implements StoreService {
             throw new IllegalStateException(errorMessage);
         }
 
-        // Attempt to delete the store
         try {
             storeRepository.deleteById(id);
             LOGGER.info("Successfully deleted store with ID: {}", id);
@@ -144,6 +138,21 @@ public class StoreServiceImpl implements StoreService {
             LOGGER.error("Error deleting store: {}", ex.getMessage());
             throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης.", ex);
         }
+    }
+
+    @Transactional
+    public StoreDTO saveForSetup(StoreDTO storeDTO) {
+
+        validateStore(storeDTO);
+
+        Store store = new Store();
+        store.setTitle(storeDTO.getTitle());
+        store.setAddress(storeDTO.getAddress());
+        store.setEnable(storeDTO.getEnable());
+
+        Store savedStore = storeRepository.save(store);
+        LOGGER.info("Successfully saved initial setup store with ID: {}", savedStore.getId());
+        return StoreDTO.fromModel(savedStore);
     }
 
     private void validateStore(StoreDTO storeDTO) {

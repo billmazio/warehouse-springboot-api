@@ -1,5 +1,6 @@
 package gr.clothesmanager.dto;
 
+import gr.clothesmanager.model.Order;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.model.Store;
@@ -37,7 +38,7 @@ public class UserDTO {
                 .enable(user.getEnable())
                 .store(user.getStore() != null ? StoreDTO.fromModel(user.getStore()) : null)
                 .roles(user.getRoles()) // This expects `user.getRoles()` to return a Set<UserRole>
-                .orderIds(user.getOrders() != null ? user.getOrders().stream().map(order -> order.getId()).collect(Collectors.toList()) : null)
+                .orderIds(user.getOrders() != null ? user.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .build();
     }
 

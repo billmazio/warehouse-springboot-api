@@ -1,6 +1,7 @@
 package gr.clothesmanager.service;
 
 import gr.clothesmanager.dto.UserDTO;
+import gr.clothesmanager.interfaces.RoleService;
 import gr.clothesmanager.interfaces.UserService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.model.User;
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final MaterialRepository materialRepository;
-    private final RoleServiceImpl roleService;
+    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -95,7 +96,6 @@ public class UserServiceImpl implements UserService {
         User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " does not exist"));
 
-        // Prevent SUPER_ADMIN from deleting themselves
         if (authenticatedUser.getId().equals(userToDelete.getId())) {
             throw new AccessDeniedException("Δεν μπορεί να διαγραφεί ο SUPER_ADMIN.");
         }
@@ -106,7 +106,6 @@ public class UserServiceImpl implements UserService {
             throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN.");
         }
 
-        // Prevent deletion of users with associated data
         if (userToDelete.getStore() != null) {
             boolean hasMaterials = materialRepository.existsByStoreId(userToDelete.getStore().getId());
             boolean hasOrders = orderRepository.existsByStoreId(userToDelete.getStore().getId());
@@ -116,10 +115,39 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // Delete the user
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
+
+    public boolean isSetupRequired() {
+        return userRepository.count() == 0;
+    }
+
+    @Transactional
+    public UserDTO createSuperAdminUser(String username, String password, Store store) throws UserAlreadyExistsException {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UserAlreadyExistsException("User already exists");
+        }
+
+        // Create a SUPER_ADMIN role
+        UserRole superAdminRole = roleService.getOrCreateRole("SUPER_ADMIN", "Super Admin");
+
+        // Create a set with just the SUPER_ADMIN role
+        Set<UserRole> roles = new HashSet<>();
+        roles.add(superAdminRole);
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEnable(1); // Enable the user
+        user.setStore(store);
+        user.setRoles(roles);
+
+        User savedUser = userRepository.save(user);
+        LOGGER.info("Successfully created SUPER_ADMIN user: {}", username);
+        return UserDTO.fromModel(savedUser);
+    }
+
 
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {
@@ -131,9 +159,9 @@ public class UserServiceImpl implements UserService {
                     String roleName = role.getName().toUpperCase(); // Convert role name to upper case
                     switch (roleName) {
                         case "SUPER_ADMIN":
-                            return roleService.getOrCreateRole("Super Admin", "SUPER_ADMIN");
+                            return roleService.getOrCreateRole("SUPER_ADMIN", "Super Admin");
                         case "LOCAL_ADMIN":
-                            return roleService.getOrCreateRole("Local Admin", "LOCAL_ADMIN");
+                            return roleService.getOrCreateRole("LOCAL_ADMIN", "Local Admin");
                         default:
                             LOGGER.warn("Unknown role '{}', skipping...", roleName);
                             return null;
@@ -178,8 +206,8 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Role with name '" + roleName + "' does not exist");
         }
 
-        user.getRoles().clear(); // Clear existing roles
-        user.getRoles().add(role); // Add the new role
+        user.getRoles().clear();
+        user.getRoles().add(role);
         userRepository.save(user);
     }
 }

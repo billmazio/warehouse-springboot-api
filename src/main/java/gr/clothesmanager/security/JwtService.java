@@ -54,7 +54,6 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Generate access token
     public String generateToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)

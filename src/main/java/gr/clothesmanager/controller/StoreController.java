@@ -28,7 +28,6 @@ public class StoreController {
     private final AuthorizationService authorizationService;
     private final UserServiceImpl userServiceImpl;
 
-    // Fetch all stores
     @GetMapping
     public ResponseEntity<List<StoreDTO>> getAllStores() {
         try {
@@ -55,7 +54,6 @@ public class StoreController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createStore(@RequestBody StoreDTO storeDTO) {
         try {
-            // Explicit authorization check
             authorizationService.authorize(
                     userServiceImpl.getAuthenticatedUserDetails().getUsername(),
                     "SUPER_ADMIN"
@@ -65,13 +63,13 @@ public class StoreController {
             return ResponseEntity.ok(createdStore);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage())); // Validation failure
+                    .body(Map.of("message", ex.getMessage()));
         } catch (StoreAlreadyExistsException ex) {
             return ResponseEntity.status(409)
-                    .body(Map.of("message", "Store already exists.")); // Duplicate store
+                    .body(Map.of("message", "Store already exists."));
         } catch (AccessDeniedException ex) {
             return ResponseEntity.status(403)
-                    .body(Map.of("message", "You do not have permission to create a store.")); // Authorization failure
+                    .body(Map.of("message", "You do not have permission to create a store."));
         } catch (Exception ex) {
             return ResponseEntity.status(500)
                     .body(Map.of("message", "An error occurred while creating the store."));
@@ -119,7 +117,6 @@ public class StoreController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> deleteStore(@PathVariable Long id) {
         try {
-            // Call service to delete the store
             storeService.deleteStoreById(id);
             return ResponseEntity.noContent().build();
         } catch (StoreNotFoundException ex) {

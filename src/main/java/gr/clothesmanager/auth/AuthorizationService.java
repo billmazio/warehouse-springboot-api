@@ -25,7 +25,7 @@ public class AuthorizationService {
         }
 
         boolean hasRole = userDTO.getRoles().stream()
-                .map(role -> role.getName().toUpperCase()) // Ensure case-insensitivity
+                .map(role -> role.getName().toUpperCase())
                 .anyMatch(role -> Arrays.stream(allowedRoles)
                         .map(String::toUpperCase)
                         .anyMatch(role::equals));
@@ -33,15 +33,5 @@ public class AuthorizationService {
         if (!hasRole) {
             throw new AccessDeniedException("Ο χρήστης δεν έχει τα απαιτούμενα δικαιώματα: " + String.join(", ", allowedRoles));
         }
-    }
-
-    private boolean isSuperAdmin(UserDTO userDTO) {
-        return userDTO.getRoles().stream()
-                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
-    }
-
-    private boolean isLocalAdmin(UserDTO userDTO) {
-        return userDTO.getRoles().stream()
-                .anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"));
     }
 }

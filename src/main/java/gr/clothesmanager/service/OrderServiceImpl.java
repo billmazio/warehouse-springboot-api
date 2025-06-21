@@ -36,15 +36,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        // Fetch store by title
         Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
                 .orElseThrow(() -> new RuntimeException("Store not found"));
 
-        // Fetch size by name
         Size size = sizeRepository.findByName(orderDTO.getSizeName())
                 .orElseThrow(() -> new RuntimeException("Size not found"));
 
-        // Fetch material by text, size ID, and store ID
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
                 orderDTO.getMaterialText(), size.getId(), store.getId());
 
@@ -59,11 +56,9 @@ public class OrderServiceImpl implements OrderService {
             throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
         }
 
-        // Deduct stock from material
         material.setQuantity(material.getQuantity() - requestedQuantity);
         materialRepository.save(material);
 
-        // Create and save the order
         Order order = orderDTO.toModel();
         order.setMaterial(material);
         order.setSize(size);
@@ -73,27 +68,22 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(orderDTO.getStatus());
         Order savedOrder = orderRepository.save(order);
 
-        // Create response DTO with sold and remaining stock information
         OrderDTO responseDTO = OrderDTO.fromModel(savedOrder);
-        responseDTO.setStock(material.getQuantity()); // Set remaining stock
+        responseDTO.setStock(material.getQuantity());
         return responseDTO;
     }
 
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws OrderNotFoundException {
-        // Fetch existing order
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
 
-        // Fetch store by title
         Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
                 .orElseThrow(() -> new RuntimeException("Store not found"));
 
-        // Fetch size by name
         Size size = sizeRepository.findByName(orderDTO.getSizeName())
                 .orElseThrow(() -> new RuntimeException("Size not found"));
 
-        // Fetch material by text, size ID, and store ID
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
                 orderDTO.getMaterialText(), size.getId(), store.getId());
 
@@ -107,13 +97,10 @@ public class OrderServiceImpl implements OrderService {
         int newQuantity = orderDTO.getQuantity();
         int quantityDifference = newQuantity - oldQuantity;
 
-        // Check if the order is being canceled
         if (order.getStatus() != 3 && orderDTO.getStatus() == 3) {
-            // Restore stock by adding the old quantity back to the material
             material.setQuantity(material.getQuantity() + oldQuantity);
             materialRepository.save(material);
         } else if (orderDTO.getStatus() != 3) {
-            // Handle stock deduction if the status is not canceled and quantity changes
             if (material.getQuantity() < quantityDifference) {
                 throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
             }
@@ -122,7 +109,6 @@ public class OrderServiceImpl implements OrderService {
             materialRepository.save(material);
         }
 
-        // Update order details
         order.setQuantity(newQuantity);
         order.setDateOfOrder(orderDTO.getDateOfOrder());
         order.setStatus(orderDTO.getStatus());
@@ -136,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         LOGGER.info("Order updated with ID: {}", updatedOrder.getId());
 
         OrderDTO responseDTO = OrderDTO.fromModel(updatedOrder);
-        responseDTO.setStock(material.getQuantity()); // Set remaining stock
+        responseDTO.setStock(material.getQuantity());
         return responseDTO;
     }
 
@@ -182,10 +168,8 @@ public class OrderServiceImpl implements OrderService {
 
         Page<Order> ordersPage;
         if (user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
-            // Super admin can filter orders across all stores
             ordersPage = orderRepository.findAllByFilters(storeId, null, materialText, sizeName, pageable);
         } else {
-            // Local admin can only filter orders for their store
             Long localStoreId = user.getStore().getId();
             ordersPage = orderRepository.findAllByFilters(localStoreId, null, materialText, sizeName, pageable);
         }

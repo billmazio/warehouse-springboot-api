@@ -46,20 +46,18 @@ public class MainController {
     @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboardData(HttpServletRequest request) {
         try {
-            // Validate Authorization header
             String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Missing or invalid token");
             }
 
-            // Fetch counts for each entity
+
             int activeUserCount = userRepository.countActiveUsersForDashboard();
             int materialCount = materialRepository.countMaterials();
             int sizeCount = sizeRepository.countSizes();
             int orderCount = orderRepository.countOrders();
             int storeCount = storeRepository.countStores();
 
-            // Prepare the response
             Map<String, Object> response = new HashMap<>();
             response.put("user", activeUserCount);
             response.put("materials", materialCount);

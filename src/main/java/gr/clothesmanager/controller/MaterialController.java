@@ -44,7 +44,6 @@ public class MaterialController {
     @GetMapping("/{storeId}/materials")
     public ResponseEntity<List<MaterialDTO>> findMaterialsByStoreId(@PathVariable Long storeId) {
         try {
-            // Fetch materials for the specified store
             List<MaterialDTO> materials = materialService.findMaterialsByStoreId(storeId);
             return ResponseEntity.ok(materials);
         } catch (AccessDeniedException e) {
@@ -82,7 +81,6 @@ public class MaterialController {
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId
     ) {
-        // Pass the query parameters as Optional to the service
         List<MaterialDTO> materials = materialService.findAll(
                 Optional.ofNullable(text),
                 Optional.ofNullable(sizeId)
@@ -103,21 +101,16 @@ public class MaterialController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            // Perform authorization check
             String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
 
-            // Call the service to delete the material
             materialService.delete(id);
 
-            // Verify the material was actually deleted before returning success
             try {
                 materialService.findById(id);
-                // If we reach here, the material still exists
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("message", "Η διαγραφή φαίνεται να απέτυχε. Το προϊόν εξακολουθεί να υπάρχει."));
             } catch (MaterialNotFoundException e) {
-                // This is what we want - the material was not found after deletion
                 return ResponseEntity.noContent().build();
             }
         } catch (AccessDeniedException e) {
