@@ -1,51 +1,54 @@
-Clothing Management System
-Project Description
-This is a Spring Boot project built on version 3.4.0. The project incorporates various technologies for building a clothing inventory management system. The application allows for tracking, management, and distribution of clothing items across multiple store locations with role-based access.
-Technologies Used:
+# Clothing Management System - Backend
 
-Spring Boot 3.4.0
-MySQL Database
-JPA (Java Persistence API)
-Hibernate
-Spring Security
-JWT Authentication
-Lombok
-React.js (Frontend)
-Custom CSS
+## Project Description
 
-Key Features:
+This is a Spring Boot backend service built on version 3.4.0 for a clothing inventory management system. It provides REST APIs for tracking, managing, and distributing clothing items across multiple store locations with role-based access control.
 
-Multi-store Management: Track inventory across multiple store locations
-Role-based Access Control: Different permissions for Super Admins and Local Admins
-Material/Clothing Management: Add, edit, and remove clothing items with details
-Size Management: Standardized size options for all clothing items
-Quantity Tracking: Monitor stock levels across all locations
-Responsive UI: Modern, mobile-friendly interface
+## Technologies Used:
 
-Technical Implementation:
+- Spring Boot 3.4.0
+- MySQL Database
+- JPA (Java Persistence API)
+- Hibernate ORM
+- Spring Security
+- JWT Authentication
+- Lombok
+- Java 17
 
-Spring Boot 3.4.0 provides the foundation for building the web application with ease and efficiency.
-MySQL database is used to store and manage data.
-JPA is utilized for database interaction with object-relational mapping.
-Hibernate is the underlying ORM tool that handles the mapping between Java objects and the database.
-Lombok is used to reduce boilerplate code in the entity classes, such as getters, setters, and constructors.
-Thymeleaf template engine is used for server-side templating, rendering dynamic HTML views.
-Spring Security with JWT handles authentication and authorization.
-React.js is employed for the frontend user interface.
-Custom CSS is used for styling the user interface, providing a visually appealing and responsive design.
+## Key Features:
 
-Database Schema
-Main Tables:
+- Multi-store Management API
+- Role-based Access Control (SUPER_ADMIN, LOCAL_ADMIN)
+- Clothing Inventory Management
+- Size Management
+- JWT-based Authentication & Authorization
+- RESTful API Design
 
-materials - Clothing items inventory
-sizes - Standardized clothing sizes
-stores - Store locations
-users - System users with roles
+## Technical Implementation:
 
-User Roles
+- Spring Boot 3.4.0 provides the foundation for building the REST API service.
+- MySQL database stores all inventory and user data.
+- JPA with Hibernate handles object-relational mapping for database operations.
+- Lombok reduces boilerplate code in entity classes and DTOs.
+- Spring Security with JWT manages authentication and authorization.
+- RESTful API endpoints for all CRUD operations on materials, stores, and sizes.
 
-SUPER_ADMIN - Can manage all stores and materials
-LOCAL_ADMIN - Can only manage their assigned store
+## Database Mysql
 
-Screenshots:
-(Include screenshots of key interfaces here)
+## Main API Endpoints
+
+The service provides RESTful endpoints for:
+- Authentication
+- Store management
+- Material/inventory management
+- Size reference data
+
+## Getting Started
+
+1. Ensure you have Java 17 and Maven installed
+2. Configure MySQL database connection in `application.properties`
+3. Run with `mvn spring-boot:run`
+
+---
+
+*Backend documentation for GitHub repository*
