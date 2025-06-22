@@ -5,7 +5,6 @@ import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
-import gr.clothesmanager.model.MaterialDistribution;
 import gr.clothesmanager.model.Size;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.*;
@@ -35,7 +34,6 @@ public class MaterialServiceImpl implements MaterialService {
     private final MaterialRepository materialRepository;
     private final StoreRepository storeRepository;
     private final SizeRepository sizeRepository;
-    private final MaterialDistributionRepository materialDistributionRepository;
     private final OrderRepository orderRepository;
     private final UserServiceImpl userServiceImpl;
     private final AuthorizationService authorizationService;
@@ -86,56 +84,6 @@ public class MaterialServiceImpl implements MaterialService {
                         storeId
                 ))
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void distributeMaterial(Long materialId, Long receiverStoreId, Integer quantity) {
-        LOGGER.info("Starting distribution: materialId={}, receiverStoreId={}, quantity={}", materialId, receiverStoreId, quantity);
-
-        Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new RuntimeException("Material not found"));
-        LOGGER.info("Fetched material: {}", material);
-
-        if (material.getQuantity() < quantity) {
-            throw new RuntimeException("Not enough material available for distribution");
-        }
-
-        Store receiverStore = storeRepository.findById(receiverStoreId)
-                .orElseThrow(() -> new RuntimeException("Store not found"));
-        LOGGER.info("Fetched receiver store: {}", receiverStore);
-
-        material.setQuantity(material.getQuantity() - quantity);
-        materialRepository.save(material);
-        LOGGER.info("Updated central store material quantity to {}", material.getQuantity());
-
-        Optional<Material> receiverMaterialOpt = materialRepository.findByTextAndSize_IdAndStore_Id(
-                material.getText(), material.getSize().getId(), receiverStoreId);
-        LOGGER.info("Receiver material exists: {}", receiverMaterialOpt.isPresent());
-
-        Material receiverMaterial;
-        if (receiverMaterialOpt.isPresent()) {
-            receiverMaterial = receiverMaterialOpt.get();
-            receiverMaterial.setQuantity(receiverMaterial.getQuantity() + quantity);
-            LOGGER.info("Updated receiver material quantity to {}", receiverMaterial.getQuantity());
-        } else {
-            receiverMaterial = new Material(
-                    material.getText(),
-                    quantity,
-                    material.getSize(),
-                    receiverStore
-            );
-            LOGGER.info("Created new material in receiver store: {}", receiverMaterial);
-        }
-        materialRepository.save(receiverMaterial);
-        LOGGER.info("Saved receiver material");
-
-        MaterialDistribution distribution = new MaterialDistribution();
-        distribution.setMaterial(material);
-        distribution.setReceiverStore(receiverStore);
-        distribution.setQuantity(quantity);
-        distribution.setDistributionDate(LocalDate.now());
-        materialDistributionRepository.save(distribution);
-        LOGGER.info("Recorded material distribution: {}", distribution);
     }
 
     @Transactional

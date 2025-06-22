@@ -17,16 +17,13 @@ public class StoreDTO {
     private String title;
     private String address;
     private Integer enable;
-    private List<Long> orderIds;  // Simplified list of order IDs
-    private List<Long> userIds;   // Simplified list of user IDs
+    private List<Long> orderIds;
+    private List<Long> userIds;
     private List<Long> materialIds;
     private List<Long> materialDescriptionIds;
 
-    // **Mapping Methods**
-
-    // Convert `StoreDTO` to `Store` (Model)
     public Store toModel() {
-        return new Store(id,title,address,enable,null,null,null,null);
+        return new Store(id,title,address,enable,null,null,null);
 
     }
 
@@ -61,7 +58,6 @@ public class StoreDTO {
                 .orderIds(store.getOrders() != null ? store.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .userIds(store.getUsers() != null ? store.getUsers().stream().map(User::getId).collect(Collectors.toList()) : null)
                 .materialIds(store.getMaterials() != null ? store.getMaterials().stream().map(Material::getId).collect(Collectors.toList()) : null)
-                .materialDescriptionIds(store.getReceivedMaterials() != null ? store.getReceivedMaterials().stream().map(MaterialDistribution::getId).collect(Collectors.toList()) : null)
                 .build();
     }
 

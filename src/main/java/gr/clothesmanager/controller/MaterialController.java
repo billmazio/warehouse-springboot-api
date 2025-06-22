@@ -1,10 +1,8 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.auth.AuthorizationService;
-import gr.clothesmanager.dto.DistributionRequestDTO;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.PageResponse;
-import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
@@ -61,19 +59,6 @@ public class MaterialController {
         } catch (MaterialNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-    }
-
-    @PostMapping("/{materialId}/distribute")
-    public ResponseEntity<Void> distributeMaterial(
-            @PathVariable Long materialId,
-            @RequestBody DistributionRequestDTO distributionRequest) {
-
-        materialService.distributeMaterial(
-                materialId,
-                distributionRequest.getReceiverStoreId(),
-                distributionRequest.getQuantity()
-        );
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping
