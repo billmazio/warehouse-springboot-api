@@ -35,7 +35,6 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final TokenBlacklistService tokenBlacklistService;
-    private final JwtService jwtService;
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
