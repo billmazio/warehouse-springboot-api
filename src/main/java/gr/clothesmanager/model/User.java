@@ -17,7 +17,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String password;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
+
     private Integer enable;
 
     @OneToMany(mappedBy = "user")

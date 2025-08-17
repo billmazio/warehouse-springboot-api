@@ -1,8 +1,12 @@
 package gr.clothesmanager.auth.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class SetupRequestDTO {
     private String username;
     private String password;
