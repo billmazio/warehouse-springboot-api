@@ -1,28 +1,15 @@
 package gr.clothesmanager.auth;
 
-
-import gr.clothesmanager.auth.dto.AuthenticationRequest;
-import gr.clothesmanager.auth.dto.AuthenticationResponse;
 import gr.clothesmanager.auth.dto.ChangePasswordRequest;
 import gr.clothesmanager.auth.dto.LoginRequest;
-import gr.clothesmanager.core.CustomUserDetailsService;
-import gr.clothesmanager.interfaces.UserService;
-import gr.clothesmanager.security.JwtService;
-import gr.clothesmanager.security.TokenBlacklistService;
-import gr.clothesmanager.service.exceptions.UserNotAuthorizedException;
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +21,6 @@ public class AuthenticationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
     private final AuthenticationService authenticationService;
-    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
@@ -50,9 +36,10 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             String token = authenticationService.authenticateAndGenerateToken(loginRequest);
-            Map<String, String> responseBody = new HashMap<>();
+            Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("message", "Login successful");
-            responseBody.put("token", token); // Send token for the frontend
+            responseBody.put("token", token);
+            responseBody.put("expiresInMinutes", 15); // Inform frontend about token expiration
             return ResponseEntity.ok(responseBody);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
@@ -61,13 +48,38 @@ public class AuthenticationController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
+        String clientIp = getClientIpAddress(request);
+
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
-            tokenBlacklistService.revokeToken(token);
-            return ResponseEntity.ok(Map.of("message", "Logout successful"));
+            // Token is present, log successful logout
+            LOGGER.info("User logged out successfully from IP: {}", clientIp);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Logout successful. Token will expire automatically.",
+                    "expiresInMinutes", 15 // Let frontend know when token expires
+            ));
+        } else {
+            // No token provided
+            LOGGER.warn("Logout attempt without valid token from IP: {}", clientIp);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Logout successful."
+            ));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No token provided.");
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+
+        return request.getRemoteAddr();
     }
 }
-
