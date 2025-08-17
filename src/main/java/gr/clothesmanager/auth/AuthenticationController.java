@@ -3,6 +3,7 @@ package gr.clothesmanager.auth;
 import gr.clothesmanager.auth.dto.ChangePasswordRequest;
 import gr.clothesmanager.auth.dto.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +34,32 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
+            String clientIp = getClientIpAddress(request);
+            LOGGER.info("Login attempt for user: {} from IP: {}", loginRequest.getUsername(), clientIp);
+
             String token = authenticationService.authenticateAndGenerateToken(loginRequest);
+
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("message", "Login successful");
             responseBody.put("token", token);
-            responseBody.put("expiresInMinutes", 15); // Inform frontend about token expiration
+            responseBody.put("expiresInMinutes", 15);
+            responseBody.put("tokenType", "Bearer"); // Helpful for frontend
+
+            LOGGER.info("Login successful for user: {} from IP: {}", loginRequest.getUsername(), clientIp);
             return ResponseEntity.ok(responseBody);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
+            String clientIp = getClientIpAddress(request);
+            LOGGER.warn("Login failed for user: {} from IP: {} - {}",
+                    loginRequest.getUsername(), clientIp, e.getMessage());
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Invalid login credentials");
+            errorResponse.put("error", true);
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
