@@ -14,7 +14,7 @@ public interface StoreService {
 
     StoreDTO findById(Long id) throws StoreNotFoundException;
 
-    List<StoreDTO> findAll() throws UserNotFoundException;
+    List<StoreDTO> findAll() throws UserNotFoundException, StoreNotFoundException;
 
     void edit (Long id , StoreDTO storeDTO)  throws StoreNotFoundException;
 }

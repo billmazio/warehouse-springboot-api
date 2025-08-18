@@ -12,9 +12,9 @@ public interface UserService {
 
     UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException;
 
-    Optional<UserDTO> findUserById(Long id) throws UserNotFoundException;
+    UserDTO findUserById(Long id) throws UserNotFoundException;
 
-    Optional<UserDTO> findUserByUsername(String username) throws UserNotFoundException;
+    UserDTO findUserByUsername(String username) throws UserNotFoundException;
 
     List<UserDTO> findAllUsers(String username) throws UserNotFoundException;
 
