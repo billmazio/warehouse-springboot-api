@@ -40,145 +40,84 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
-        if (userDTO == null) {
-            LOGGER.error("[saveUser] UserDTO is null");
-            throw new IllegalArgumentException("UserDTO cannot be null");
-        }
-        if (userDTO.getUsername() == null || userDTO.getUsername().isBlank()) {
-            LOGGER.error("[saveUser] Username is blank");
-            throw new IllegalArgumentException("Username cannot be blank");
-        }
-        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
-            LOGGER.error("[saveUser] Password is blank");
-            throw new IllegalArgumentException("Password cannot be blank");
-        }
-        if (store == null) {
-            LOGGER.error("[saveUser] Store is null");
-            throw new IllegalArgumentException("Store cannot be null");
-        }
-
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
-            LOGGER.error("[saveUser] User already exists with username: {}", userDTO.getUsername());
             throw new UserAlreadyExistsException("User already exists");
         }
-
         Set<UserRole> roles = assignRoles(userDTO.getRoles());
-
         User user = new User();
-        user.setUsername(userDTO.getUsername().trim());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Encode the password correctly
         user.setEnable(userDTO.getEnable());
         user.setStore(store);
         user.setRoles(roles);
 
-        User saved = userRepository.save(user);
-        LOGGER.info("Successfully created user '{}' (id={})", saved.getUsername(), saved.getId());
-        return UserDTO.fromModel(saved);
-    }
-
-
-    @Transactional
-    public UserDTO findUserById(Long id) throws UserNotFoundException {
-        if (id == null) {
-            LOGGER.error("[findUserById] User ID is null");
-            throw new UserNotFoundException("UserId", "User ID cannot be null");
-        }
-
-        User user = userRepository.findById(id).orElseThrow(() -> {
-            LOGGER.error("[findUserById] User not found with ID: {}", id);
-            return new UserNotFoundException("User", "User not found with ID: " + id);
-        });
-
+        userRepository.save(user);
         return UserDTO.fromModel(user);
     }
 
     @Transactional
-    public UserDTO findUserByUsername(String username) throws UserNotFoundException {
-        if (username == null || username.isBlank()) {
-            LOGGER.error("[findUserByUsername] Username is blank");
-            throw new UserNotFoundException("Username", "Username cannot be blank");
-        }
+    public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+        return Optional.of(UserDTO.fromModel(user));
+    }
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            LOGGER.error("[findUserByUsername] User not found with username: {}", username);
-            return new UserNotFoundException("User", "User not found with username: " + username);
-        });
-
-        return UserDTO.fromModel(user);
+    @Transactional
+    public Optional<UserDTO> findUserByUsername(String username) throws UserNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with username '" + username + "' not found"));
+        return Optional.of(UserDTO.fromModel(user));
     }
 
     @Transactional
     public List<UserDTO> findAllUsers(String username) throws UserNotFoundException {
-        if (username == null || username.isBlank()) {
-            LOGGER.error("[findAllUsers] Username is blank");
-            throw new UserNotFoundException("Username cannot be blank");
-        }
-
         User loggedInUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        boolean isSuperAdmin = loggedInUser.getRoles().stream()
-                .anyMatch(r -> "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
-        if (isSuperAdmin) {
+
+        if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
             return userRepository.findAll().stream()
                     .map(UserDTO::fromModel)
                     .collect(Collectors.toList());
-        }
-
-        boolean isLocalAdmin = loggedInUser.getRoles().stream()
-                .anyMatch(r -> "LOCAL_ADMIN".equalsIgnoreCase(r.getName()));
-        if (isLocalAdmin) {
-            if (loggedInUser.getStore() == null) {
-                LOGGER.info("[findAllUsers] LOCAL_ADMIN '{}' has no store; returning empty list", username);
-                return Collections.emptyList();
-            }
+        } else if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
             return userRepository.findByStoreId(loggedInUser.getStore().getId()).stream()
                     .map(UserDTO::fromModel)
                     .collect(Collectors.toList());
+        } else {
+            throw new AccessDeniedException("You do not have permission to view users.");
         }
-
-        throw new AccessDeniedException("You do not have permission to view users.");
     }
 
     @Transactional
-    public void deleteUserById(Long id) throws UserNotFoundException {
-        if (id == null) {
-            LOGGER.error("[deleteUserById] User ID is null");
-            throw new UserNotFoundException("User ID cannot be null");}
-
-        String currentUsername = getAuthenticatedUsername();
-
-        User authenticatedUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found: " + currentUsername));
+    public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException, DataIntegrityViolationException {
+        User authenticatedUser = userRepository.findByUsername(getAuthenticatedUsername())
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
 
         User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " does not exist"));
 
         if (authenticatedUser.getId().equals(userToDelete.getId())) {
-            throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε τον εαυτό σας.");
+            throw new AccessDeniedException("Δεν μπορεί να διαγραφεί ο SUPER_ADMIN.");
         }
 
         boolean isSuperAdmin = userToDelete.getRoles().stream()
-                .anyMatch(r -> "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
         if (isSuperAdmin) {
             throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN.");
         }
 
         if (userToDelete.getStore() != null) {
-            Long storeId = userToDelete.getStore().getId();
-            boolean hasMaterials = materialRepository.existsByStoreId(storeId);
-            boolean hasOrders = orderRepository.existsByStoreId(storeId);
+            boolean hasMaterials = materialRepository.existsByStoreId(userToDelete.getStore().getId());
+            boolean hasOrders = orderRepository.existsByStoreId(userToDelete.getStore().getId());
 
             if (hasMaterials || hasOrders) {
-                throw new DataIntegrityViolationException(
-                        "Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη.");
+                throw new DataIntegrityViolationException("Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη.");
             }
         }
 
         userRepository.deleteById(id);
         LOGGER.info("User with ID '{}' deleted successfully", id);
     }
-
 
     public boolean isSetupRequired() {
         return userRepository.count() == 0;

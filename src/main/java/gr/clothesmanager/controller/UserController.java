@@ -49,7 +49,9 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserNotFoundException {
-        return ResponseEntity.ok(userService.findUserById(id));
+        UserDTO user = userService.findUserById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/{userId}/roles/{roleName}")

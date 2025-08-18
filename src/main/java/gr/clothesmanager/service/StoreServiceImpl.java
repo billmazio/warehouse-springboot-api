@@ -38,11 +38,6 @@ public class StoreServiceImpl implements StoreService {
     public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
-        if (storeDTO == null) {
-            LOGGER.error("[save] StoreDTO is null");
-            throw new IllegalArgumentException("StoreDTO cannot be null");
-        }
-
         validateStore(storeDTO);
 
         Store store = new Store();
@@ -60,68 +55,51 @@ public class StoreServiceImpl implements StoreService {
         String username = getAuthenticatedUsername();
         authorizationService.authorize(username, "SUPER_ADMIN", "LOCAL_ADMIN");
 
-        if (id == null) {
-            LOGGER.error("[findById] Store ID is null");
-            throw new StoreNotFoundException("Store ID cannot be null");
-        }
-
-        var store = storeRepository.findById(id).orElseThrow(() -> {
-            LOGGER.error("[findById] Store not found with ID: {}", id);
-            return new StoreNotFoundException("Store not found with ID: " + id);
-        });
-
-        return StoreDTO.fromModel(store);
+        return storeRepository.findById(id)
+                .map(StoreDTO::fromModel)
+                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
     }
 
-
     @Transactional
-    public List<StoreDTO> findAll() throws UserNotFoundException, StoreNotFoundException {
+    public List<StoreDTO> findAll() throws UserNotFoundException {
         String username = getAuthenticatedUsername();
-        UserDTO userDTO = userServiceImpl.findUserByUsername(username); // throws if missing
+        UserDTO userDTO = userServiceImpl.findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         boolean isSuperAdmin = userDTO.getRoles().stream()
-                .anyMatch(r -> "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
+
         if (isSuperAdmin) {
             return storeRepository.findAll().stream()
                     .map(StoreDTO::fromModel)
                     .collect(Collectors.toList());
         }
-
         boolean isLocalAdmin = userDTO.getRoles().stream()
-                .anyMatch(r -> "LOCAL_ADMIN".equalsIgnoreCase(r.getName()));
+                .anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"));
+
         if (isLocalAdmin) {
             if (userDTO.getStore() == null) {
                 throw new AccessDeniedException("You do not have a store assigned to your account.");
             }
-            Long storeId = userDTO.getStore().getId();
-            var store = storeRepository.findById(storeId).orElseThrow(() -> {
-                LOGGER.error("[findAll] Store not found for user '{}' (storeId={})", username, storeId);
-                return new StoreNotFoundException("Store not found for your account.");
-            });
-            return List.of(StoreDTO.fromModel(store));
+
+            try {
+                return storeRepository.findById(userDTO.getStore().getId())
+                        .map(store -> List.of(StoreDTO.fromModel(store)))
+                        .orElseThrow(() -> new StoreNotFoundException("Store not found for your account."));
+            } catch (StoreNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         throw new AccessDeniedException("You do not have permission to view stores.");
     }
 
-
     @Transactional
     public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
-        if (id == null) {
-            LOGGER.error("[edit] Store ID is null");
-            throw new StoreNotFoundException("Store ID cannot be null");
-        }
-        if (storeDTO == null) {
-            LOGGER.error("[edit] StoreDTO is null");
-            throw new IllegalArgumentException("StoreDTO cannot be null");
-        }
-
-        Store store = storeRepository.findById(id).orElseThrow(() -> {
-            LOGGER.error("[edit] Store not found with ID: {}", id);
-            return new StoreNotFoundException("Store not found with ID: " + id);
-        });
+        Store store = storeRepository.findById(id)
+                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
 
         validateStore(storeDTO);
 
@@ -135,31 +113,31 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException, UserNotFoundException {
-        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
-        if (id == null) {
-            LOGGER.error("[deleteStoreById] Store ID is null");
-            throw new StoreNotFoundException("Store ID cannot be null");
+        LOGGER.info("Attempting to delete store with ID: {}", id);
+
+        if (!storeRepository.existsById(id)) {
+            throw new StoreNotFoundException("Η αποθήκη με ID " + id + " δεν βρέθηκε.");
         }
-
-        Store store = storeRepository.findById(id).orElseThrow(() -> {
-            LOGGER.error("[deleteStoreById] Store not found with ID: {}", id);
-            return new StoreNotFoundException("Η αποθήκη με ID " + id + " δεν βρέθηκε.");
-        });
 
         boolean hasMaterials = materialRepository.existsByStoreId(id);
         boolean hasOrders = orderRepository.existsByStoreId(id);
 
         if (hasMaterials || hasOrders) {
-            String msg = hasMaterials
+            String errorMessage = hasMaterials
                     ? "Η αποθήκη έχει συνδεδεμένα υλικά και δεν μπορεί να διαγραφεί."
                     : "Η αποθήκη έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.";
-            LOGGER.error("[deleteStoreById] {}", msg);
-            throw new IllegalStateException(msg);
+            throw new IllegalStateException(errorMessage);
         }
 
-        storeRepository.delete(store);
-        LOGGER.info("Successfully deleted store with ID: {}", id);
+        try {
+            storeRepository.deleteById(id);
+            LOGGER.info("Successfully deleted store with ID: {}", id);
+        } catch (Exception ex) {
+            LOGGER.error("Error deleting store: {}", ex.getMessage());
+            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης.", ex);
+        }
     }
 
     @Transactional
