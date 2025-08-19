@@ -8,6 +8,7 @@ import gr.clothesmanager.service.StoreServiceImpl;
 import gr.clothesmanager.service.UserServiceImpl;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,6 +132,47 @@ public class StoreController {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "An error occurred while deleting the warehouse."));
+        }
+    }
+
+    // Add this endpoint to your StoreController class
+
+    @PatchMapping("/{storeId}/toggle-status")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> toggleStoreStatus(@PathVariable Long storeId, @RequestBody Map<String, Object> request) {
+
+        try {
+            Object enableObj = request.get("enable");
+            if (enableObj == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Enable field is required"));
+            }
+
+            boolean enable;
+            if (enableObj instanceof Boolean) {
+                enable = (Boolean) enableObj;
+            } else if (enableObj instanceof String) {
+                enable = Boolean.parseBoolean((String) enableObj);
+            } else if (enableObj instanceof Number) {
+                enable = ((Number) enableObj).intValue() != 0;
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Invalid enable value"));
+            }
+
+            StoreDTO updatedStore = storeService.toggleStoreStatus(storeId, enable);
+
+            return ResponseEntity.ok(updatedStore);
+
+        } catch (StoreNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found."));
+        } catch (AccessDeniedException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "An error occurred while updating the store"));
         }
     }
 }

@@ -112,9 +112,7 @@ public class UserController {
 
     @PatchMapping("/{userId}/toggle-status")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
-    public ResponseEntity<?> toggleUserStatus(
-            @PathVariable Long userId,
-            @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> toggleUserStatus(@PathVariable Long userId, @RequestBody Map<String, Object> request) {
 
         try {
             Object enableObj = request.get("enable");

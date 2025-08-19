@@ -137,6 +137,26 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
+    public StoreDTO toggleStoreStatus(Long storeId, boolean enable) throws StoreNotFoundException, AccessDeniedException {
+        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+
+        Store storeToToggle = storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+
+        int enableValue = enable ? 1 : 0;
+        storeToToggle.setEnable(enableValue);
+
+        Store savedStore = storeRepository.save(storeToToggle);
+
+        LOGGER.info("Store '{}' status changed to {} by '{}'",
+                storeToToggle.getTitle(),
+                enable ? "enabled" : "disabled",
+                getAuthenticatedUsername());
+
+        return StoreDTO.fromModel(savedStore);
+    }
+
+    @Transactional
     public StoreDTO saveForSetup(StoreDTO storeDTO) {
 
         validateStore(storeDTO);
