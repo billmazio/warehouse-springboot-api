@@ -41,7 +41,6 @@ public class OrderDTO {
         order.setDateOfOrder(dateOfOrder);
         order.setQuantity(quantity);
         order.setStatus(status);
-        // Relationships (material, size, store, user) should be set separately in the service layer
         return order;
     }
 

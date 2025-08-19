@@ -1,10 +1,12 @@
 package gr.clothesmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import gr.clothesmanager.dto.UserRoleDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -29,10 +31,17 @@ public class UserRole extends AbstractEntity{
     @JsonIgnore
     private Set<User> users;
 
-    public UserRole(Long id, String name, String tag) {
-        this.id = id;
-        this.name = name;
-        this.tag = tag;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserRoleDTO roleDTO = (UserRoleDTO) o;
+        return Objects.equals(tag, roleDTO.getTag());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tag);
     }
 
     @Override

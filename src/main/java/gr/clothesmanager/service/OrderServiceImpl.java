@@ -2,7 +2,6 @@ package gr.clothesmanager.service;
 
 
 import gr.clothesmanager.dto.OrderDTO;
-import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.interfaces.OrderService;
 import gr.clothesmanager.model.*;
 import gr.clothesmanager.repository.*;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

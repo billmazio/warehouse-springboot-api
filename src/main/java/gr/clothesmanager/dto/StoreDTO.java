@@ -27,26 +27,6 @@ public class StoreDTO {
 
     }
 
-    // Populate an existing `Store` model from `StoreDTO`
-    public void copyToModel(Store store) {
-        store.setTitle(title);
-        store.setAddress(address);
-        store.setEnable(enable);
-    }
-
-    // Convert `Store` (Model) to Basic `StoreDTO`
-    public static StoreDTO fromModelBasic(Store store) {
-        if (store == null) return null;
-
-        return StoreDTO.builder()
-                .id(store.getId())
-                .title(store.getTitle())
-                .address(store.getAddress())
-                .enable(store.getEnable())
-                .build();
-    }
-
-    // Convert `Store` (Model) to Full `StoreDTO`
     public static StoreDTO fromModel(Store store) {
         if (store == null) return null;
 
@@ -59,26 +39,6 @@ public class StoreDTO {
                 .userIds(store.getUsers() != null ? store.getUsers().stream().map(User::getId).collect(Collectors.toList()) : null)
                 .materialIds(store.getMaterials() != null ? store.getMaterials().stream().map(Material::getId).collect(Collectors.toList()) : null)
                 .build();
-    }
-
-    public StoreDTO copy() {
-        return StoreDTO.builder()
-                .id(this.id)
-                .title(this.title)
-                .address(this.address)
-                .enable(this.enable)
-                .orderIds(this.orderIds != null ? List.copyOf(this.orderIds) : null)
-                .userIds(this.userIds != null ? List.copyOf(this.userIds) : null)
-                .materialIds(this.materialIds != null ? List.copyOf(this.materialIds) : null)
-                .materialDescriptionIds(this.materialDescriptionIds != null ? List.copyOf(this.materialDescriptionIds) : null)
-                .build();
-    }
-
-    // Utility: Check if a `StoreDTO` list contains a specific `StoreDTO` by title
-    public static boolean customListContains(List<StoreDTO> list, StoreDTO dto) {
-        if (list == null || list.isEmpty() || dto == null) return false;
-        return list.stream().anyMatch(storeDTO ->
-                storeDTO.getTitle().equals(dto.getTitle()));
     }
 
     @Override

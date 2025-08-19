@@ -32,14 +32,6 @@ public class MaterialDTO {
                 .build();
     }
 
-    public Material toModel() {
-        Material material = new Material();
-        material.setId(this.id);
-        material.setText(this.text);
-        material.setQuantity(this.quantity);
-        return material;
-    }
-
     @Override
     public String toString() {
         return "MaterialDTO{" +

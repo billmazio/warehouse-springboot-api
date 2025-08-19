@@ -35,28 +35,6 @@ public class UserRoleDTO {
                 .build();
     }
 
-    public UserRoleDTO copy() {
-        //return new RoleDTO(id, name, tag, new ArrayList<>(permissions));
-        return UserRoleDTO.builder()
-                .id(id)
-                .name(name)
-                .tag(tag)
-                .build();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserRoleDTO roleDTO = (UserRoleDTO) o;
-        return Objects.equals(tag, roleDTO.tag);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tag);
-    }
-
     @Override
     public String toString() {
         return "RoleDTO{" +

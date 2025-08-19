@@ -23,16 +23,8 @@ public class SizeDTO {
         return SizeDTO.builder()
                 .id(size.getId())
                 .name(size.getName())
-                .materialIds(size.getMaterials() != null ?
-                        size.getMaterials().stream().map(Material::getId).collect(Collectors.toSet()) : null)
+                .materialIds(size.getMaterials() != null ? size.getMaterials().stream().map(Material::getId).collect(Collectors.toSet()) : null)
                 .build();
-    }
-
-    public Size toModel() {
-        Size size = new Size();
-        size.setId(this.id);
-        size.setName(this.name);
-        return size;
     }
 
     @Override
