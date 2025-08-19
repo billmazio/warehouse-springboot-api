@@ -42,12 +42,11 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
         LOGGER.info("Saving new material with text: {}", materialDTO.getText());
 
-        // Check if the material with the same text already exists in the specified store
-        Optional<Material> existingMaterial = materialRepository.findByTextAndStoreId(
-                materialDTO.getText(), materialDTO.getStoreId());
-        if (existingMaterial.isPresent()) {
-            LOGGER.error("Material already exists with text: {} in store ID: {}", materialDTO.getText(), materialDTO.getStoreId());
-            throw new MaterialAlreadyExistsException("Material with the same text already exists in this store.");
+        if (materialRepository.existsByTextAndStoreIdAndSize_Id(
+                materialDTO.getText(), materialDTO.getStoreId(), materialDTO.getSizeId())) {
+            throw new MaterialAlreadyExistsException(
+                    "Υλικό με την ίδια περιγραφή και μέγεθος υπάρχει ήδη σε αυτή την αποθήκη."
+            );
         }
 
         Size size = sizeRepository.findById(materialDTO.getSizeId())

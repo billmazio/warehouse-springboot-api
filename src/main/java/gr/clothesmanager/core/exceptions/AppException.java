@@ -1,4 +1,4 @@
-package gr.clothesmanager.core;
+package gr.clothesmanager.core.exceptions;
 
 import lombok.Getter;
 

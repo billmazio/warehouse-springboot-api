@@ -1,6 +1,6 @@
 package gr.clothesmanager.service.exceptions;
 
-import gr.clothesmanager.core.AppException;
+import gr.clothesmanager.core.exceptions.AppException;
 
 public class UserNotFoundException extends AppException {
 

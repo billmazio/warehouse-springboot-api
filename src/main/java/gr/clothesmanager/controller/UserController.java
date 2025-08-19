@@ -110,6 +110,52 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/{userId}/toggle-status")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
+    public ResponseEntity<?> toggleUserStatus(
+            @PathVariable Long userId,
+            @RequestBody Map<String, Object> request) {
+
+        try {
+            // Extract the enable value from request body
+            Object enableObj = request.get("enable");
+            if (enableObj == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("errorCode", "MISSING_ENABLE_FIELD"));
+            }
+
+            boolean enable;
+            if (enableObj instanceof Boolean) {
+                enable = (Boolean) enableObj;
+            } else if (enableObj instanceof String) {
+                enable = Boolean.parseBoolean((String) enableObj);
+            } else if (enableObj instanceof Number) {
+                enable = ((Number) enableObj).intValue() != 0;
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("errorCode", "INVALID_ENABLE_VALUE"));
+            }
+
+            UserDTO updatedUser = userService.toggleUserStatus(userId, enable);
+
+            return ResponseEntity.ok(updatedUser);
+
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("errorCode", "USER_NOT_FOUND"));
+        } catch (AccessDeniedException ex) {
+            // Extract error code from exception message
+            String errorCode = ex.getMessage().startsWith("CANNOT_") ?
+                    ex.getMessage() : "ACCESS_DENIED";
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("errorCode", errorCode));
+        } catch (Exception ex) {;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorCode", "INTERNAL_ERROR"));
+        }
+    }
+
     @GetMapping("/details")
     public ResponseEntity<UserDTO> getLoggedInUserDetails() throws UserNotFoundException {
         UserDTO loggedInUser = userService.getAuthenticatedUserDetails();

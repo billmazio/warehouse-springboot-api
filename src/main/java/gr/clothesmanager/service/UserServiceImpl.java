@@ -56,17 +56,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public Optional<UserDTO> findUserById(Long id) throws UserNotFoundException {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
-        return Optional.of(UserDTO.fromModel(user));
+    public Optional<UserDTO> findUserById(Long id) {
+        if (id == null) return Optional.empty();
+        return userRepository.findById(id).map(UserDTO::fromModel);
     }
 
     @Transactional
-    public Optional<UserDTO> findUserByUsername(String username) throws UserNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User with username '" + username + "' not found"));
-        return Optional.of(UserDTO.fromModel(user));
+    public Optional<UserDTO> findUserByUsername(String username) {
+        if (username == null || username.isBlank()) return Optional.empty();
+        return userRepository.findByUsername(username).map(UserDTO::fromModel);
     }
 
     @Transactional
@@ -186,6 +184,54 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         return UserDTO.fromModel(user);
+    }
+
+    @Transactional
+    public UserDTO toggleUserStatus(Long userId, boolean enable) throws UserNotFoundException, AccessDeniedException {
+        String authenticatedUsername = getAuthenticatedUsername();
+        User authenticatedUser = userRepository.findByUsername(authenticatedUsername)
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
+
+        User userToToggle = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " does not exist"));
+
+        // 1. Prevent user from disabling themselves
+        if (authenticatedUser.getId().equals(userToToggle.getId())) {
+            throw new AccessDeniedException("CANNOT_DISABLE_OWN_ACCOUNT");
+        }
+
+        // 2. Prevent disabling SUPER_ADMIN users (unless authenticated user is also SUPER_ADMIN)
+        boolean targetIsSuperAdmin = userToToggle.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
+        boolean authenticatedIsSuperAdmin = authenticatedUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
+
+        if (targetIsSuperAdmin && !authenticatedIsSuperAdmin) {
+            throw new AccessDeniedException("CANNOT_MODIFY_SUPER_ADMIN");
+        }
+
+        boolean authenticatedIsLocalAdmin = authenticatedUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"));
+
+        if (authenticatedIsLocalAdmin && !authenticatedIsSuperAdmin) {
+            if (userToToggle.getStore() == null ||
+                    !userToToggle.getStore().getId().equals(authenticatedUser.getStore().getId())) {
+                throw new AccessDeniedException("CANNOT_MODIFY_OTHER_STORE_USERS");
+            }
+        }
+
+        // Update the user status
+        int enableValue = enable ? 1 : 0;
+        userToToggle.setEnable(enableValue);
+
+        User savedUser = userRepository.save(userToToggle);
+
+        LOGGER.info("User '{}' status changed to {} by '{}'",
+                userToToggle.getUsername(),
+                enable ? "enabled" : "disabled",
+                authenticatedUsername);
+
+        return UserDTO.fromModel(savedUser);
     }
 
     public String getAuthenticatedUsername() {

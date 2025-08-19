@@ -1,6 +1,6 @@
 package gr.clothesmanager.service.exceptions;
 
-import gr.clothesmanager.core.AppException;
+import gr.clothesmanager.core.exceptions.AppException;
 
 import java.io.Serial;
 

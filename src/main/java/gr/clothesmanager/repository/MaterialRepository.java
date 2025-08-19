@@ -20,8 +20,6 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     @Query("SELECT m FROM Material m WHERE m.store.id = :storeId")
     List<Material> findByStoreId(@Param("storeId") Long storeId);
 
-    Optional<Material> findByTextAndStoreId(String text, Long storeId);
-
     @Query("SELECT m FROM Material m WHERE m.text = :text AND m.store.title = :storeTitle")
     Optional<Material> findByTextAndStoreTitle(@Param("text") String text, @Param("storeTitle") String storeTitle);
 
@@ -55,7 +53,7 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                     @Param("sizeId") Long sizeId,
                                     Pageable pageable);
 
-    Optional<Material> findByTextAndSize_IdAndStore_Id(String text, Long sizeId, Long storeId);
+    boolean existsByTextAndStoreIdAndSize_Id(String text, Long storeId, Long sizeId);
 
     boolean existsByStoreId(Long storeId);
 
