@@ -57,14 +57,14 @@ public class StoreServiceImpl implements StoreService {
 
         return storeRepository.findById(id)
                 .map(StoreDTO::fromModel)
-                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
     }
 
     @Transactional
     public List<StoreDTO> findAll() throws UserNotFoundException {
         String username = getAuthenticatedUsername();
         UserDTO userDTO = userServiceImpl.findUserByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
         boolean isSuperAdmin = userDTO.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
@@ -79,19 +79,19 @@ public class StoreServiceImpl implements StoreService {
 
         if (isLocalAdmin) {
             if (userDTO.getStore() == null) {
-                throw new AccessDeniedException("You do not have a store assigned to your account.");
+                throw new AccessDeniedException("NO_STORE_ASSIGNED");
             }
 
             try {
                 return storeRepository.findById(userDTO.getStore().getId())
                         .map(store -> List.of(StoreDTO.fromModel(store)))
-                        .orElseThrow(() -> new StoreNotFoundException("Store not found for your account."));
+                        .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
             } catch (StoreNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        throw new AccessDeniedException("You do not have permission to view stores.");
+        throw new AccessDeniedException("ACCESS_DENIED");
     }
 
     @Transactional
@@ -99,7 +99,7 @@ public class StoreServiceImpl implements StoreService {
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
         Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new StoreNotFoundException("Store not found with ID: " + id));
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
 
         validateStore(storeDTO);
 
@@ -118,18 +118,14 @@ public class StoreServiceImpl implements StoreService {
         LOGGER.info("Attempting to delete store with ID: {}", id);
 
         if (!storeRepository.existsById(id)) {
-            throw new StoreNotFoundException("Η αποθήκη με ID " + id + " δεν βρέθηκε.");
+            throw new StoreNotFoundException("STORE_NOT_FOUND");
         }
 
         boolean hasMaterials = materialRepository.existsByStoreId(id);
         boolean hasOrders = orderRepository.existsByStoreId(id);
 
-        if (hasMaterials || hasOrders) {
-            String errorMessage = hasMaterials
-                    ? "Η αποθήκη έχει συνδεδεμένα υλικά και δεν μπορεί να διαγραφεί."
-                    : "Η αποθήκη έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.";
-            throw new IllegalStateException(errorMessage);
-        }
+        if (hasMaterials) throw new IllegalStateException("STORE_DELETE_HAS_MATERIALS");
+        if (hasOrders)   throw new IllegalStateException("STORE_DELETE_HAS_ORDERS");
 
         try {
             storeRepository.deleteById(id);

@@ -7,9 +7,14 @@ import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.Size;
 import gr.clothesmanager.model.Store;
-import gr.clothesmanager.repository.*;
+import gr.clothesmanager.repository.MaterialRepository;
+import gr.clothesmanager.repository.OrderRepository;
+import gr.clothesmanager.repository.SizeRepository;
+import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
+import gr.clothesmanager.service.exceptions.SizeNotFoundException;
+import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,21 +43,21 @@ public class MaterialServiceImpl implements MaterialService {
     private final AuthorizationService authorizationService;
 
     @Transactional
-    public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException {
+    public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException, SizeNotFoundException, StoreNotFoundException {
         LOGGER.info("Saving new material with text: {}", materialDTO.getText());
 
+        // Duplicate (text + store + size) -> 409
         if (materialRepository.existsByTextAndStoreIdAndSize_Id(
                 materialDTO.getText(), materialDTO.getStoreId(), materialDTO.getSizeId())) {
-            throw new MaterialAlreadyExistsException(
-                    "Υλικό με την ίδια περιγραφή και μέγεθος υπάρχει ήδη σε αυτή την αποθήκη."
-            );
+            throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
         }
 
+        // Proper not-found exceptions with codes
         Size size = sizeRepository.findById(materialDTO.getSizeId())
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Size not found with ID: " + materialDTO.getSizeId()));
+                .orElseThrow(() -> new SizeNotFoundException("SIZE_NOT_FOUND"));
 
         Store store = storeRepository.findById(materialDTO.getStoreId())
-                .orElseThrow(() -> new MaterialAlreadyExistsException("Store not found with ID: " + materialDTO.getStoreId()));
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
 
         Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size, store);
         material = materialRepository.save(material);
@@ -65,9 +69,10 @@ public class MaterialServiceImpl implements MaterialService {
     public List<MaterialDTO> findMaterialsByStoreId(Long storeId) throws UserNotFoundException {
         UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
 
+        // LOCAL_ADMIN can only access their own store
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
             if (!storeId.equals(currentUser.getStore().getId())) {
-                throw new AccessDeniedException("You do not have permission to access materials for this store.");
+                throw new AccessDeniedException("ACCESS_DENIED");
             }
         }
 
@@ -89,42 +94,43 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDTO findById(Long id) throws MaterialNotFoundException {
         LOGGER.info("Finding material with ID: {}", id);
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
-
+                .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
         return MaterialDTO.fromModel(material);
     }
 
     @Transactional
     public List<MaterialDTO> findAll(Optional<String> text, Optional<Long> sizeId) {
         LOGGER.info("Fetching all materials with optional filters.");
-
         List<Material> materials = materialRepository.findByOptionalFilters(
                 text.orElse(null),
                 sizeId.orElse(null)
         );
-
         return materials.stream()
                 .map(MaterialDTO::fromModel)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException {
+    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException, SizeNotFoundException {
         LOGGER.info("Editing material with ID: {}", id);
 
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialNotFoundException("Material not found with ID: " + id));
+                .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
 
         material.setText(materialDTO.getText());
-        material.setQuantity(materialDTO.getQuantity());
-
-        if (materialDTO.getQuantity() == null) {
-            material.setQuantity(0);
-        }
+        material.setQuantity(materialDTO.getQuantity() == null ? 0 : materialDTO.getQuantity());
 
         Size size = sizeRepository.findById(materialDTO.getSizeId())
-                .orElseThrow(() -> new MaterialNotFoundException("Size not found with ID: " + materialDTO.getSizeId()));
+                .orElseThrow(() -> new SizeNotFoundException("SIZE_NOT_FOUND"));
         material.setSize(size);
+
+        // (προαιρετικό) Αν θέλεις να μπλοκάρεις διπλότυπο και στο edit:
+        // if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
+        //         material.getStore().getId(), materialDTO.getSizeId())
+        //     && !material.getText().equals(materialDTO.getText())
+        //     && !material.getSize().getId().equals(materialDTO.getSizeId())) {
+        //     throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
+        // }
 
         material = materialRepository.save(material);
         return MaterialDTO.fromModel(material);
@@ -136,15 +142,14 @@ public class MaterialServiceImpl implements MaterialService {
         LOGGER.info("Authorization passed for deleting material ID: {}", id);
 
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialNotFoundException("Το υλικό με ID " + id + " δεν βρέθηκε."));
+                .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
         LOGGER.info("Found material with ID: {} for deletion", id);
 
-        // Check if the material has associated orders
+        // If there are associated orders -> 409
         boolean hasOrders = orderRepository.existsByMaterial_Id(id);
         LOGGER.info("Material has associated orders: {}", hasOrders);
-
         if (hasOrders) {
-            throw new IllegalStateException("Το υλικό έχει συνδεδεμένες παραγγελίες και δεν μπορεί να διαγραφεί.");
+            throw new IllegalStateException("MATERIAL_HAS_ORDERS");
         }
 
         try {
@@ -154,15 +159,13 @@ public class MaterialServiceImpl implements MaterialService {
             LOGGER.info("Material deletion completed for ID: {}", id);
 
             // Verify deletion
-            boolean stillExists = materialRepository.existsById(id);
-            LOGGER.info("Verification check - Material still exists: {}", stillExists);
-
-            if (stillExists) {
-                throw new RuntimeException("Material was not deleted despite successful operation");
+            if (materialRepository.existsById(id)) {
+                throw new RuntimeException("INTERNAL_DELETE_VERIFICATION_FAILED");
             }
         } catch (Exception ex) {
             LOGGER.error("Error deleting material: {}", ex.getMessage(), ex);
-            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή του υλικού: " + ex.getMessage(), ex);
+            // Άφησε το GlobalExceptionHandler να χαρτογραφήσει σε 500 με ελληνικό γενικό μήνυμα.
+            throw ex;
         }
     }
 
@@ -181,15 +184,12 @@ public class MaterialServiceImpl implements MaterialService {
         UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
 
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
-            storeId = currentUser.getStore().getId(); // Force storeId to the user's store
+            storeId = currentUser.getStore().getId(); // force στο store του χρήστη
         }
 
-        Page<Material> materialsPage;
-        if (storeId == null) {
-            materialsPage = materialRepository.findAllByFilters(text, sizeId, pageable); // For SUPER_ADMIN
-        } else {
-            materialsPage = materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable); // For LOCAL_ADMIN
-        }
+        Page<Material> materialsPage = (storeId == null)
+                ? materialRepository.findAllByFilters(text, sizeId, pageable) // SUPER_ADMIN
+                : materialRepository.findByStoreIdAndFilters(storeId, text, sizeId, pageable); // LOCAL_ADMIN
 
         return materialsPage.map(this::convertToDTO);
     }

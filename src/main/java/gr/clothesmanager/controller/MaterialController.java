@@ -4,9 +4,7 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.PageResponse;
 import gr.clothesmanager.service.MaterialServiceImpl;
-import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
-import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
-import gr.clothesmanager.service.exceptions.UserNotFoundException;
+import gr.clothesmanager.service.exceptions.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +32,7 @@ public class MaterialController {
         try {
             MaterialDTO savedMaterial = materialService.save(materialDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedMaterial);
-        } catch (MaterialAlreadyExistsException e) {
+        } catch (MaterialAlreadyExistsException | SizeNotFoundException | StoreNotFoundException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
     }
@@ -74,11 +72,11 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) {
+    public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO)  {
         try {
             MaterialDTO updatedMaterial = materialService.edit(id, materialDTO);
             return ResponseEntity.ok(updatedMaterial);
-        } catch (MaterialNotFoundException e) {
+        } catch (MaterialNotFoundException | SizeNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
@@ -94,22 +92,22 @@ public class MaterialController {
             try {
                 materialService.findById(id);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("message", "Η διαγραφή φαίνεται να απέτυχε. Το προϊόν εξακολουθεί να υπάρχει."));
+                        .body(Map.of("message", "The deletion appears to have failed. The product still exists."));
             } catch (MaterialNotFoundException e) {
                 return ResponseEntity.noContent().build();
             }
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε προϊόντα."));
+                    .body(Map.of("message", "You do not have permission to delete products."));
         } catch (MaterialNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Το προϊόν δεν βρέθηκε."));
+                    .body(Map.of("message", "Product not found."));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Δεν είναι δυνατή η διαγραφή του προϊόντος, καθώς υπάρχουν σχετικές παραγγελίες."));
+                    .body(Map.of("message", "The product cannot be deleted as there are related orders."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του προϊόντος: " + e.getMessage()));
+                    .body(Map.of("message", "An error occurred while deleting the product: " + e.getMessage()));
         }
     }
 

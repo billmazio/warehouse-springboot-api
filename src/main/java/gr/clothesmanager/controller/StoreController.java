@@ -127,10 +127,10 @@ public class StoreController {
                     .body(Map.of("message", ex.getMessage())); // Use detailed message
         } catch (AccessDeniedException ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "Δεν έχετε δικαίωμα να διαγράψετε αποθήκες."));
+                    .body(Map.of("message", "You do not have permission to delete warehouses."));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης."));
+                    .body(Map.of("message", "An error occurred while deleting the warehouse."));
         }
     }
 }

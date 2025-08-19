@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User already exists");
+            throw new UserAlreadyExistsException("USER_ALREADY_EXISTS");
         }
         Set<UserRole> roles = assignRoles(userDTO.getRoles());
         User user = new User();
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public List<UserDTO> findAllUsers(String username) throws UserNotFoundException {
         User loggedInUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
 
         if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
@@ -82,39 +82,40 @@ public class UserServiceImpl implements UserService {
                     .map(UserDTO::fromModel)
                     .collect(Collectors.toList());
         } else {
-            throw new AccessDeniedException("You do not have permission to view users.");
+            throw new AccessDeniedException("ACCESS_DENIED");
         }
     }
 
     @Transactional
     public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException, DataIntegrityViolationException {
         User authenticatedUser = userRepository.findByUsername(getAuthenticatedUsername())
-                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
         User userToDelete = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " does not exist"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
         if (authenticatedUser.getId().equals(userToDelete.getId())) {
-            throw new AccessDeniedException("Δεν μπορεί να διαγραφεί ο SUPER_ADMIN.");
+            // 403 -> CANNOT_DELETE_SELF
+            throw new AccessDeniedException("CANNOT_DELETE_SELF");
         }
 
         boolean isSuperAdmin = userToDelete.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
         if (isSuperAdmin) {
-            throw new AccessDeniedException("Δεν μπορείτε να διαγράψετε χρήστες με ρόλο SUPER_ADMIN.");
+            // 403 -> CANNOT_DELETE_SUPER_ADMIN
+            throw new AccessDeniedException("CANNOT_DELETE_SUPER_ADMIN");
         }
 
         if (userToDelete.getStore() != null) {
             boolean hasMaterials = materialRepository.existsByStoreId(userToDelete.getStore().getId());
             boolean hasOrders = orderRepository.existsByStoreId(userToDelete.getStore().getId());
-
             if (hasMaterials || hasOrders) {
-                throw new DataIntegrityViolationException("Ο χρήστης δεν μπορεί να διαγραφεί επειδή υπάρχουν συνδεδεμένα δεδομένα στην αποθήκη.");
+                // 409 -> INTEGRITY_VIOLATION
+                throw new DataIntegrityViolationException("INTEGRITY_VIOLATION");
             }
         }
 
         userRepository.deleteById(id);
-        LOGGER.info("User with ID '{}' deleted successfully", id);
     }
 
     public boolean isSetupRequired() {
@@ -190,17 +191,15 @@ public class UserServiceImpl implements UserService {
     public UserDTO toggleUserStatus(Long userId, boolean enable) throws UserNotFoundException, AccessDeniedException {
         String authenticatedUsername = getAuthenticatedUsername();
         User authenticatedUser = userRepository.findByUsername(authenticatedUsername)
-                .orElseThrow(() -> new UserNotFoundException("Authenticated user not found"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
         User userToToggle = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " does not exist"));
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        // 1. Prevent user from disabling themselves
         if (authenticatedUser.getId().equals(userToToggle.getId())) {
             throw new AccessDeniedException("CANNOT_DISABLE_OWN_ACCOUNT");
         }
 
-        // 2. Prevent disabling SUPER_ADMIN users (unless authenticated user is also SUPER_ADMIN)
         boolean targetIsSuperAdmin = userToToggle.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
         boolean authenticatedIsSuperAdmin = authenticatedUser.getRoles().stream()
@@ -220,17 +219,8 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // Update the user status
-        int enableValue = enable ? 1 : 0;
-        userToToggle.setEnable(enableValue);
-
+        userToToggle.setEnable(enable ? 1 : 0);
         User savedUser = userRepository.save(userToToggle);
-
-        LOGGER.info("User '{}' status changed to {} by '{}'",
-                userToToggle.getUsername(),
-                enable ? "enabled" : "disabled",
-                authenticatedUsername);
-
         return UserDTO.fromModel(savedUser);
     }
 

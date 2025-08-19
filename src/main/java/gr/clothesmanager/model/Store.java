@@ -25,13 +25,13 @@ public class Store {
     @Column(name = "enable")
     private Integer enable;
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private Set<Order> orders;
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private Set<User> users;
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private Set<Material> materials;
 
     public Store(String title, String address, Integer enable) {

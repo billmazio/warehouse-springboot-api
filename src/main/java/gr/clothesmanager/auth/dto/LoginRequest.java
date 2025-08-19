@@ -11,11 +11,12 @@ import lombok.*;
 @Builder
 public class LoginRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "Το όνομα χρήστη είναι απαραίτητο.")
+    @Size(min = 3, max = 50, message = "Το όνομα χρήστη πρέπει να είναι από 3 έως 50 χαρακτήρες.")
     private String username;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Ο κωδικός είναι απαραίτητος.")
+    @Size(min = 6, message = "Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.")
     private String password;
+
 }

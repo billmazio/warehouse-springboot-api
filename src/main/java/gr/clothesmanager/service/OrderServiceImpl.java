@@ -34,10 +34,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
         Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+                .orElseThrow(() -> new RuntimeException("STORE_NOT_FOUND"));
 
         Size size = sizeRepository.findByName(orderDTO.getSizeName())
-                .orElseThrow(() -> new RuntimeException("Size not found"));
+                .orElseThrow(() -> new RuntimeException("SIZE_NOT_FOUND"));
 
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
                 orderDTO.getMaterialText(), size.getId(), store.getId());
@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         int requestedQuantity = orderDTO.getQuantity();
 
         if (material.getQuantity() < requestedQuantity) {
-            throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
+            throw new InsufficientStockException("INSUFFICIENT_STOCK");
         }
 
         material.setQuantity(material.getQuantity() - requestedQuantity);
@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
         order.setSize(size);
         order.setStore(store);
         order.setUser(userRepository.findByUsername(orderDTO.getUserName())
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND")));
         order.setStatus(orderDTO.getStatus());
         Order savedOrder = orderRepository.save(order);
 
@@ -76,10 +76,10 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
 
         Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+                .orElseThrow(() -> new RuntimeException("STORE_NOT_FOUND"));
 
         Size size = sizeRepository.findByName(orderDTO.getSizeName())
-                .orElseThrow(() -> new RuntimeException("Size not found"));
+                .orElseThrow(() -> new RuntimeException("SIZE_NOT_FOUND"));
 
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
                 orderDTO.getMaterialText(), size.getId(), store.getId());
@@ -99,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
             materialRepository.save(material);
         } else if (orderDTO.getStatus() != 3) {
             if (material.getQuantity() < quantityDifference) {
-                throw new InsufficientStockException("Insufficient stock. Available quantity: " + material.getQuantity());
+                throw new InsufficientStockException("INSUFFICIENT_STOCK");
             }
 
             material.setQuantity(material.getQuantity() - quantityDifference);
@@ -113,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
         order.setSize(size);
         order.setStore(store);
         order.setUser(userRepository.findByUsername(orderDTO.getUserName())
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND")));
 
         Order updatedOrder = orderRepository.save(order);
         LOGGER.info("Order updated with ID: {}", updatedOrder.getId());
@@ -134,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public List<OrderDTO> findAll(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
         List<Order> orders;
         if (user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
@@ -161,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Page<OrderDTO> findOrdersPaginatedWithFilters(String username, Long storeId, String materialText, String sizeName, Pageable pageable) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
         Page<Order> ordersPage;
         if (user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {

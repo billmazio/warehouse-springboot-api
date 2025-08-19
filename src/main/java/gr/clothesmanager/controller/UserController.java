@@ -100,13 +100,13 @@ public class UserController {
                     .body(Map.of("message", errorMessage));
         } catch (UserNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Ο χρήστης δεν βρέθηκε."));
+                    .body(Map.of("message", "User not found."));
         } catch (DataIntegrityViolationException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Παρουσιάστηκε σφάλμα κατά τη διαγραφή του χρήστη."));
+                    .body(Map.of("message", "An error occurred while updating the user."));
         }
     }
 
@@ -117,11 +117,10 @@ public class UserController {
             @RequestBody Map<String, Object> request) {
 
         try {
-            // Extract the enable value from request body
             Object enableObj = request.get("enable");
             if (enableObj == null) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("errorCode", "MISSING_ENABLE_FIELD"));
+                        .body(Map.of("message", "Enable field is required"));
             }
 
             boolean enable;
@@ -133,7 +132,7 @@ public class UserController {
                 enable = ((Number) enableObj).intValue() != 0;
             } else {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("errorCode", "INVALID_ENABLE_VALUE"));
+                        .body(Map.of("message", "Invalid enable value"));
             }
 
             UserDTO updatedUser = userService.toggleUserStatus(userId, enable);
@@ -142,17 +141,13 @@ public class UserController {
 
         } catch (UserNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("errorCode", "USER_NOT_FOUND"));
+                    .body(Map.of("message", "User not found."));
         } catch (AccessDeniedException ex) {
-            // Extract error code from exception message
-            String errorCode = ex.getMessage().startsWith("CANNOT_") ?
-                    ex.getMessage() : "ACCESS_DENIED";
-
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("errorCode", errorCode));
-        } catch (Exception ex) {;
+                    .body(Map.of("message", ex.getMessage()));
+        } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("errorCode", "INTERNAL_ERROR"));
+                    .body(Map.of("message", "An error occurred while updating the user."));
         }
     }
 
