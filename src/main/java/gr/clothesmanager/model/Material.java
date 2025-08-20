@@ -17,14 +17,6 @@ public class Material {
     private String text;
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "size_id", referencedColumnName = "id", nullable = false)
-    private Size size;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
-    private Store store;
-
     public Material(String text, Integer quantity, Size size, Store store) {
         this.text = text;
         this.quantity = quantity;
@@ -32,9 +24,13 @@ public class Material {
         this.store = store;
     }
 
-    public Material(String text) {
-        this.text = text;
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "size_id", referencedColumnName = "id", nullable = false)
+    private Size size;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
+    private Store store;
 }
 
 

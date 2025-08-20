@@ -17,9 +17,10 @@ public class SizeDTO {
     private String name;
     private Set<Long> materialIds;
 
+    public Size toModel() {return new Size(id, name,null);}
+
     public static SizeDTO fromModel(Size size) {
         if (size == null) return null;
-
         return SizeDTO.builder()
                 .id(size.getId())
                 .name(size.getName())

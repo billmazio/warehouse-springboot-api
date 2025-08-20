@@ -1,6 +1,8 @@
 package gr.clothesmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import gr.clothesmanager.core.enums.Status;
+import gr.clothesmanager.dto.StoreDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;
@@ -23,6 +25,12 @@ public class User {
 
     private Integer enable;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Column(name = "is_system_entity", nullable = false)
+    private Boolean isSystemEntity = false;
+
     @OneToMany(mappedBy = "user")
     private Set<Order> orders;
 
@@ -39,16 +47,15 @@ public class User {
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;
 
-    public User(Long id, String password, String username, Integer enable, Store store) {
+    public User(Long id, String password, String username, Status status, Boolean isSystemEntity, Set<Order> orders, Set<UserRole> roles, Store store) {
         this.id = id;
         this.password = password;
         this.username = username;
-        this.enable = enable;
+        this.status = status;
+        this.isSystemEntity = isSystemEntity;
+        this.orders = orders;
+        this.roles = roles;
         this.store = store;
-    }
-
-    public User(String username) {
-        this.username = username;
     }
 
     @Override
@@ -63,4 +70,3 @@ public class User {
         return getClass().hashCode();
     }
 }
-

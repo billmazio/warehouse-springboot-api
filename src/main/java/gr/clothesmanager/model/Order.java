@@ -1,4 +1,9 @@
 package gr.clothesmanager.model;
+import gr.clothesmanager.core.enums.OrderStatus;
+import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.dto.SizeDTO;
+import gr.clothesmanager.dto.StoreDTO;
+import gr.clothesmanager.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +26,20 @@ public class Order {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfOrder;
     private Integer quantity;
-    private Integer status;
+    //private Integer status;
+
+    public Order(Long id,Date dateOfOrder, OrderStatus orderStatus, Material material, Size size, Store store, User user) {
+        this.id = id;
+        this.dateOfOrder = dateOfOrder;
+        this.orderStatus = orderStatus;
+        this.material = material;
+        this.size = size;
+        this.store = store;
+        this.user = user;
+    }
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "material_id", referencedColumnName = "id", nullable = false)
@@ -38,6 +56,20 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", dateOfOrder=" + dateOfOrder +
+                ", quantity=" + quantity +
+                ", orderStatus=" + orderStatus +
+                ", material=" + material +
+                ", size=" + size +
+                ", store=" + store +
+                ", user=" + user +
+                '}';
+    }
 }
 
 

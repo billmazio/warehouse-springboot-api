@@ -1,11 +1,11 @@
 package gr.clothesmanager.model;
+import gr.clothesmanager.core.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
 @Setter
@@ -22,8 +22,11 @@ public class Store {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "enable")
-    private Integer enable;
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Column(name = "is_system_entity", nullable = false)
+    private Boolean isSystemEntity = false;
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private Set<Order> orders;
@@ -34,14 +37,15 @@ public class Store {
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private Set<Material> materials;
 
-    public Store(String title, String address, Integer enable) {
+    public Store(Long id, String title, String address, Status status, Boolean isSystemEntity, Set<Order> orders, Set<User> users, Set<Material> materials) {
+        this.id = id;
         this.title = title;
         this.address = address;
-        this.enable = enable;
-    }
-
-    public Store(String title) {
-        this.title = title;
+        this.status = status;
+        this.isSystemEntity = isSystemEntity;
+        this.orders = orders;
+        this.users = users;
+        this.materials = materials;
     }
 
     @Override
@@ -63,7 +67,8 @@ public class Store {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", address='" + address + '\'' +
-                ", enable=" + enable +
+                ", status=" + status +
+                ", isSystemEntity=" + isSystemEntity +
                 '}';
     }
 }

@@ -65,7 +65,7 @@ public class SetupController {
             StoreDTO storeDTO = new StoreDTO();
             storeDTO.setTitle(setupRequest.getStoreTitle());
             storeDTO.setAddress(setupRequest.getStoreAddress());
-            storeDTO.setEnable(1);
+            storeDTO.setStatus(storeDTO.getStatus());
 
             StoreDTO savedStoreDTO = storeService.saveForSetup(storeDTO);
             Store savedStore = savedStoreDTO.toModel();

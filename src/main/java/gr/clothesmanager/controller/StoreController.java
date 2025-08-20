@@ -1,6 +1,7 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.auth.AuthorizationService;
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.service.MaterialServiceImpl;
@@ -92,10 +93,7 @@ public class StoreController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) {
         try {
-            authorizationService.authorize(
-                    userServiceImpl.getAuthenticatedUserDetails().getUsername(),
-                    "SUPER_ADMIN"
-            );
+            authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
             storeService.edit(id, storeDTO);
             return ResponseEntity.noContent().build();
@@ -135,38 +133,33 @@ public class StoreController {
         }
     }
 
-    // Add this endpoint to your StoreController class
-
     @PatchMapping("/{storeId}/toggle-status")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> toggleStoreStatus(@PathVariable Long storeId, @RequestBody Map<String, Object> request) {
-
+    public ResponseEntity<?> toggleStoreStatus(@PathVariable Long storeId, @RequestBody Map<String, String> payload) {
         try {
-            Object enableObj = request.get("enable");
-            if (enableObj == null) {
+            String statusStr = payload.get("status");
+
+            if (statusStr == null) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Enable field is required"));
+                        .body(Map.of("message", "Status field is required"));
             }
 
-            boolean enable;
-            if (enableObj instanceof Boolean) {
-                enable = (Boolean) enableObj;
-            } else if (enableObj instanceof String) {
-                enable = Boolean.parseBoolean((String) enableObj);
-            } else if (enableObj instanceof Number) {
-                enable = ((Number) enableObj).intValue() != 0;
-            } else {
+            Status status;
+            try {
+                status = Status.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Invalid enable value"));
+                        .body(Map.of("message", "Invalid status value: " + statusStr));
             }
 
-            StoreDTO updatedStore = storeService.toggleStoreStatus(storeId, enable);
+            // Call service method with the enum status directly
+            StoreDTO updatedStore = storeService.updateStoreStatus(storeId, status);
+
 
             return ResponseEntity.ok(updatedStore);
-
         } catch (StoreNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "User not found."));
+                    .body(Map.of("message", "Store not found."));
         } catch (AccessDeniedException ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", ex.getMessage()));

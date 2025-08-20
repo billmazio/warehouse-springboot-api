@@ -2,6 +2,7 @@ package gr.clothesmanager.service;
 
 
 import gr.clothesmanager.auth.AuthorizationService;
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.StoreService;
@@ -43,7 +44,8 @@ public class StoreServiceImpl implements StoreService {
         Store store = new Store();
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
-        store.setEnable(storeDTO.getEnable());
+        store.setStatus(storeDTO.getStatus());
+        store.setIsSystemEntity(storeDTO.getIsSystemEntity() != null ? storeDTO.getIsSystemEntity() : false);
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved store with ID: {}", savedStore.getId());
@@ -105,7 +107,12 @@ public class StoreServiceImpl implements StoreService {
 
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
-        store.setEnable(storeDTO.getEnable());
+        store.setStatus(storeDTO.getStatus());
+
+        // Only update isSystemEntity if it's provided (to avoid accidentally changing it)
+        if (storeDTO.getIsSystemEntity() != null) {
+            store.setIsSystemEntity(storeDTO.getIsSystemEntity());
+        }
 
         storeRepository.save(store);
         LOGGER.info("Successfully edited store with ID: {}", id);
@@ -117,8 +124,12 @@ public class StoreServiceImpl implements StoreService {
 
         LOGGER.info("Attempting to delete store with ID: {}", id);
 
-        if (!storeRepository.existsById(id)) {
-            throw new StoreNotFoundException("STORE_NOT_FOUND");
+        Store store = storeRepository.findById(id)
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+
+        // Check if it's a system entity
+        if (store.getIsSystemEntity() != null && store.getIsSystemEntity()) {
+            throw new IllegalStateException("SYSTEM_STORE_PROTECTED");
         }
 
         boolean hasMaterials = materialRepository.existsByStoreId(id);
@@ -137,37 +148,36 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
-    public StoreDTO toggleStoreStatus(Long storeId, boolean enable) throws StoreNotFoundException, AccessDeniedException {
-        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
-
-        Store storeToToggle = storeRepository.findById(storeId)
-                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
-
-        int enableValue = enable ? 1 : 0;
-        storeToToggle.setEnable(enableValue);
-
-        Store savedStore = storeRepository.save(storeToToggle);
-
-        LOGGER.info("Store '{}' status changed to {} by '{}'",
-                storeToToggle.getTitle(),
-                enable ? "enabled" : "disabled",
-                getAuthenticatedUsername());
-
-        return StoreDTO.fromModel(savedStore);
-    }
-
-    @Transactional
     public StoreDTO saveForSetup(StoreDTO storeDTO) {
-
         validateStore(storeDTO);
 
         Store store = new Store();
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
-        store.setEnable(storeDTO.getEnable());
+        store.setStatus(storeDTO.getStatus());
+        store.setIsSystemEntity(true); // Mark as system entity for setup
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved initial setup store with ID: {}", savedStore.getId());
+        return StoreDTO.fromModel(savedStore);
+    }
+
+    @Transactional
+    public StoreDTO updateStoreStatus(Long storeId, Status status) throws StoreNotFoundException, AccessDeniedException {
+        authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
+
+        Store storeToUpdate = storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+
+        storeToUpdate.setStatus(status);
+
+        Store savedStore = storeRepository.save(storeToUpdate);
+
+        LOGGER.info("Store '{}' status changed to {} by '{}'",
+                storeToUpdate.getTitle(),
+                status,
+                getAuthenticatedUsername());
+
         return StoreDTO.fromModel(savedStore);
     }
 
@@ -178,8 +188,8 @@ public class StoreServiceImpl implements StoreService {
         if (storeDTO.getAddress() == null || storeDTO.getAddress().isEmpty()) {
             throw new IllegalArgumentException("Address is required.");
         }
-        if (storeDTO.getEnable() == null) {
-            throw new IllegalArgumentException("Enable status is required.");
+        if (storeDTO.getStatus() == null) {
+            throw new IllegalArgumentException("Status is required.");
         }
     }
 

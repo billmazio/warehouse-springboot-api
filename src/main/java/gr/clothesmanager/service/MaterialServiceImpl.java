@@ -125,12 +125,12 @@ public class MaterialServiceImpl implements MaterialService {
         material.setSize(size);
 
         // (προαιρετικό) Αν θέλεις να μπλοκάρεις διπλότυπο και στο edit:
-        // if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
-        //         material.getStore().getId(), materialDTO.getSizeId())
-        //     && !material.getText().equals(materialDTO.getText())
-        //     && !material.getSize().getId().equals(materialDTO.getSizeId())) {
-        //     throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
-        // }
+/*         if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
+                 material.getStore().getId(), materialDTO.getSizeId())
+             && !material.getText().equals(materialDTO.getText())
+             && !material.getSize().getId().equals(materialDTO.getSizeId())) {
+             throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
+         }*/
 
         material = materialRepository.save(material);
         return MaterialDTO.fromModel(material);

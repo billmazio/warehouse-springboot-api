@@ -1,4 +1,5 @@
 package gr.clothesmanager.dto;
+import gr.clothesmanager.core.enums.OrderStatus;
 import gr.clothesmanager.model.Order;
 import lombok.*;
 
@@ -11,37 +12,29 @@ import java.sql.Date;
 public class OrderDTO {
     private Long id;
     private Date dateOfOrder;
-    private Integer quantity;      // Quantity ordered
-    private Integer stock;         // Remaining stock (derived from material)
-    private Integer status;
-    private String materialText;
-    private String sizeName;
-    private String storeTitle;
-    private String userName;
+    private Integer quantity;
+    private OrderStatus orderStatus;
+    private MaterialDTO material;
+    private SizeDTO size;
+    private StoreDTO store;
+    private UserDTO user;
+    private Integer stock;
+
+    public Order toModel() { return new Order(id, dateOfOrder, quantity, orderStatus, null, null, null ,null); }
 
     public static OrderDTO fromModel(Order order) {
         if (order == null) return null;
-
         return OrderDTO.builder()
                 .id(order.getId())
                 .dateOfOrder(order.getDateOfOrder())
                 .quantity(order.getQuantity())
-                .stock(order.getMaterial().getQuantity())  // Remaining stock from material
-                .status(order.getStatus())
-                .materialText(order.getMaterial() != null ? order.getMaterial().getText() : null)
-                .sizeName(order.getSize() != null ? order.getSize().getName() : null)
-                .storeTitle(order.getStore() != null ? order.getStore().getTitle() : null)
-                .userName(order.getUser() != null ? order.getUser().getUsername() : null)
+                .orderStatus(order.getOrderStatus())
+                .material(order.getMaterial() != null ? MaterialDTO.fromModel(order.getMaterial()) : null)
+                .size(order.getSize() != null ? SizeDTO.fromModel(order.getSize()) : null)
+                .store(order.getStore() != null ? StoreDTO.fromModel(order.getStore()) : null)
+                .user(order.getUser() != null ? UserDTO.fromModel(order.getUser()) : null)
+                .stock(order.getMaterial().getQuantity())
                 .build();
-    }
-
-    public Order toModel() {
-        Order order = new Order();
-        order.setId(id);
-        order.setDateOfOrder(dateOfOrder);
-        order.setQuantity(quantity);
-        order.setStatus(status);
-        return order;
     }
 
     @Override
@@ -50,12 +43,12 @@ public class OrderDTO {
                 "id=" + id +
                 ", dateOfOrder=" + dateOfOrder +
                 ", quantity=" + quantity +
+                ", orderStatus=" + orderStatus +
+                ", material=" + material +
+                ", size=" + size +
+                ", store=" + store +
+                ", user=" + user +
                 ", stock=" + stock +
-                ", status=" + status +
-                ", materialText='" + materialText + '\'' +
-                ", sizeName='" + sizeName + '\'' +
-                ", storeTitle='" + storeTitle + '\'' +
-                ", userName='" + userName + '\'' +
                 '}';
     }
 }

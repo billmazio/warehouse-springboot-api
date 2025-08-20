@@ -1,6 +1,6 @@
 package gr.clothesmanager.service;
 
-
+import gr.clothesmanager.core.enums.OrderStatus;
 import gr.clothesmanager.dto.OrderDTO;
 import gr.clothesmanager.interfaces.OrderService;
 import gr.clothesmanager.model.*;
@@ -33,14 +33,34 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
+        // Check if store information is provided
+        if (orderDTO.getStore() == null || orderDTO.getStore().getTitle() == null) {
+            throw new IllegalArgumentException("Store information is required");
+        }
+
+        // Check if size information is provided
+        if (orderDTO.getSize() == null || orderDTO.getSize().getName() == null) {
+            throw new IllegalArgumentException("Size information is required");
+        }
+
+        // Check if material information is provided
+        if (orderDTO.getMaterial() == null || orderDTO.getMaterial().getText() == null) {
+            throw new IllegalArgumentException("Material information is required");
+        }
+
+        // Check if user information is provided
+        if (orderDTO.getUser() == null || orderDTO.getUser().getUsername() == null) {
+            throw new IllegalArgumentException("User information is required");
+        }
+
+        Store store = storeRepository.findByTitle(orderDTO.getStore().getTitle())
                 .orElseThrow(() -> new RuntimeException("STORE_NOT_FOUND"));
 
-        Size size = sizeRepository.findByName(orderDTO.getSizeName())
+        Size size = sizeRepository.findByName(orderDTO.getSize().getName())
                 .orElseThrow(() -> new RuntimeException("SIZE_NOT_FOUND"));
 
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
-                orderDTO.getMaterialText(), size.getId(), store.getId());
+                orderDTO.getMaterial().getText(), size.getId(), store.getId());
 
         if (materialOpt.isEmpty()) {
             throw new RuntimeException("Material not found for the specified size and store");
@@ -60,9 +80,13 @@ public class OrderServiceImpl implements OrderService {
         order.setMaterial(material);
         order.setSize(size);
         order.setStore(store);
-        order.setUser(userRepository.findByUsername(orderDTO.getUserName())
+        order.setUser(userRepository.findByUsername(orderDTO.getUser().getUsername())
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND")));
-        order.setStatus(orderDTO.getStatus());
+
+        // Use the new OrderStatus enum instead of an integer
+        order.setOrderStatus(orderDTO.getOrderStatus() != null ?
+                orderDTO.getOrderStatus() : OrderStatus.PENDING);
+
         Order savedOrder = orderRepository.save(order);
 
         OrderDTO responseDTO = OrderDTO.fromModel(savedOrder);
@@ -75,14 +99,14 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order with ID " + id + " not found."));
 
-        Store store = storeRepository.findByTitle(orderDTO.getStoreTitle())
+        Store store = storeRepository.findByTitle(orderDTO.getStore().getTitle())
                 .orElseThrow(() -> new RuntimeException("STORE_NOT_FOUND"));
 
-        Size size = sizeRepository.findByName(orderDTO.getSizeName())
+        Size size = sizeRepository.findByName(orderDTO.getSize().getName())
                 .orElseThrow(() -> new RuntimeException("SIZE_NOT_FOUND"));
 
         Optional<Material> materialOpt = materialRepository.findByTextAndSizeIdAndStoreId(
-                orderDTO.getMaterialText(), size.getId(), store.getId());
+                orderDTO.getMaterial().getText(), size.getId(), store.getId());
 
         if (materialOpt.isEmpty()) {
             throw new RuntimeException("Material not found for the specified size and store");
@@ -94,10 +118,16 @@ public class OrderServiceImpl implements OrderService {
         int newQuantity = orderDTO.getQuantity();
         int quantityDifference = newQuantity - oldQuantity;
 
-        if (order.getStatus() != 3 && orderDTO.getStatus() == 3) {
+        // Use the new OrderStatus enum instead of integer values
+        boolean wasOrderCancelled = order.getOrderStatus() != OrderStatus.CANCELLED;
+        boolean isOrderNowCancelled = orderDTO.getOrderStatus() == OrderStatus.CANCELLED;
+
+        if (wasOrderCancelled && isOrderNowCancelled) {
+            // If the order is being cancelled, add the quantity back to stock
             material.setQuantity(material.getQuantity() + oldQuantity);
             materialRepository.save(material);
-        } else if (orderDTO.getStatus() != 3) {
+        } else if (!isOrderNowCancelled) {
+            // If the order is not cancelled and quantity changed
             if (material.getQuantity() < quantityDifference) {
                 throw new InsufficientStockException("INSUFFICIENT_STOCK");
             }
@@ -108,11 +138,11 @@ public class OrderServiceImpl implements OrderService {
 
         order.setQuantity(newQuantity);
         order.setDateOfOrder(orderDTO.getDateOfOrder());
-        order.setStatus(orderDTO.getStatus());
+        order.setOrderStatus(orderDTO.getOrderStatus());
         order.setMaterial(material);
         order.setSize(size);
         order.setStore(store);
-        order.setUser(userRepository.findByUsername(orderDTO.getUserName())
+        order.setUser(userRepository.findByUsername(orderDTO.getUser().getUsername())
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND")));
 
         Order updatedOrder = orderRepository.save(order);
@@ -174,5 +204,3 @@ public class OrderServiceImpl implements OrderService {
         return ordersPage.map(OrderDTO::fromModel);
     }
 }
-
-

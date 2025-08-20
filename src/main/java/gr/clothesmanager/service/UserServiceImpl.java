@@ -43,13 +43,17 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("USER_ALREADY_EXISTS");
         }
+
         Set<UserRole> roles = assignRoles(userDTO.getRoles());
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Encode the password correctly
-        user.setEnable(userDTO.getEnable());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        user.setStatus(userDTO.getStatus());
+
         user.setStore(store);
         user.setRoles(roles);
+        user.setIsSystemEntity(userDTO.getIsSystemEntity() != null ? userDTO.getIsSystemEntity() : false);
 
         userRepository.save(user);
         return UserDTO.fromModel(user);
@@ -93,6 +97,11 @@ public class UserServiceImpl implements UserService {
 
         User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
+
+        // Check if it's a system entity
+        if (userToDelete.getIsSystemEntity() != null && userToDelete.getIsSystemEntity()) {
+            throw new IllegalStateException("SYSTEM_USER_PROTECTED");
+        }
 
         if (authenticatedUser.getId().equals(userToDelete.getId())) {
             // 403 -> CANNOT_DELETE_SELF
@@ -141,12 +150,12 @@ public class UserServiceImpl implements UserService {
         user.setEnable(1); // Enable the user
         user.setStore(store);
         user.setRoles(roles);
+        user.setIsSystemEntity(true); // Mark as system entity
 
         User savedUser = userRepository.save(user);
         LOGGER.info("Successfully created SUPER_ADMIN user: {}", username);
         return UserDTO.fromModel(savedUser);
     }
-
 
     private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {

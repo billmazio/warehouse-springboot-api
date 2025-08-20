@@ -1,9 +1,9 @@
 package gr.clothesmanager.dto;
 
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.model.Order;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
-import gr.clothesmanager.model.Store;
 import lombok.*;
 
 import java.util.List;
@@ -17,27 +17,26 @@ import java.util.stream.Collectors;
 @Builder
 public class UserDTO {
     private Long id;
-    private String username;
     private String password;
-    private Integer enable;
-    private StoreDTO store; // Assuming a StoreDTO exists
+    private String username;
+    private Status status;
+    private Boolean isSystemEntity;
+    private StoreDTO store;
     private Set<UserRole> roles;
-    private List<Long> orderIds; // List of Order IDs
+    private List<Long> orderIds;
 
-    public User toModel() {
-        return new User(id, password, username, enable, store != null ? store.toModel() : null);
-    }
+    public User toModel() {return new User(id, password, username, status, null , null, roles, null);}
 
     public static UserDTO fromModel(User user) {
         if (user == null) return null;
-
         return UserDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .enable(user.getEnable())
+                .status(user.getStatus())
+                .isSystemEntity(user.getIsSystemEntity())
                 .store(user.getStore() != null ? StoreDTO.fromModel(user.getStore()) : null)
-                .roles(user.getRoles()) // This expects `user.getRoles()` to return a Set<UserRole>
+                .roles(user.getRoles())
                 .orderIds(user.getOrders() != null ? user.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .build();
     }
@@ -51,7 +50,8 @@ public class UserDTO {
         return "UserDTO{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", enable=" + enable +
+                ", status=" + status +
+                ", isSystemEntity=" + isSystemEntity +
                 ", store=" + store +
                 ", roles=" + roles +
                 ", orderIds=" + orderIds +

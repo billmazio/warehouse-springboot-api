@@ -2,6 +2,7 @@ package gr.clothesmanager.dto;
 
 import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.Size;
+import gr.clothesmanager.model.Store;
 import lombok.*;
 
 @Getter
@@ -18,6 +19,8 @@ public class MaterialDTO {
     private String storeTitle;
     private Long storeId;
 
+    public Material toModel() { return new Material(id, text, quantity, null, null);}
+
     public static MaterialDTO fromModel(Material material) {
         if (material == null) return null;
 
@@ -27,8 +30,8 @@ public class MaterialDTO {
                 .quantity(material.getQuantity())
                 .sizeId(material.getSize() != null ? material.getSize().getId() : null)
                 .sizeName(material.getSize() != null ? material.getSize().getName() : null)
-                .storeTitle(material.getStore() != null ? material.getStore().getTitle() : null)
                 .storeId(material.getStore() != null ? material.getStore().getId() : null)
+                .storeTitle(material.getStore() != null ? material.getStore().getTitle() : null)
                 .build();
     }
 
