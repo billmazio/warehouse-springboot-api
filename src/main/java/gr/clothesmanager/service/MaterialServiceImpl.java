@@ -2,6 +2,7 @@ package gr.clothesmanager.service;
 
 import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.dto.MaterialDistributionDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
@@ -11,11 +12,7 @@ import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.OrderRepository;
 import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.repository.StoreRepository;
-import gr.clothesmanager.service.exceptions.MaterialAlreadyExistsException;
-import gr.clothesmanager.service.exceptions.MaterialNotFoundException;
-import gr.clothesmanager.service.exceptions.SizeNotFoundException;
-import gr.clothesmanager.service.exceptions.StoreNotFoundException;
-import gr.clothesmanager.service.exceptions.UserNotFoundException;
+import gr.clothesmanager.service.exceptions.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -111,7 +108,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException, SizeNotFoundException {
+    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException, SizeNotFoundException, MaterialAlreadyExistsException {
         LOGGER.info("Editing material with ID: {}", id);
 
         Material material = materialRepository.findById(id)
@@ -125,12 +122,12 @@ public class MaterialServiceImpl implements MaterialService {
         material.setSize(size);
 
         // (προαιρετικό) Αν θέλεις να μπλοκάρεις διπλότυπο και στο edit:
-/*         if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
+         if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
                  material.getStore().getId(), materialDTO.getSizeId())
              && !material.getText().equals(materialDTO.getText())
              && !material.getSize().getId().equals(materialDTO.getSizeId())) {
              throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
-         }*/
+         }
 
         material = materialRepository.save(material);
         return MaterialDTO.fromModel(material);
@@ -177,6 +174,74 @@ public class MaterialServiceImpl implements MaterialService {
         dto.setQuantity(material.getQuantity());
         dto.setStoreId(material.getStore().getId());
         return dto;
+    }
+
+    @Transactional
+    public MaterialDTO distributeMaterial(MaterialDistributionDTO distributionDTO)
+            throws MaterialNotFoundException, StoreNotFoundException, InsufficientQuantityException {
+
+        LOGGER.info("Distributing material ID: {} to store ID: {} with quantity: {}",
+                distributionDTO.getMaterialId(),
+                distributionDTO.getReceiverStoreId(),
+                distributionDTO.getQuantity());
+
+        Material sourceMaterial = materialRepository.findById(distributionDTO.getMaterialId())
+                .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
+
+        if (sourceMaterial.getQuantity() < distributionDTO.getQuantity()) {
+            throw new InsufficientQuantityException("INSUFFICIENT_QUANTITY");
+        }
+
+        Store receiverStore = storeRepository.findById(distributionDTO.getReceiverStoreId())
+                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+
+        Optional<Material> existingMaterialOpt = materialRepository
+                .findByTextAndSizeIdAndStoreId(
+                        sourceMaterial.getText(),
+                        sourceMaterial.getSize().getId(),
+                        receiverStore.getId()
+                );
+
+        Material targetMaterial;
+
+        if (existingMaterialOpt.isPresent()) {
+            targetMaterial = existingMaterialOpt.get();
+            int newQuantity = targetMaterial.getQuantity() + distributionDTO.getQuantity();
+            targetMaterial.setQuantity(newQuantity);
+
+            LOGGER.info("Adding {} units to existing material '{}' in store '{}'. New total: {}",
+                    distributionDTO.getQuantity(),
+                    sourceMaterial.getText(),
+                    receiverStore.getTitle(),
+                    newQuantity);
+        } else {
+
+            targetMaterial = new Material(
+                    sourceMaterial.getText(),
+                    distributionDTO.getQuantity(),
+                    sourceMaterial.getSize(),
+                    receiverStore
+            );
+
+            LOGGER.info("Creating new material '{}' in store '{}' with {} units",
+                    sourceMaterial.getText(),
+                    receiverStore.getTitle(),
+                    distributionDTO.getQuantity());
+        }
+
+        int newSourceQuantity = sourceMaterial.getQuantity() - distributionDTO.getQuantity();
+        sourceMaterial.setQuantity(newSourceQuantity);
+
+        LOGGER.info("Reducing source material quantity from {} to {}",
+                sourceMaterial.getQuantity() + distributionDTO.getQuantity(),
+                newSourceQuantity);
+
+        // Save both materials
+        materialRepository.save(sourceMaterial);
+        targetMaterial = materialRepository.save(targetMaterial);
+
+        LOGGER.info("Material distribution completed successfully. Target material ID: {}", targetMaterial.getId());
+        return MaterialDTO.fromModel(targetMaterial);
     }
 
     @Transactional

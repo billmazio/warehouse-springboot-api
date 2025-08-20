@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
+import gr.clothesmanager.dto.MaterialDistributionDTO;
 import gr.clothesmanager.dto.PageResponse;
 import gr.clothesmanager.service.MaterialServiceImpl;
 import gr.clothesmanager.service.exceptions.*;
@@ -26,6 +27,7 @@ public class MaterialController {
 
     private final MaterialServiceImpl materialService;
     private final AuthorizationService authorizationService;
+    private final MaterialServiceImpl materialServiceImpl;
 
     @PostMapping
     public ResponseEntity<MaterialDTO> save(@Valid @RequestBody MaterialDTO materialDTO) {
@@ -76,7 +78,7 @@ public class MaterialController {
         try {
             MaterialDTO updatedMaterial = materialService.edit(id, materialDTO);
             return ResponseEntity.ok(updatedMaterial);
-        } catch (MaterialNotFoundException | SizeNotFoundException e) {
+        } catch (MaterialNotFoundException | SizeNotFoundException | MaterialAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
@@ -108,6 +110,40 @@ public class MaterialController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "An error occurred while deleting the product: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/distribute")
+    public ResponseEntity<?> distributeMaterial(@Valid @RequestBody MaterialDistributionDTO distributionDTO) {
+        try {
+            String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
+
+            MaterialDTO result = materialServiceImpl.distributeMaterial(distributionDTO);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Material distributed successfully",
+                    "targetMaterial", result
+            ));
+
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "ACCESS_DENIED"));
+
+        } catch (MaterialNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "MATERIAL_NOT_FOUND"));
+
+        } catch (StoreNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "STORE_NOT_FOUND"));
+
+        } catch (InsufficientQuantityException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "INSUFFICIENT_QUANTITY"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "INTERNAL_SERVER_ERROR"));
         }
     }
 
