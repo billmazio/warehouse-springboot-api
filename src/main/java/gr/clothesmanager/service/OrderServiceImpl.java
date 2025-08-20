@@ -33,22 +33,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO orderDTO) {
-        // Check if store information is provided
         if (orderDTO.getStore() == null || orderDTO.getStore().getTitle() == null) {
             throw new IllegalArgumentException("Store information is required");
         }
 
-        // Check if size information is provided
         if (orderDTO.getSize() == null || orderDTO.getSize().getName() == null) {
             throw new IllegalArgumentException("Size information is required");
         }
 
-        // Check if material information is provided
         if (orderDTO.getMaterial() == null || orderDTO.getMaterial().getText() == null) {
             throw new IllegalArgumentException("Material information is required");
         }
 
-        // Check if user information is provided
         if (orderDTO.getUser() == null || orderDTO.getUser().getUsername() == null) {
             throw new IllegalArgumentException("User information is required");
         }
@@ -83,7 +79,6 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(userRepository.findByUsername(orderDTO.getUser().getUsername())
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND")));
 
-        // Use the new OrderStatus enum instead of an integer
         order.setOrderStatus(orderDTO.getOrderStatus() != null ?
                 orderDTO.getOrderStatus() : OrderStatus.PENDING);
 
@@ -118,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
         int newQuantity = orderDTO.getQuantity();
         int quantityDifference = newQuantity - oldQuantity;
 
-        // Use the new OrderStatus enum instead of integer values
+
         boolean wasOrderCancelled = order.getOrderStatus() != OrderStatus.CANCELLED;
         boolean isOrderNowCancelled = orderDTO.getOrderStatus() == OrderStatus.CANCELLED;
 

@@ -1,5 +1,6 @@
 package gr.clothesmanager.core;
 
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.UserRepository;
@@ -27,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream()
                         .map(UserRole::getName).toArray(String[]::new))
-                .accountLocked(user.getEnable() != 1)  // Map enable to accountLocked
+                .accountLocked(user.getStatus() != Status.ACTIVE)
                 .build();
     }
 

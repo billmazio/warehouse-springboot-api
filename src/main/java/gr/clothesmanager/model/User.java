@@ -23,7 +23,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    private Integer enable;
+    //private Integer enable;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -47,8 +47,7 @@ public class User {
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;
 
-    public User(Long id, String password, String username, Status status, Boolean isSystemEntity, Set<Order> orders, Set<UserRole> roles, Store store) {
-        this.id = id;
+    public User(String password, String username, Status status, Boolean isSystemEntity, Set<Order> orders, Set<UserRole> roles, Store store) {
         this.password = password;
         this.username = username;
         this.status = status;

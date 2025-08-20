@@ -1,6 +1,7 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.auth.dto.SetupRequestDTO;
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.model.Store;
@@ -65,7 +66,7 @@ public class SetupController {
             StoreDTO storeDTO = new StoreDTO();
             storeDTO.setTitle(setupRequest.getStoreTitle());
             storeDTO.setAddress(setupRequest.getStoreAddress());
-            storeDTO.setStatus(storeDTO.getStatus());
+            storeDTO.setStatus(Status.ACTIVE);
 
             StoreDTO savedStoreDTO = storeService.saveForSetup(storeDTO);
             Store savedStore = savedStoreDTO.toModel();

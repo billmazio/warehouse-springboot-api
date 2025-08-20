@@ -2,6 +2,7 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.auth.dto.ResponseMessageDTO;
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.service.UserServiceImpl;
 import gr.clothesmanager.service.StoreServiceImpl;
@@ -112,40 +113,34 @@ public class UserController {
 
     @PatchMapping("/{userId}/toggle-status")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
-    public ResponseEntity<?> toggleUserStatus(@PathVariable Long userId, @RequestBody Map<String, Object> request) {
-
+    public ResponseEntity<?> toggleUserStatus(@PathVariable Long userId, @RequestBody Map<String, String> payload) {
         try {
-            Object enableObj = request.get("enable");
-            if (enableObj == null) {
+            String statusStr = payload.get("status");
+            if (statusStr == null) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Enable field is required"));
+                        .body(Map.of("message", "Status field is required"));
             }
 
-            boolean enable;
-            if (enableObj instanceof Boolean) {
-                enable = (Boolean) enableObj;
-            } else if (enableObj instanceof String) {
-                enable = Boolean.parseBoolean((String) enableObj);
-            } else if (enableObj instanceof Number) {
-                enable = ((Number) enableObj).intValue() != 0;
-            } else {
+            // Convert string to enum
+            Status status;
+            try {
+                status = Status.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Invalid enable value"));
+                        .body(Map.of("message", "Invalid status value: " + statusStr));
             }
 
-            UserDTO updatedUser = userService.toggleUserStatus(userId, enable);
-
+            UserDTO updatedUser = userService.toggleUserStatus(userId, status);
             return ResponseEntity.ok(updatedUser);
-
-        } catch (UserNotFoundException ex) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "User not found."));
-        } catch (AccessDeniedException ex) {
+        } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", ex.getMessage()));
-        } catch (Exception ex) {
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred while updating the user."));
+                    .body(Map.of("message", "An error occurred while updating the user"));
         }
     }
 

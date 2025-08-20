@@ -1,5 +1,6 @@
 package gr.clothesmanager.service;
 
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.interfaces.RoleService;
 import gr.clothesmanager.interfaces.UserService;
@@ -137,20 +138,20 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("User already exists");
         }
 
-        // Create a SUPER_ADMIN role
         UserRole superAdminRole = roleService.getOrCreateRole("SUPER_ADMIN", "Super Admin");
 
-        // Create a set with just the SUPER_ADMIN role
         Set<UserRole> roles = new HashSet<>();
         roles.add(superAdminRole);
 
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        user.setEnable(1); // Enable the user
+
+        user.setStatus(Status.ACTIVE);
+
         user.setStore(store);
         user.setRoles(roles);
-        user.setIsSystemEntity(true); // Mark as system entity
+        user.setIsSystemEntity(true);
 
         User savedUser = userRepository.save(user);
         LOGGER.info("Successfully created SUPER_ADMIN user: {}", username);
@@ -197,7 +198,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public UserDTO toggleUserStatus(Long userId, boolean enable) throws UserNotFoundException, AccessDeniedException {
+    public UserDTO toggleUserStatus(Long userId, Status newStatus) throws UserNotFoundException, AccessDeniedException {
         String authenticatedUsername = getAuthenticatedUsername();
         User authenticatedUser = userRepository.findByUsername(authenticatedUsername)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
@@ -205,7 +206,8 @@ public class UserServiceImpl implements UserService {
         User userToToggle = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        if (authenticatedUser.getId().equals(userToToggle.getId())) {
+        // Check if trying to deactivate own account
+        if (authenticatedUser.getId().equals(userToToggle.getId()) && newStatus == Status.INACTIVE) {
             throw new AccessDeniedException("CANNOT_DISABLE_OWN_ACCOUNT");
         }
 
@@ -228,7 +230,11 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        userToToggle.setEnable(enable ? 1 : 0);
+        // Set the new status directly
+        userToToggle.setStatus(newStatus);
+
+        LOGGER.info("Changed user status for user ID {}: {}", userId, newStatus);
+
         User savedUser = userRepository.save(userToToggle);
         return UserDTO.fromModel(savedUser);
     }

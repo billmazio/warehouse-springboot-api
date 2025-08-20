@@ -1,5 +1,6 @@
 package gr.clothesmanager.controller;
 
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -51,8 +52,7 @@ public class MainController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Missing or invalid token");
             }
 
-
-            int activeUserCount = userRepository.countActiveUsersForDashboard();
+            int activeUserCount = userRepository.countActiveUsersForDashboard(Status.ACTIVE);
             int materialCount = materialRepository.countMaterials();
             int sizeCount = sizeRepository.countSizes();
             int orderCount = orderRepository.countOrders();

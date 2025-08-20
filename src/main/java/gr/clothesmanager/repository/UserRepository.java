@@ -1,5 +1,6 @@
 package gr.clothesmanager.repository;
 
+import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,11 +13,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT u FROM User u WHERE u.username = :username AND u.enable = :enable")
-    Optional<User> findActiveUser(@Param("username") String username, @Param("enable") Integer enable);
-
-    @Query("SELECT COUNT(u) FROM User u WHERE u.enable = 1")
-    int countActiveUsersForDashboard();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.status = :status")
+    int countActiveUsersForDashboard(@Param("status") Status status);
 
     Optional<User> findByUsername(String username);
 

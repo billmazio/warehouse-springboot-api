@@ -1,5 +1,6 @@
 package gr.clothesmanager.auth.dto;
 
+import gr.clothesmanager.core.enums.Status;
 import lombok.*;
 
 @Getter
