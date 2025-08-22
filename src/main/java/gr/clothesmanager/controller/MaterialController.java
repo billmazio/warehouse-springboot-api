@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,38 +26,23 @@ public class MaterialController {
 
     private final MaterialServiceImpl materialService;
     private final AuthorizationService authorizationService;
-    private final MaterialServiceImpl materialServiceImpl;
 
     @PostMapping
-    public ResponseEntity<MaterialDTO> save(@Valid @RequestBody MaterialDTO materialDTO) {
-        try {
-            MaterialDTO savedMaterial = materialService.save(materialDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedMaterial);
-        } catch (MaterialAlreadyExistsException | SizeNotFoundException | StoreNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-        }
+    public ResponseEntity<MaterialDTO> save(@Valid @RequestBody MaterialDTO materialDTO) throws StoreNotFoundException, MaterialAlreadyExistsException, SizeNotFoundException {
+        MaterialDTO savedMaterial = materialService.save(materialDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMaterial);
     }
 
     @GetMapping("/{storeId}/materials")
-    public ResponseEntity<List<MaterialDTO>> findMaterialsByStoreId(@PathVariable Long storeId) {
-        try {
-            List<MaterialDTO> materials = materialService.findMaterialsByStoreId(storeId);
-            return ResponseEntity.ok(materials);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<List<MaterialDTO>> findMaterialsByStoreId(@PathVariable Long storeId) throws UserNotFoundException {
+        List<MaterialDTO> materials = materialService.findMaterialsByStoreId(storeId);
+        return ResponseEntity.ok(materials);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MaterialDTO> findById(@PathVariable Long id) {
-        try {
-            MaterialDTO material = materialService.findById(id);
-            return ResponseEntity.ok(material);
-        } catch (MaterialNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<MaterialDTO> findById(@PathVariable Long id) throws MaterialNotFoundException {
+        MaterialDTO material = materialService.findById(id);
+        return ResponseEntity.ok(material);
     }
 
     @GetMapping
@@ -74,77 +58,27 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO)  {
-        try {
-            MaterialDTO updatedMaterial = materialService.edit(id, materialDTO);
-            return ResponseEntity.ok(updatedMaterial);
-        } catch (MaterialNotFoundException | SizeNotFoundException | MaterialAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<MaterialDTO> edit(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) throws MaterialAlreadyExistsException, MaterialNotFoundException, SizeNotFoundException {
+        MaterialDTO updatedMaterial = materialService.edit(id, materialDTO);
+        return ResponseEntity.ok(updatedMaterial);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-            authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
-
-            materialService.delete(id);
-
-            try {
-                materialService.findById(id);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("message", "The deletion appears to have failed. The product still exists."));
-            } catch (MaterialNotFoundException e) {
-                return ResponseEntity.noContent().build();
-            }
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You do not have permission to delete products."));
-        } catch (MaterialNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Product not found."));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "The product cannot be deleted as there are related orders."));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred while deleting the product: " + e.getMessage()));
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws UserNotFoundException, MaterialNotFoundException {
+        materialService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/distribute")
-    public ResponseEntity<?> distributeMaterial(@Valid @RequestBody MaterialDistributionDTO distributionDTO) {
-        try {
-            String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-            authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
+    public ResponseEntity<Map<String, Object>> distributeMaterial(@Valid @RequestBody MaterialDistributionDTO distributionDTO) throws StoreNotFoundException, MaterialNotFoundException {
+        String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        authorizationService.authorize(authenticatedUsername, "SUPER_ADMIN");
 
-            MaterialDTO result = materialServiceImpl.distributeMaterial(distributionDTO);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Material distributed successfully",
-                    "targetMaterial", result
-            ));
-
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "ACCESS_DENIED"));
-
-        } catch (MaterialNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "MATERIAL_NOT_FOUND"));
-
-        } catch (StoreNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "STORE_NOT_FOUND"));
-
-        } catch (InsufficientQuantityException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "INSUFFICIENT_QUANTITY"));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "INTERNAL_SERVER_ERROR"));
-        }
+        MaterialDTO result = materialService.distributeMaterial(distributionDTO);
+        return ResponseEntity.ok(Map.of(
+                "message", "Material distributed successfully",
+                "targetMaterial", result
+        ));
     }
 
     @GetMapping("/paginated")
@@ -152,13 +86,9 @@ public class MaterialController {
             @RequestParam(required = false) Long storeId,
             @RequestParam(required = false) String text,
             @RequestParam(required = false) Long sizeId,
-            Pageable pageable) {
-        try {
-            Page<MaterialDTO> materialsPage = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
-            return ResponseEntity.ok(PageResponse.from(materialsPage));
-        } catch (AccessDeniedException | UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
+            Pageable pageable) throws UserNotFoundException {
+        Page<MaterialDTO> materialsPage = materialService.findAllPaginatedWithFilters(storeId, text, sizeId, pageable);
+        return ResponseEntity.ok(PageResponse.from(materialsPage));
     }
 
     @GetMapping("/all/paginated")

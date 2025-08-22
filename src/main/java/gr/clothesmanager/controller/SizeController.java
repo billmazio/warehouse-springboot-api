@@ -1,7 +1,6 @@
 package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.SizeDTO;
-import gr.clothesmanager.interfaces.SizeService;
 import gr.clothesmanager.service.SizeServiceImpl;
 import gr.clothesmanager.service.exceptions.SizeAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.SizeNotFoundException;
@@ -21,13 +20,9 @@ public class SizeController {
     private final SizeServiceImpl sizeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<SizeDTO> findById(@PathVariable Long id) {
-        try {
-            SizeDTO size = sizeService.findById(id);
-            return ResponseEntity.ok(size);
-        } catch (SizeNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<SizeDTO> findById(@PathVariable Long id) throws SizeNotFoundException {
+        SizeDTO size = sizeService.findById(id);
+        return ResponseEntity.ok(size);
     }
 
     @GetMapping
@@ -36,12 +31,8 @@ public class SizeController {
     }
 
     @PostMapping
-    public ResponseEntity<SizeDTO> save(@Valid @RequestBody SizeDTO sizeDTO) {
-        try {
-            SizeDTO savedSize = sizeService.save(sizeDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedSize);
-        } catch (SizeAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-        }
+    public ResponseEntity<SizeDTO> save(@Valid @RequestBody SizeDTO sizeDTO) throws SizeAlreadyExistsException {
+        SizeDTO savedSize = sizeService.save(sizeDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSize);
     }
 }

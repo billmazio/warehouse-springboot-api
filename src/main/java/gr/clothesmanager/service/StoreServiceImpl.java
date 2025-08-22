@@ -34,6 +34,7 @@ public class StoreServiceImpl implements StoreService {
     private final OrderRepository orderRepository;
     private final AuthorizationService authorizationService;
     private final UserServiceImpl userServiceImpl;
+    private final UserRepository userRepository;
 
     @Transactional
     public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
@@ -121,7 +122,6 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException, UserNotFoundException {
         authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-
         LOGGER.info("Attempting to delete store with ID: {}", id);
 
         Store store = storeRepository.findById(id)
@@ -134,9 +134,11 @@ public class StoreServiceImpl implements StoreService {
 
         boolean hasMaterials = materialRepository.existsByStoreId(id);
         boolean hasOrders = orderRepository.existsByStoreId(id);
+        boolean hasUsers = userRepository.existsByStoreId(id);
 
         if (hasMaterials) throw new IllegalStateException("STORE_DELETE_HAS_MATERIALS");
         if (hasOrders)   throw new IllegalStateException("STORE_DELETE_HAS_ORDERS");
+        if (hasUsers) throw new IllegalStateException("STORE_DELETE_HAS_USERS");
 
         try {
             storeRepository.deleteById(id);

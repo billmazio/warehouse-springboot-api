@@ -10,15 +10,12 @@ import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,18 +30,10 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            List<UserDTO> users = userService.findAllUsers(username);
-            return ResponseEntity.ok(users);
-        } catch (AccessDeniedException ex) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Collections.emptyList());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
-        }
+    public ResponseEntity<List<UserDTO>> getAllUsers() throws UserNotFoundException {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<UserDTO> users = userService.findAllUsers(username);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
@@ -66,82 +55,41 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
-        try {
-            authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-
-            if (userDTO.getStore() == null) {
-                throw new IllegalArgumentException("Store ID is required.");
-            }
-
-            var store = storeService.findById(userDTO.getStore().getId()); // Fetch the store entity
-            UserDTO createdUser = userService.saveUser(userDTO, store.toModel());
-            return ResponseEntity.ok(createdUser);
-        } catch (UserAlreadyExistsException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Username already exists")); // Return a 409 Conflict response
-        } catch (AccessDeniedException ex) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You are not authorized to create users"));
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred"));
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException, StoreNotFoundException {
+        if (userDTO.getStore() == null) {
+            throw new IllegalArgumentException("Store ID is required.");
         }
+
+        var store = storeService.findById(userDTO.getStore().getId());
+        UserDTO createdUser = userService.saveUser(userDTO, store.toModel());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
-            authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
-            userService.deleteUserById(id);
-            return ResponseEntity.noContent().build();
-        } catch (AccessDeniedException ex) {
-            String errorMessage = ex.getMessage();
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", errorMessage));
-        } catch (UserNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "User not found."));
-        } catch (DataIntegrityViolationException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", ex.getMessage()));
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred while updating the user."));
-        }
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws UserNotFoundException {
+        userService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{userId}/toggle-status")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'LOCAL_ADMIN')")
-    public ResponseEntity<?> toggleUserStatus(@PathVariable Long userId, @RequestBody Map<String, String> payload) {
-        try {
-            String statusStr = payload.get("status");
-            if (statusStr == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Status field is required"));
-            }
-
-            // Convert string to enum
-            Status status;
-            try {
-                status = Status.valueOf(statusStr);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Invalid status value: " + statusStr));
-            }
-
-            UserDTO updatedUser = userService.toggleUserStatus(userId, status);
-            return ResponseEntity.ok(updatedUser);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "User not found."));
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred while updating the user"));
+    public ResponseEntity<UserDTO> toggleUserStatus(@PathVariable Long userId, @RequestBody Map<String, String> payload) throws UserNotFoundException {
+        String statusStr = payload.get("status");
+        if (statusStr == null) {
+            throw new IllegalArgumentException("Status field is required");
         }
+
+        Status status;
+        try {
+            status = Status.valueOf(statusStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status value: " + statusStr);
+        }
+
+        UserDTO updatedUser = userService.toggleUserStatus(userId, status);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/details")

@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -30,39 +29,34 @@ public class SetupController {
     @GetMapping("/status")
     public ResponseEntity<Map<String, Boolean>> checkSetupStatus() {
         boolean setupRequired = userService.isSetupRequired();
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("setupRequired", setupRequired);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("setupRequired", setupRequired));
     }
 
     @PostMapping
-    public ResponseEntity<?> initialSetup(@RequestBody SetupRequestDTO setupRequest) {
+    public ResponseEntity<Map<String, Object>> initialSetup(@RequestBody SetupRequestDTO setupRequest) {
         try {
+            // Check if setup already completed
             if (!userService.isSetupRequired()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(Map.of("message", "Setup has already been completed"));
+                        .body(Map.of(
+                                "error", true,
+                                "code", "SETUP_ALREADY_COMPLETED",
+                                "message", "Setup has already been completed"
+                        ));
             }
 
-            if (setupRequest.getUsername() == null || setupRequest.getUsername().trim().isEmpty()) {
+            // Validate input
+            String validationError = validateSetupRequest(setupRequest);
+            if (validationError != null) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Username is required"));
+                        .body(Map.of(
+                                "error", true,
+                                "code", "VALIDATION_ERROR",
+                                "message", validationError
+                        ));
             }
 
-            if (setupRequest.getPassword() == null || setupRequest.getPassword().trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Password is required"));
-            }
-
-            if (setupRequest.getStoreTitle() == null || setupRequest.getStoreTitle().trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Store title is required"));
-            }
-
-            if (setupRequest.getStoreAddress() == null || setupRequest.getStoreAddress().trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Store address is required"));
-            }
-
+            // Create store
             StoreDTO storeDTO = new StoreDTO();
             storeDTO.setTitle(setupRequest.getStoreTitle());
             storeDTO.setAddress(setupRequest.getStoreAddress());
@@ -73,23 +67,44 @@ public class SetupController {
 
             LOGGER.info("Created initial store: {}", savedStore.getTitle());
 
+            // Create super admin user
             UserDTO createdUser = userService.createSuperAdminUser(
                     setupRequest.getUsername(),
                     setupRequest.getPassword(),
                     savedStore
             );
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Setup completed successfully");
-            response.put("user", createdUser);
-            response.put("store", savedStoreDTO);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Setup completed successfully",
+                    "user", createdUser,
+                    "store", savedStoreDTO
+            ));
 
-            return ResponseEntity.ok(response);
         } catch (Exception ex) {
             LOGGER.error("Setup failed: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Setup failed: " + ex.getMessage()));
+                    .body(Map.of(
+                            "error", true,
+                            "code", "SETUP_FAILED",
+                            "message", "Setup failed: " + ex.getMessage()
+                    ));
         }
+    }
+
+    private String validateSetupRequest(SetupRequestDTO setupRequest) {
+        if (setupRequest.getUsername() == null || setupRequest.getUsername().trim().isEmpty()) {
+            return "Username is required";
+        }
+        if (setupRequest.getPassword() == null || setupRequest.getPassword().trim().isEmpty()) {
+            return "Password is required";
+        }
+        if (setupRequest.getStoreTitle() == null || setupRequest.getStoreTitle().trim().isEmpty()) {
+            return "Store title is required";
+        }
+        if (setupRequest.getStoreAddress() == null || setupRequest.getStoreAddress().trim().isEmpty()) {
+            return "Store address is required";
+        }
+        return null; // No validation errors
     }
 }

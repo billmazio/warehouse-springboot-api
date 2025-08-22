@@ -3,7 +3,6 @@ package gr.clothesmanager.controller;
 import gr.clothesmanager.dto.OrderDTO;
 import gr.clothesmanager.dto.PageResponse;
 import gr.clothesmanager.service.OrderServiceImpl;
-import gr.clothesmanager.service.exceptions.InsufficientStockException;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,56 +23,34 @@ public class OrderController {
     private final OrderServiceImpl orderService;
 
     @PostMapping
-    public ResponseEntity<?> save(@Valid @RequestBody OrderDTO orderDTO) {
-        try {
-            OrderDTO savedOrder = orderService.save(orderDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input: " + e.getMessage());
-        } catch (InsufficientStockException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) {
+        OrderDTO savedOrder = orderService.save(orderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
-        try {
-            OrderDTO order = orderService.findById(id);
-            return ResponseEntity.ok(order);
-        } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<OrderDTO> findById(@PathVariable Long id) throws OrderNotFoundException {
+        OrderDTO order = orderService.findById(id);
+        return ResponseEntity.ok(order);
     }
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> findAll() {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            List<OrderDTO> orders = orderService.findAll(username);
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<OrderDTO> orders = orderService.findAll(username);
+        return ResponseEntity.ok(orders);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
-        try {
-            OrderDTO updatedOrder = orderService.updateOrder(id, orderDTO);
-            return ResponseEntity.ok(updatedOrder);
-        } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) throws OrderNotFoundException {
+        OrderDTO updatedOrder = orderService.updateOrder(id, orderDTO);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        try {
-            orderService.delete(id);
-            return ResponseEntity.noContent().build();
-        } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws OrderNotFoundException {
+        orderService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/paginated")
@@ -83,17 +60,9 @@ public class OrderController {
             @RequestParam(required = false) String sizeName,
             @RequestParam int page,
             @RequestParam int size) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Page<OrderDTO> ordersPage = orderService.findOrdersPaginatedWithFilters(
-                    username, storeId, materialText, sizeName, PageRequest.of(page, size));
-            return ResponseEntity.ok(PageResponse.from(ordersPage));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Page<OrderDTO> ordersPage = orderService.findOrdersPaginatedWithFilters(
+                username, storeId, materialText, sizeName, PageRequest.of(page, size));
+        return ResponseEntity.ok(PageResponse.from(ordersPage));
     }
 }
-
-
-
-
