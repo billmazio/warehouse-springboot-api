@@ -43,6 +43,69 @@ public class ClothesManagerApplicationTests {
         Assertions.assertTrue(title.contains("Warehouse Management System"));
     }
 
+    @DisplayName("Mandatory fields")
+    @ParameterizedTest
+    @ValueSource(strings = {"username", "password"})
+    void mandatoryFields(String fieldName, Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByText("Sign In");
+
+        usernameField.fill("admin");
+        passwordField.fill("Admin!1234");
+
+        usernameField.clear();
+        passwordField.clear();
+
+        signInButton.click();
+
+        Locator fieldError;
+
+        if (fieldName.equals("username")) {
+            fieldError = usernameField.locator("..").locator(".error-message");
+        } else {
+            fieldError = passwordField.locator("..").locator(".error-message");
+        }
+
+        assertThat(fieldError).isVisible();
+        assertThat(fieldError).containsText("Το πεδίο είναι υποχρεωτικό");
+    }
+
+    @Test
+    void shouldValidateShortValues(Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByText("Sign In");
+
+        usernameField.fill("ss");
+        passwordField.fill("short");
+        signInButton.click();
+        page.waitForTimeout(500);
+
+        assertThat(page.locator(".error-message")).hasCount(2);
+    }
+
+    @Test
+    void shouldShowInvalidCredentialsError(Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByText("Sign In");
+
+        usernameField.fill("invalidUser");
+        passwordField.fill("invalidPass");
+        signInButton.click();
+        page.waitForTimeout(500);
+
+        var errorMessage = page.getByRole(AriaRole.ALERT);
+        assertThat(errorMessage).containsText("Invalid username or password");
+    }
+
     @Test
     void shouldSearchByKeyWord(Page page) {
         // Login
@@ -71,35 +134,6 @@ public class ClothesManagerApplicationTests {
         page.waitForTimeout(3000);
         page.locator("button:has-text('Επεξεργασία')").first().click();
     }
-
-        @DisplayName("Mandatory fields")
-        @ParameterizedTest
-        @ValueSource(strings = {"Username","Password"})
-        void mandatoryFields(String fieldName,Page page) {
-            page.navigate("http://localhost:3000/login");
-
-            var usernameField = page.getByPlaceholder("Username");
-            var passwordField = page.getByPlaceholder("Password");
-            var signInButton = page.getByText("Sign In");
-
-            usernameField.fill("admin");
-            passwordField.fill("Admin!1234");
-
-            usernameField.clear();
-            passwordField.clear();
-
-            signInButton.click();
-
-            Locator allErrors = page.locator(".error-message");
-            int count = allErrors.count();
-
-            for (int i = 0; i < count; i++) {
-                Locator error = allErrors.nth(i);
-                System.out.println("Error " + (i + 1) + ": " + error.textContent());
-                assertThat(error).isVisible();
-            }
-
-        }
 
     @DisplayName("Using title")
     @Test
