@@ -1,12 +1,10 @@
 package gr.clothesmanager;
 
 import com.microsoft.playwright.*;
-import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.junit.Options;
 import com.microsoft.playwright.junit.OptionsFactory;
 import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.AriaRole;
-import jakarta.validation.Valid;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -24,14 +22,11 @@ public class ClothesManagerApplicationTests {
 
         @Override
         public Options getOptions() {
-            return new Options()
-                    .setHeadless(false)
-                    .setLaunchOptions(
+            return new Options().setLaunchOptions(
                             new BrowserType.LaunchOptions()
-                                    .setArgs(Arrays.asList("--no-sandbox", "--disable-gpu"))
-                    );
-
-
+                                    .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
+                    ).setHeadless(false)
+                    .setTestIdAttribute("data-test");
         }
     }
 
@@ -51,7 +46,7 @@ public class ClothesManagerApplicationTests {
 
         var usernameField = page.getByPlaceholder("Username");
         var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByText("Sign In");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
 
         usernameField.fill("admin");
         passwordField.fill("Admin!1234");
@@ -79,12 +74,11 @@ public class ClothesManagerApplicationTests {
 
         var usernameField = page.getByPlaceholder("Username");
         var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByText("Sign In");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
 
         usernameField.fill("ss");
         passwordField.fill("short");
         signInButton.click();
-        page.waitForTimeout(500);
 
         assertThat(page.locator(".error-message")).hasCount(2);
     }
@@ -95,40 +89,68 @@ public class ClothesManagerApplicationTests {
 
         var usernameField = page.getByPlaceholder("Username");
         var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByText("Sign In");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
 
         usernameField.fill("invalidUser");
         passwordField.fill("invalidPass");
         signInButton.click();
-        page.waitForTimeout(500);
 
         var errorMessage = page.getByRole(AriaRole.ALERT);
         assertThat(errorMessage).containsText("Invalid username or password");
     }
 
     @Test
-    void shouldSearchByKeyWord(Page page) {
-        // Login
+    void shouldShowLogout(Page page) {
         page.navigate("http://localhost:3000/login");
-        page.waitForSelector("input[placeholder='Username']");
-        page.locator("input[placeholder='Username']").fill("admin");
-        page.locator("input[placeholder='Password']").fill("Admin!1234");
-        page.locator("button:has-text('Sign In')").click();
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+
+        usernameField.fill("admin");
+        passwordField.fill("Admin!1234");
+        signInButton.click();
+
+        var logOutButton = page.locator(".logout-btn");
+        logOutButton.click();
+    }
+
+    @Test
+    void shouldShowMenuCards(Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+
+        usernameField.fill("admin");
+        passwordField.fill("Admin!1234");
+        signInButton.click();
         page.waitForURL("**/dashboard**", new Page.WaitForURLOptions().setTimeout(10000));
 
-        // Navigate to dashboard
-        page.navigate("http://localhost:3000/dashboard");
-
-        // Wait for specific card to be visible
-        page.locator("text=Διαχείριση Ενδυμάτων").waitFor(new Locator.WaitForOptions().setTimeout(10000));
-
-        // Count cards
         int cardCount = page.locator(".card").count();
         System.out.println("Found " + cardCount + " cards");
         Assertions.assertEquals(4, cardCount, "Expected 4 cards on dashboard!");
+    }
+
+    @Test
+    void shouldSearchByKeyWord(Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+
+        usernameField.fill("admin");
+        passwordField.fill("Admin!1234");
+        signInButton.click();
+        page.waitForURL("**/dashboard**", new Page.WaitForURLOptions().setTimeout(10000));
+
+        // Wait for specific card to be visible
+        page.getByText("Διαχείριση Ενδυμάτων").waitFor(new Locator.WaitForOptions().setTimeout(10000));
 
         // Click materials card
-        page.locator("div.card:has-text('Διαχείριση Ενδυμάτων')").click();
+        page.getByText("Διαχείριση Ενδυμάτων").click();
         page.waitForURL("**/manage-materials**");
         page.locator("input[placeholder*='Φίλτρο']").fill("Μπλούζα");
         page.waitForTimeout(3000);
@@ -139,10 +161,14 @@ public class ClothesManagerApplicationTests {
     @Test
     void title(Page page) {
         page.navigate("http://localhost:3000/login");
-        page.locator("input[placeholder='Username']").fill("admin");
-        page.locator("input[placeholder='Password']").fill("Admin!1234");
-        page.locator("button:has-text('Sign In')").click();
 
+        var usernameField = page.getByPlaceholder("Username");
+        var passwordField = page.getByPlaceholder("Password");
+        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+
+        usernameField.fill("admin");
+        passwordField.fill("Admin!1234");
+        signInButton.click();
         List<String> alertMessages = page.locator(".error-message").allTextContents();
         Assertions.assertTrue(alertMessages.isEmpty());
 
