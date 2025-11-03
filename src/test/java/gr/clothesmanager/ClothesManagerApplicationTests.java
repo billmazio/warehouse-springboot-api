@@ -44,24 +44,17 @@ public class ClothesManagerApplicationTests {
     void mandatoryFields(String fieldName, Page page) {
         page.navigate("http://localhost:3000/login");
 
-        var usernameField = page.getByPlaceholder("Username");
-        var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
-
-        usernameField.fill("admin");
-        passwordField.fill("Admin!1234");
-
-        usernameField.clear();
-        passwordField.clear();
-
-        signInButton.click();
+        page.getByTestId("username-input").fill("admin");
+        page.getByTestId("password-input").fill("Admin!1234");
+        page.getByTestId("username-input").clear();
+        page.getByTestId("password-input").clear();
+        page.getByTestId("signInButton").click();
 
         Locator fieldError;
-
         if (fieldName.equals("username")) {
-            fieldError = usernameField.locator("..").locator(".error-message");
+            fieldError = page.getByTestId("username-error");
         } else {
-            fieldError = passwordField.locator("..").locator(".error-message");
+            fieldError = page.getByTestId("password-error");
         }
 
         assertThat(fieldError).isVisible();
@@ -72,30 +65,31 @@ public class ClothesManagerApplicationTests {
     void shouldValidateShortValues(Page page) {
         page.navigate("http://localhost:3000/login");
 
-        var usernameField = page.getByPlaceholder("Username");
-        var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+        page.getByTestId("username-input").fill("ss");
+        page.getByTestId("password-input").fill("short");
+        page.getByTestId("signInButton").click();
 
-        usernameField.fill("ss");
-        passwordField.fill("short");
-        signInButton.click();
+        var usernameError = page.getByTestId("username-error");
+        var passwordError = page.getByTestId("password-error");
 
+        assertThat(usernameError).isVisible();
+        assertThat(passwordError).isVisible();
+        assertThat(usernameError).containsText("Το όνομα χρήστη πρέπει να είναι από 3 έως 50 χαρακτήρες.");
+        assertThat(passwordError).containsText("Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.");
         assertThat(page.locator(".error-message")).hasCount(2);
     }
 
     @Test
+    @DisplayName("Should show invalid credentials error")
     void shouldShowInvalidCredentialsError(Page page) {
         page.navigate("http://localhost:3000/login");
 
-        var usernameField = page.getByPlaceholder("Username");
-        var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+        page.getByTestId("username-input").fill("invalidUser");
+        page.getByTestId("password-input").fill("invalidPass");
+        page.getByTestId("signInButton").click();
 
-        usernameField.fill("invalidUser");
-        passwordField.fill("invalidPass");
-        signInButton.click();
-
-        var errorMessage = page.getByRole(AriaRole.ALERT);
+        var errorMessage = page.getByTestId("login-error");
+        assertThat(errorMessage).isVisible();
         assertThat(errorMessage).containsText("Invalid username or password");
     }
 
@@ -103,15 +97,14 @@ public class ClothesManagerApplicationTests {
     void shouldShowLogout(Page page) {
         page.navigate("http://localhost:3000/login");
 
-        var usernameField = page.getByPlaceholder("Username");
-        var passwordField = page.getByPlaceholder("Password");
-        var signInButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In"));
+        page.getByTestId("username-input").fill("admin");
+        page.getByTestId("password-input").fill("Admin!1234");
+        page.getByTestId("signInButton").click();
 
-        usernameField.fill("admin");
-        passwordField.fill("Admin!1234");
-        signInButton.click();
+        page.waitForURL("**/dashboard**", new Page.WaitForURLOptions().setTimeout(10000));
 
-        var logOutButton = page.locator(".logout-btn");
+        var logOutButton = page.getByTestId("logout-button");
+        assertThat(logOutButton).isVisible();
         logOutButton.click();
     }
 
@@ -132,6 +125,9 @@ public class ClothesManagerApplicationTests {
         System.out.println("Found " + cardCount + " cards");
         Assertions.assertEquals(4, cardCount, "Expected 4 cards on dashboard!");
     }
+
+    //todo fix method about visible fields or not because of the roles ADMIN and simple USER using assertJ!!!
+    //todo fix method about dropDown lists that is in the chapter 6 of udemy course the way how to do!!!
 
     @Test
     void shouldSearchByKeyWord(Page page) {
