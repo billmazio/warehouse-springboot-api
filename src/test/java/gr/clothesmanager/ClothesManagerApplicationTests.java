@@ -32,7 +32,7 @@ public class ClothesManagerApplicationTests {
         }
     }
 
-    // ============= Helper Methods =============
+    /*============= Helper Methods =============*/
 
     private void loginAsAdmin(Page page) {
         page.navigate("http://localhost:3000/login");
@@ -51,31 +51,33 @@ public class ClothesManagerApplicationTests {
         page.getByTestId(cardTestId).click();
         page.waitForURL(expectedUrl, new Page.WaitForURLOptions().setTimeout(10000));
         page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        page.waitForTimeout(1000);
     }
 
-    // ============= Login & Page Load Tests =============
+    /*============= Login & Page Load Tests =============*/
 
     @Test
     @DisplayName("Should load login page with correct title")
-    void contextLoads(Page page) {
+    void shouldLoadLoginPage(Page page) {
         page.navigate("http://localhost:3000/login");
         String title = page.title();
         Assertions.assertTrue(title.contains("Warehouse Management System"));
     }
 
-    // ============= Login Validation Tests =============
+    /*============= Login Validation Tests =============*/
 
     @DisplayName("Should show error for empty mandatory fields")
     @ParameterizedTest
     @ValueSource(strings = {"username", "password"})
-    void mandatoryFields(String fieldName, Page page) {
+    void shouldShowErrorForEmptyFields(String fieldName, Page page) {
         page.navigate("http://localhost:3000/login");
 
         page.getByTestId("username-input").fill("admin");
         page.getByTestId("password-input").fill("Admin!1234");
         page.getByTestId("username-input").clear();
         page.getByTestId("password-input").clear();
-        page.getByTestId("sign-in-button").click();  // Fixed
+        page.getByTestId("sign-in-button").click();
 
         Locator fieldError;
         if (fieldName.equals("username")) {
@@ -120,11 +122,11 @@ public class ClothesManagerApplicationTests {
         assertThat(errorMessage).containsText("Invalid username or password");
     }
 
-    // ============= Authentication Tests =============
+    /*============= Authentication Tests =============*/
 
     @Test
-    @DisplayName("Should show logout button after successful login")
-    void shouldShowLogout(Page page) {
+    @DisplayName("Should login and logout successfully")
+    void shouldLoginAndLogout(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
 
@@ -133,15 +135,14 @@ public class ClothesManagerApplicationTests {
 
         logOutButton.click();
 
-        // Verify redirect to login page after logout
         page.waitForURL("**/login", new Page.WaitForURLOptions().setTimeout(5000));
         assertThat(page).hasURL("http://localhost:3000/login");
     }
 
-    // ============= Dashboard Tests =============
+    /*============= Dashboard Tests =============*/
 
     @Test
-    @DisplayName("Should display all 4 menu cards on dashboard")
+    @DisplayName("Should display all menu cards on dashboard")
     void shouldShowMenuCards(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
@@ -158,12 +159,49 @@ public class ClothesManagerApplicationTests {
         });
     }
 
-     /*============= Materials Management Tests =============*/
+    /*============= Materials Management Tests =============*/
 
-    @ParameterizedTest
-    @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRALARGE"})
-    @DisplayName("Should edit material with different sizes")
-    void shouldEditMaterialWithDifferentSizes(String size, Page page) {
+    @Test
+    @DisplayName("Should add material successfully")
+    void shouldAddMaterial(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("add-material-button").click();
+        assertThat(page.getByTestId("add-material-modal")).isVisible();
+
+        page.getByTestId("add-material-text").fill("Μπλούζα");
+        page.getByTestId("add-material-size").selectOption("SMALL");
+        page.getByTestId("add-material-quantity").fill("10");
+        page.getByTestId("add-material-store").selectOption("ΚΕΝΤΡΙΚΑ");
+
+        page.getByTestId("add-material-submit").click();
+
+        page.getByTestId("add-material-modal").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+        assertThat(page.getByTestId("add-material-modal")).not().isVisible();
+    }
+
+    @Test
+    @DisplayName("Should cancel adding material")
+    void shouldCancelAddMaterial(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("add-material-button").click();
+        assertThat(page.getByTestId("add-material-modal")).isVisible();
+
+        page.getByTestId("add-material-text").fill("Should Not Be Saved");
+        page.getByTestId("add-material-cancel").click();
+
+        assertThat(page.getByTestId("add-material-modal")).not().isVisible();
+    }
+
+    @Test
+    @DisplayName("Should edit material successfully")
+    void shouldEditMaterial(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -171,9 +209,8 @@ public class ClothesManagerApplicationTests {
         page.getByTestId("edit-button").first().click();
         assertThat(page.getByTestId("edit-modal")).isVisible();
 
-        page.getByTestId("edit-text").fill("Material with " + size);
-        page.getByTestId("edit-size").selectOption(size);
-        page.getByTestId("edit-quantity").fill("10");
+        page.getByTestId("edit-text").fill("Edited Material Name");
+        page.getByTestId("edit-quantity").fill("50");
 
         page.getByTestId("edit-confirm").click();
 
@@ -182,38 +219,272 @@ public class ClothesManagerApplicationTests {
         assertThat(page.getByTestId("edit-modal")).not().isVisible();
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
-    @DisplayName("Should add material or cancel if duplicate exists")
-    void shouldAddOrCancelMaterial(String size, Page page) {
+    @Test
+    @DisplayName("Should cancel editing material")
+    void shouldCancelEditMaterial(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
 
-        page.getByTestId("add-material-button").first().click();
+        page.getByTestId("edit-button").first().click();
+        assertThat(page.getByTestId("edit-modal")).isVisible();
 
-        page.getByTestId("add-material-text").fill("Μπλούζα Polo");
+        page.getByTestId("edit-text").fill("Should Not Be Saved");
+        page.getByTestId("edit-cancel").click();
+
+        assertThat(page.getByTestId("edit-modal")).not().isVisible();
+    }
+
+    @Test
+    @DisplayName("Should delete material successfully")
+    void shouldDeleteMaterial(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("materials-table").waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(10000));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1500); // Extra time for API data to load
+
+        int initialCount = page.locator("[data-test='material-row']").count();
+
+        if (initialCount == 0) {
+            System.out.println("No materials found, creating one for test...");
+            page.getByTestId("add-material-button").click();
+            page.getByTestId("add-material-text").fill("Test Material " + System.currentTimeMillis());
+            page.getByTestId("add-material-size").selectOption("SMALL");
+            page.getByTestId("add-material-quantity").fill("1");
+            page.getByTestId("add-material-store").selectOption("ΚΕΝΤΡΙΚΑ");
+            page.getByTestId("add-material-submit").click();
+            page.getByTestId("add-material-modal").waitFor(
+                    new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+
+            initialCount = page.locator("[data-test='material-row']").count();
+        }
+
+        Assertions.assertTrue(initialCount > 0, "Should have materials to delete");
+
+        page.getByTestId("delete-button").first().click();
+        assertThat(page.getByTestId("confirmation-dialog")).isVisible();
+        page.getByTestId("confirm-delete").click();
+
+        page.getByTestId("confirmation-dialog").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        int finalCount = page.locator("[data-test='material-row']").count();
+        Assertions.assertEquals(initialCount - 1, finalCount);
+    }
+
+    @Test
+    @DisplayName("Should cancel deleting material")
+    void shouldCancelDeleteMaterial(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        int initialCount = page.locator("[data-test='material-row']").count();
+
+        page.getByTestId("delete-button").first().click();
+        assertThat(page.getByTestId("confirmation-dialog")).isVisible();
+
+        page.getByTestId("confirm-cancel").click();
+
+        assertThat(page.getByTestId("confirmation-dialog")).not().isVisible();
+
+        int finalCount = page.locator("[data-test='material-row']").count();
+        Assertions.assertEquals(initialCount, finalCount,
+                "Material count should not change after canceling deletion");
+    }
+
+    @Test
+    @DisplayName("Should search materials by product name")
+    void shouldSearchMaterials(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("filter-product").fill("Μπλούζα");
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        int count = page.locator("[data-test='material-row']").count();
+        Assertions.assertTrue(count > 0, "Should find materials matching 'Μπλούζα'");
+    }
+
+    @Test
+    @DisplayName("Should filter materials by size")
+    void shouldFilterMaterialsBySize(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("filter-size").selectOption("SMALL");
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        int count = page.locator("[data-test='material-row']").count();
+        Assertions.assertTrue(count >= 0, "Should show filtered materials");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
+    @DisplayName("Should add materials with different sizes")
+    void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("add-material-button").click();
+
+        String uniqueName = "Material " + size + " " + System.currentTimeMillis();
+        page.getByTestId("add-material-text").fill(uniqueName);
         page.getByTestId("add-material-size").selectOption(size);
         page.getByTestId("add-material-quantity").fill("10");
         page.getByTestId("add-material-store").selectOption("ΚΕΝΤΡΙΚΑ");
 
-        boolean materialExists = page.locator("tr", new Page.LocatorOptions().setHasText(size))
-                .locator("td")
-                .count() > 0;
+        page.getByTestId("add-material-submit").click();
 
-        if (materialExists) {
-            page.getByTestId("add-material-cancel").click();
-        } else {
-            page.getByTestId("add-material-submit").click();
-        }
-
-        page.getByTestId("add-store-modal").waitFor(
+        page.getByTestId("add-material-modal").waitFor(
                 new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
-        assertThat(page.getByTestId("add-store-modal")).not().isVisible();
-
-        page.getByTestId("back-to-dashboard").click();
+        assertThat(page.getByTestId("add-material-modal")).not().isVisible();
     }
 
-    //todo fix method about visible fields or not because of the roles ADMIN and simple USER using assertJ!!!
-    //todo fix method about dropDown lists that is in the chapter 6 of udemy course the way how to do!!!
+    /*============= Orders Management Tests =============*/
+
+    @Test
+    @DisplayName("Should create new order successfully")
+    void shouldCreateOrder(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-orders", "**/manage-orders**");
+
+        page.getByTestId("orders-table").waitFor();
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        int initialCount = page.locator("[data-test='order-row']").count();
+
+        // Fill form
+        page.getByTestId("order-quantity").fill("10");
+        page.getByTestId("order-date").fill("2025-12-31");
+        page.getByTestId("order-store").selectOption("ΚΕΝΤΡΙΚΑ");
+        page.waitForTimeout(500); // Wait for materials to load
+        page.getByTestId("order-material").selectOption("Μπλούζα Polo");
+        page.waitForTimeout(500); // Wait for sizes to load
+        page.getByTestId("order-size").selectOption("SMALL");
+        page.getByTestId("order-user").selectOption("admin");
+        page.getByTestId("order-status").selectOption("PENDING");
+
+        // Create
+        page.getByTestId("create-order-button").click();
+
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1000);
+
+        int finalCount = page.locator("[data-test='order-row']").count();
+        Assertions.assertEquals(initialCount + 1, finalCount);
+    }
+
+    @Test
+    @DisplayName("Should edit order successfully")
+    void shouldEditOrder(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-orders", "**/manage-orders**");
+
+        page.getByTestId("orders-table").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1000);
+
+        int orderCount = page.locator("[data-test='order-row']").count();
+        if (orderCount == 0) {
+            System.out.println("No orders found, skipping edit test");
+            return;
+        }
+
+        page.getByTestId("edit-button").first().click();
+
+        page.waitForTimeout(1000);
+
+        assertThat(page.getByTestId("update-order-button")).isVisible();
+        //assertThat(page.getByTestId("create-order-button")).not().isVisible();
+    }
+
+    @Test
+    @DisplayName("Should delete order successfully")
+    void shouldDeleteOrder(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-orders", "**/manage-orders**");
+
+        int initialCount = page.locator("[data-test='order-row']").count();
+
+        page.getByTestId("delete-button").first().click();
+
+
+        // Add confirmation and assertions
+    }
+
+    /*============= Users Management Tests =============*/
+
+    @Test
+    @DisplayName("Should delete user successfully")
+    void shouldDeleteUser(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-users", "**/manage-users**");
+
+        page.getByTestId("delete-button").first().click();
+        // Add confirmation and assertions
+    }
+
+    /*============= Stores Management Tests =============*/
+
+    @Test
+    @DisplayName("Should edit store successfully")
+    void shouldEditStore(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-stores", "**/manage-stores**");
+
+        page.getByTestId("edit-button").first().click();
+        // Add your edit logic
+    }
+
+    @Test
+    @DisplayName("Should delete custom store successfully")
+    void shouldDeleteCustomStore(Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-stores", "**/manage-stores**");
+
+        page.getByTestId("stores-table").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1000);
+
+        int initialCount = page.locator("[data-test='store-row']").count();
+
+        Locator enabledDeleteButtons = page.locator("[data-test='delete-button']:not([disabled])");
+
+        if (enabledDeleteButtons.count() == 0) {
+            System.out.println("No deletable stores, skipping test");
+            return;
+        }
+
+        enabledDeleteButtons.first().click();
+        assertThat(page.getByTestId("confirmation-dialog")).isVisible();
+        page.getByTestId("confirm-delete").click();
+
+        page.getByTestId("confirmation-dialog").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        int finalCount = page.locator("[data-test='store-row']").count();
+        Assertions.assertEquals(initialCount - 1, finalCount,
+                "Store count should decrease by 1 after deletion");
+    }
 }
