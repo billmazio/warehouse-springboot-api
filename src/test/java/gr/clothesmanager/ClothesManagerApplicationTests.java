@@ -17,6 +17,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 
 
 @UsePlaywright(ClothesManagerApplicationTests.MyOptions.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClothesManagerApplicationTests {
 
     public static class MyOptions implements OptionsFactory {
@@ -58,6 +59,7 @@ public class ClothesManagerApplicationTests {
     /*============= Login & Page Load Tests =============*/
 
     @Test
+    @Order(1)
     @DisplayName("Should load login page with correct title")
     void shouldLoadLoginPage(Page page) {
         page.navigate("http://localhost:3000/login");
@@ -67,7 +69,27 @@ public class ClothesManagerApplicationTests {
 
     /*============= Login Validation Tests =============*/
 
+    @Test
+    @Order(2)
+    @DisplayName("Should validate short username and password values")
+    void shouldValidateShortValues(Page page) {
+        page.navigate("http://localhost:3000/login");
+
+        page.getByTestId("username-input").fill("ss");
+        page.getByTestId("password-input").fill("short");
+        page.getByTestId("sign-in-button").click();
+
+        var usernameError = page.getByTestId("username-error");
+        var passwordError = page.getByTestId("password-error");
+
+        assertThat(usernameError).isVisible();
+        assertThat(passwordError).isVisible();
+        assertThat(usernameError).containsText("Το όνομα χρήστη πρέπει να είναι από 3 έως 50 χαρακτήρες.");
+        assertThat(passwordError).containsText("Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.");
+    }
+
     @DisplayName("Should show error for empty mandatory fields")
+    @Order(3)
     @ParameterizedTest
     @ValueSource(strings = {"username", "password"})
     void shouldShowErrorForEmptyFields(String fieldName, Page page) {
@@ -91,24 +113,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
-    @DisplayName("Should validate short username and password values")
-    void shouldValidateShortValues(Page page) {
-        page.navigate("http://localhost:3000/login");
-
-        page.getByTestId("username-input").fill("ss");
-        page.getByTestId("password-input").fill("short");
-        page.getByTestId("sign-in-button").click();
-
-        var usernameError = page.getByTestId("username-error");
-        var passwordError = page.getByTestId("password-error");
-
-        assertThat(usernameError).isVisible();
-        assertThat(passwordError).isVisible();
-        assertThat(usernameError).containsText("Το όνομα χρήστη πρέπει να είναι από 3 έως 50 χαρακτήρες.");
-        assertThat(passwordError).containsText("Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.");
-    }
-
-    @Test
+    @Order(4)
     @DisplayName("Should show invalid credentials error")
     void shouldShowInvalidCredentialsError(Page page) {
         page.navigate("http://localhost:3000/login");
@@ -125,6 +130,7 @@ public class ClothesManagerApplicationTests {
     /*============= Authentication Tests =============*/
 
     @Test
+    @Order(5)
     @DisplayName("Should login and logout successfully")
     void shouldLoginAndLogout(Page page) {
         loginAsAdmin(page);
@@ -142,6 +148,7 @@ public class ClothesManagerApplicationTests {
     /*============= Dashboard Tests =============*/
 
     @Test
+    @Order(6)
     @DisplayName("Should display all menu cards on dashboard")
     void shouldShowMenuCards(Page page) {
         loginAsAdmin(page);
@@ -162,6 +169,7 @@ public class ClothesManagerApplicationTests {
     /*============= Materials Management Tests =============*/
 
     @Test
+    @Order(7)
     @DisplayName("Should add material successfully")
     void shouldAddMaterial(Page page) {
         loginAsAdmin(page);
@@ -184,6 +192,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
+    @Order(8)
     @DisplayName("Should edit material successfully")
     void shouldEditMaterial(Page page) {
         loginAsAdmin(page);
@@ -205,6 +214,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
+    @Order(9)
     @DisplayName("Should delete material successfully")
     void shouldDeleteMaterial(Page page) {
         loginAsAdmin(page);
@@ -233,7 +243,31 @@ public class ClothesManagerApplicationTests {
         Assertions.assertEquals(initialCount - 1, finalCount);
     }
 
+    @ParameterizedTest
+    @Order(10)
+    @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
+    @DisplayName("Should add materials with different sizes")
+    void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
+        loginAsAdmin(page);
+        waitForDashboard(page);
+        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
+
+        page.getByTestId("add-material-button").click();
+
+        page.getByTestId("add-material-text").fill("Μπλούζα");
+        page.getByTestId("add-material-size").selectOption(size);
+        page.getByTestId("add-material-quantity").fill("10");
+        page.getByTestId("add-material-store").selectOption("ΚΕΝΤΡΙΚΑ");
+
+        page.getByTestId("add-material-submit").click();
+
+        page.getByTestId("add-material-modal").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+        assertThat(page.getByTestId("add-material-modal")).not().isVisible();
+    }
+
     @Test
+    @Order(11)
     @DisplayName("Should search materials by product name")
     void shouldSearchMaterials(Page page) {
         loginAsAdmin(page);
@@ -248,6 +282,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
+    @Order(11)
     @DisplayName("Should filter materials by size")
     void shouldFilterMaterialsBySize(Page page) {
         loginAsAdmin(page);
@@ -261,32 +296,10 @@ public class ClothesManagerApplicationTests {
         Assertions.assertTrue(count >= 0, "Should show filtered materials");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
-    @DisplayName("Should add materials with different sizes")
-    void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
-        loginAsAdmin(page);
-        waitForDashboard(page);
-        navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
-
-        page.getByTestId("add-material-button").click();
-
-        String uniqueName = "Material " + size + " " + System.currentTimeMillis();
-        page.getByTestId("add-material-text").fill(uniqueName);
-        page.getByTestId("add-material-size").selectOption(size);
-        page.getByTestId("add-material-quantity").fill("10");
-        page.getByTestId("add-material-store").selectOption("ΚΕΝΤΡΙΚΑ");
-
-        page.getByTestId("add-material-submit").click();
-
-        page.getByTestId("add-material-modal").waitFor(
-                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
-        assertThat(page.getByTestId("add-material-modal")).not().isVisible();
-    }
-
     /*============= Orders Management Tests =============*/
 
     @Test
+    @Order(13)
     @DisplayName("Should create new order successfully")
     void shouldCreateOrder(Page page) {
         loginAsAdmin(page);
@@ -320,6 +333,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
+    @Order(14)
     @DisplayName("Should edit order successfully")
     void shouldEditOrder(Page page) {
         loginAsAdmin(page);
@@ -367,6 +381,7 @@ public class ClothesManagerApplicationTests {
     }
 
     @Test
+    @Order(15)
     @DisplayName("Should delete order successfully")
     void shouldDeleteOrder(Page page) {
         loginAsAdmin(page);
@@ -532,11 +547,8 @@ public class ClothesManagerApplicationTests {
 
        int initialCount = page.locator("[data-test='store-row']").count();
 
-        String uniqueStoreName = "Test Store " + System.currentTimeMillis();
-        String uniqueAddress = "Test Address " + System.currentTimeMillis();
-
-        page.getByTestId("store-create-title").fill(uniqueStoreName);
-        page.getByTestId("store-create-address").fill(uniqueAddress);
+        page.getByTestId("store-create-title").fill("ΔΥΤΙΚΑ");
+        page.getByTestId("store-create-address").fill("Αθήνα");
         page.getByTestId("store-create-status").selectOption("ACTIVE");
 
         page.getByTestId("create-store").click();
@@ -548,8 +560,8 @@ public class ClothesManagerApplicationTests {
         Assertions.assertEquals(initialCount + 1, finalCount,
                 "Store count should increase by 1 after creation");
 
-        assertThat(page.getByText(uniqueStoreName)).isVisible();
-        assertThat(page.getByText(uniqueAddress)).isVisible();
+        assertThat(page.getByText("ΔΥΤΙΚΑ")).isVisible();
+        assertThat(page.getByText("Αθήνα")).isVisible();
     }
 
     @Test
