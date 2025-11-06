@@ -21,7 +21,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(1)
     @DisplayName("Should add material successfully")
-    void shouldAddMaterial(Page page) {
+    public void shouldAddMaterial(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -44,7 +44,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(2)
     @DisplayName("Should edit material successfully")
-    void shouldEditMaterial(Page page) {
+    public void shouldEditMaterial(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -66,7 +66,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(3)
     @DisplayName("Should delete material successfully")
-    void shouldDeleteMaterial(Page page) {
+    public void shouldDeleteMaterial(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -97,7 +97,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Order(4)
     @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
     @DisplayName("Should add materials with different sizes")
-    void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
+    public void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -119,7 +119,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(5)
     @DisplayName("Should search materials by product name")
-    void shouldSearchMaterials(Page page) {
+    public void shouldSearchMaterials(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -134,7 +134,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(6)
     @DisplayName("Should filter materials by size")
-    void shouldFilterMaterialsBySize(Page page) {
+    public void shouldFilterMaterialsBySize(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-materials", "**/manage-materials**");
@@ -149,7 +149,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(7)
     @DisplayName("Should create new order successfully")
-    void shouldCreateOrder(Page page) {
+    public void shouldCreateOrder(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-orders", "**/manage-orders**");
@@ -181,7 +181,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(8)
     @DisplayName("Should edit order successfully")
-    void shouldEditOrder(Page page) {
+    public void shouldEditOrder(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-orders", "**/manage-orders**");
@@ -208,7 +208,7 @@ public class MaterialAndOrderTests extends BasePlaywrightTest {
     @Test
     @Order(9)
     @DisplayName("Should delete order successfully")
-    void shouldDeleteOrder(Page page) {
+    public void shouldDeleteOrder(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-orders", "**/manage-orders**");

@@ -19,7 +19,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     @Test
     @Order(1)
     @DisplayName("Should create new store successfully")
-    void shouldCreateStore(Page page) {
+    public void shouldCreateStore(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-stores", "**/manage-stores**");
@@ -49,7 +49,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     @Test
     @Order(2)
     @DisplayName("Should create new user successfully")
-    void shouldCreateUser(Page page) {
+    public void shouldCreateUser(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-users", "**/manage-users**");
@@ -85,7 +85,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     @Test
     @Order(3)
     @DisplayName("Should edit store successfully")
-    void shouldEditStore(Page page) {
+    public void shouldEditStore(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-stores", "**/manage-stores**");
@@ -112,7 +112,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     @Test
     @Order(4)
     @DisplayName("Should delete user successfully")
-    void shouldDeleteUser(Page page) {
+    public void shouldDeleteUser(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-users", "**/manage-users**");
@@ -147,7 +147,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     @Test
     @Order(5)
     @DisplayName("Should delete custom store successfully")
-    void shouldDeleteCustomStore(Page page) {
+    public void shouldDeleteCustomStore(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
         navigateToDashboardSection(page, "card-stores", "**/manage-stores**");

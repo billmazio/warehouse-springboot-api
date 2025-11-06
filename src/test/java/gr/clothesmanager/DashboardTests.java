@@ -15,7 +15,7 @@ public class DashboardTests extends BasePlaywrightTest {
 
     @Test
     @DisplayName("Should display all menu cards on dashboard")
-    void shouldShowMenuCards(Page page) {
+    public void shouldShowMenuCards(Page page) {
         loginAsAdmin(page);
         waitForDashboard(page);
 
