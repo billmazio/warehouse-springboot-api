@@ -7,8 +7,8 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
         LoginTests.class,
         DashboardTests.class,
-        StoreAndUserTests.class,
-        MaterialAndOrderTests.class
+        MaterialAndOrderTests.class,
+        StoreAndUserTests.class
 })
 
 public class ClothesManagerTestSuite {
