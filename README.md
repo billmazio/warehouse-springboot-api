@@ -6,14 +6,6 @@
 2. [Architecture Overview](#architecture-overview)
 3. [Project Structure](#project-structure)
 4. [Technology Stack](#technology-stack)
-5. [Data Models](#data-models)
-6. [API Documentation](#api-documentation)
-7. [Development Setup](#development-setup)
-8. [Implementation Details](#implementation-details)
-9. [Testing Procedures](#testing-procedures)
-10. [Deployment Instructions](#deployment-instructions)
-11. [Security](#security)
-12. [Contributing Guidelines](#contributing-guidelines)
 
 ## Project Overview
 
