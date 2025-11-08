@@ -111,8 +111,8 @@ src/test/java/gr/clothesmanager/
 ├── BasePlaywrightTest.java            # Base class with common functionality
 ├── LoginTests.java                    # Authentication tests
 ├── DashboardTests.java                # Dashboard tests
-├── StoreAndUserTests.java             # Tests for stores and users (related entities)
-└── MaterialAndOrderTests.java         # Tests for materials and orders (related entities)
+├── MaterialAndOrderTests.java         # Tests for materials and orders (related entities)
+└── StoreAndUserTests.java             # Tests for stores and users (related entities)
 ```
 
 Tests are structured to respect entity relationships and dependencies, ensuring that:
