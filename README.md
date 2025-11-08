@@ -66,71 +66,9 @@ The application follows a modern three-tier architecture pattern:
 ## Project Structure
 
 ### Frontend Structure (React.js)
-```
-src/
-├── components/
-│   ├── common/
-│   │   ├── Modal.js
-│   │   ├── Table.js
-│   │   └── Navigation.js
-│   ├── auth/
-│   │   └── Login.js
-│   ├── store/
-│   │   ├── StoreList.js
-│   │   ├── StoreForm.js
-│   │   └── StoreModal.js
-│   └── material/
-│       ├── MaterialList.js
-│       ├── MaterialForm.js
-│       └── SizeSelector.js
-├── services/
-│   ├── api.js
-│   ├── auth.js
-│   └── storage.js
-├── styles/
-│   ├── global.css
-│   ├── components.css
-│   └── responsive.css
-├── utils/
-│   ├── constants.js
-│   └── helpers.js
-├── App.js
-└── index.js
-```
 
 ### Backend Structure (Spring Boot)
-```
-src/main/java/com/warehouse/
-├── controller/
-│   ├── AuthController.java
-│   ├── StoreController.java
-│   ├── MaterialController.java
-│   └── SizeController.java
-├── service/
-│   ├── AuthService.java
-│   ├── StoreService.java
-│   ├── MaterialService.java
-│   └── SizeService.java
-├── repository/
-│   ├── UserRepository.java
-│   ├── StoreRepository.java
-│   ├── MaterialRepository.java
-│   └── SizeRepository.java
-├── model/
-│   ├── User.java
-│   ├── Store.java
-│   ├── Material.java
-│   └── Size.java
-├── dto/
-│   ├── LoginRequest.java
-│   ├── StoreDTO.java
-│   └── MaterialDTO.java
-├── config/
-│   ├── SecurityConfig.java
-│   ├── JwtConfig.java
-│   └── DatabaseConfig.java
-└── WmsApplication.java
-```
+
 
 ## Technology Stack
 
