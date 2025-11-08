@@ -1,4 +1,4 @@
-# Warehouse Management System - Developer Documentation
+# Warehouse Management System 
 
 ## Table of Contents
 
