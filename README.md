@@ -1,100 +1,148 @@
-# Warehouse Management System 
+# Warehouse Management System - Backend Documentation
 
 ## Table of Contents
+1. [Backend Overview](#backend-overview)
+2. [Architecture](#architecture)
+3. [Technology Stack](#technology-stack)
+4. [Project Structure](#project-structure)
+5. [API Endpoints](#api-endpoints)
+6. [Data Model](#data-model)
+7. [Security](#security)
+8. [Prerequisites](#prerequisites)
 
-1. [Project Overview](#project-overview)
-2. [Architecture Overview](#architecture-overview)
-3. [Project Structure](#project-structure)
-4. [Technology Stack](#technology-stack)
+## Backend Overview
 
-## Project Overview
-
-The Warehouse Management System is a full-stack desktop application designed for clothing inventory management across multiple store locations. The system provides role-based access control and comprehensive inventory tracking capabilities for retail operations.
+The backend of the Warehouse Management System provides RESTful API services for clothing inventory management across multiple store locations. It implements business logic, data validation, authentication, and database interaction.
 
 ### Key Objectives
-- Centralized clothing inventory management
-- Multi-store operation support
-- Role-based access control for different user levels
-- Real-time inventory tracking and updates
-- Size and quantity management for clothing items
+- Implement secure RESTful API services
+- Provide role-based access control
+- Process and validate inventory data
+- Manage database transactions and relationships
+- Support multi-store operations
 
 ### Target Users
-- Store employees with LOCAL_ADMIN privileges
-- System administrators with SUPER_ADMIN privileges
-- Inventory managers and warehouse staff
+- Frontend application
+- Potential future mobile applications
+- System integrations
 
-## Architecture Overview
+## Architecture
 
-The application follows a modern three-tier architecture pattern:
+The backend follows a multi-layered architecture using Spring Boot:
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │    Database     │
-│   (React.js)    │◄──►│  (Spring Boot)  │◄──►│    (MySQL)      │
-│   Port: 3000    │    │   Port: 8080    │    │   Port: 3306    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────┐
+│               Backend                   │
+│                                         │
+│  ┌─────────────┐    ┌─────────────────┐ │
+│  │  Controllers│    │     Services    │ │
+│  │  (REST API) │◄──►│  (Business Logic)│ │
+│  └─────────────┘    └─────────────────┘ │
+│          ▲                  ▲           │
+│          │                  │           │
+│          ▼                  ▼           │
+│  ┌─────────────┐    ┌─────────────────┐ │
+│  │   Security  │    │  Repositories   │ │
+│  │             │    │     (JPA)       │ │
+│  └─────────────┘    └─────────────────┘ │
+│                          ▲              │
+└──────────────────────────┼──────────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │    Database     │
+                  │     (MySQL)     │
+                  └─────────────────┘
 ```
 
-### Frontend Layer (React.js)
-- User interface and user experience management
-- State management using React Hooks
-- JWT token handling and route protection
-- API communication via Axios
-- Responsive design with custom CSS
-
-### Backend Layer (Spring Boot)
-- RESTful API services
-- Business logic implementation
-- JWT authentication and authorization
-- Data validation and processing
-- Database interaction through JPA/Hibernate
-
-### Data Layer (MySQL)
-- Persistent data storage
-- Relational data modeling
-- Transaction management
-- Data integrity constraints
-
-## Project Structure
-
-### Frontend Structure (React.js)
-
-### Backend Structure (Spring Boot)
-
+### Key Components
+- **Controllers Layer**: REST endpoints for client interaction
+- **Services Layer**: Business logic implementation
+- **Repositories Layer**: Data access abstraction
+- **Security Layer**: Authentication and authorization
+- **Database**: Persistent data storage
 
 ## Technology Stack
 
-### Frontend Technologies
-- **React.js 18+**: Modern JavaScript library for building user interfaces
-- **React Router**: Declarative routing for React applications
-- **Axios**: Promise-based HTTP client for API communication
-- **Custom CSS**: Responsive styling with consistent design system
-- **React Hooks**: State management and lifecycle methods
-
-### Backend Technologies
+### Core Technologies
 - **Spring Boot 3.4.0**: Enterprise Java framework
+- **Spring Web**: RESTful API development
 - **Spring Security**: Authentication and authorization framework
 - **Spring Data JPA**: Data access abstraction layer
 - **Hibernate ORM**: Object-relational mapping tool
 - **MySQL Connector**: Database connectivity
-- **JWT (JSON Web Tokens)**: Stateless authentication
-- **Lombok**: Java annotation library for reducing boilerplate
-- **Maven**: Build automation and dependency management
 
-### Database
-- **MySQL 8.0+**: Relational database management system
+### Security
+- **JWT (JSON Web Tokens)**: Stateless authentication
+- **BCrypt**: Password hashing
+- **Role-based Access Control**: Permission management
 
 ### Development Tools
 - **Java 17**: Latest LTS version of Java
-- **Node.js 16+**: JavaScript runtime for frontend development
-- **npm**: Package manager for JavaScript
+- **Maven 3.6+**: Build automation and dependency management
+- **Lombok**: Java annotation library for reducing boilerplate
+- **JUnit 5**: Testing framework
+- **Mockito**: Mocking framework for unit tests
 
-### Prerequisites
+```
+
+## Security
+
+The backend implements comprehensive security measures:
+
+### JWT Authentication
+
+- Stateless authentication using JSON Web Tokens
+- Token-based authorization for API endpoints
+- Token expiration and refresh mechanisms
+
+### Role-Based Access Control
+
+Two primary roles with different permissions:
+
+1. **SUPER_ADMIN**: Full system access
+   - Create/manage stores
+   - Create/manage users
+   - Manage all inventory items
+   - Access system-wide reports
+
+2. **LOCAL_ADMIN**: Store-specific access
+   - Manage store inventory
+   - View store reports
+   - Limited user management (store users only)
+
+### Password Security
+
+- BCrypt password hashing
+- Password strength requirements
+- Account lockout after failed attempts
+
+## Prerequisites
+
+To set up and run the backend application:
+
 - Java 17 or higher
-- Node.js 16+ and npm
-- MySQL 8.0+
 - Maven 3.6+
-- Git
+- MySQL 8.0+
 
+### Installation
 
+```bash
+# Clone the repository
+git clone https://github.com/your-username/warehouse-management-system.git
+
+# Build the application
+mvn clean install
+
+# Run the application
+mvn spring-boot:run
+```
+
+The API will be available at `http://localhost:8080/api`
+
+### Database Setup
+
+1. Create a MySQL database:
+```sql
+CREATE DATABASE warehouse_db;
 ```
