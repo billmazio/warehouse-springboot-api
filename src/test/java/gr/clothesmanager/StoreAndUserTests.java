@@ -109,8 +109,32 @@ public class StoreAndUserTests extends BasePlaywrightTest {
         assertThat(page.getByText(updatedAddress)).isVisible();
     }
 
+    //Todo fix the app logic about the transfer between stores
+//    @Test
+//    @Order(4)
+//    @DisplayName("Should transfer materials")
+//    public void shouldTransferMaterialBetweenStoresSuccessfully(Page page) {
+//        loginAsAdmin(page);
+//        waitForDashboard(page);
+//        navigateToDashboardSection(page, "card-stores", "**/manage-stores**");
+//
+//        page.getByTestId("store-distribution-button").click();
+//        page.getByTestId("distribution-source-store").selectOption("ΚΕΝΤΡΙΚΑ");
+//        page.getByTestId("distribution-material").selectOption("Μπλούζα - Μέγεθος: EXTRA SMALL");
+//        page.getByTestId("distribution-target-store").selectOption("ΔΥΤΙΚΑ");
+//        page.getByTestId("distribution-quantity").fill("1");
+//
+//        page.getByTestId("distribution-submit").click();
+//
+//        page.getByTestId("distribution-modal").waitFor(
+//                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+//        page.waitForLoadState(LoadState.NETWORKIDLE);
+//
+//        assertThat(page.getByTestId("distribution-modal")).not().isVisible();
+//    }
+
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("Should delete user successfully")
     public void shouldDeleteUser(Page page) {
         loginAsAdmin(page);
@@ -145,7 +169,7 @@ public class StoreAndUserTests extends BasePlaywrightTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("Should delete custom store successfully")
     public void shouldDeleteCustomStore(Page page) {
         loginAsAdmin(page);

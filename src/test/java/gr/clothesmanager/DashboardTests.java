@@ -1,15 +1,11 @@
 package gr.clothesmanager;
 
 import com.microsoft.playwright.Page;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DashboardTests extends BasePlaywrightTest {
 
@@ -19,15 +15,13 @@ public class DashboardTests extends BasePlaywrightTest {
         loginAsAdmin(page);
         waitForDashboard(page);
 
-        List<String> expectedCards = List.of(
-                "card-users",
-                "card-materials",
-                "card-orders",
-                "card-stores"
-        );
+        List<String> cardHeadings = page.getByTestId("card-name").locator("h3").allInnerTexts();
 
-        expectedCards.forEach(testId -> {
-            assertThat(page.getByTestId(testId)).isVisible();
-        });
+        assertThat(cardHeadings).contains(
+                "Διαχείριση Χρηστών",
+                "Διαχείριση Ενδυμάτων",
+                "Παραγγελίες",
+                "Διαχείριση Αποθηκών"
+        );
     }
 }
