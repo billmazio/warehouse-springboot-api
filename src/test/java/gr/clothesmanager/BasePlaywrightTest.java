@@ -37,9 +37,9 @@ public abstract class BasePlaywrightTest {
         page.waitForLoadState(LoadState.NETWORKIDLE);
     }
 
-    protected void navigateToDashboardSection(Page page, String cardTestId, String expectedUrl) {
-        page.getByTestId(cardTestId).waitFor(new Locator.WaitForOptions().setTimeout(10000));
-        page.getByTestId(cardTestId).click();
+    protected void navigateToDashboardSection(Page page, String sectionTestId, String expectedUrl) {
+        page.locator("[data-test-section='" + sectionTestId + "']").waitFor(new Locator.WaitForOptions().setTimeout(10000));
+        page.locator("[data-test-section='" + sectionTestId + "']").click();
         page.waitForURL(expectedUrl, new Page.WaitForURLOptions().setTimeout(10000));
         page.waitForLoadState(LoadState.NETWORKIDLE);
         page.waitForTimeout(1000);

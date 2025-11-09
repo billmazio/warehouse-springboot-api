@@ -1,13 +1,14 @@
 package gr.clothesmanager;
 
-import com.microsoft.playwright.Page;
+import com.microsoft.playwright.*;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DashboardTests extends BasePlaywrightTest{
 
-public class DashboardTests extends BasePlaywrightTest {
 
     @Test
     @DisplayName("Should display all menu cards on dashboard")
@@ -16,12 +17,6 @@ public class DashboardTests extends BasePlaywrightTest {
         waitForDashboard(page);
 
         List<String> cardHeadings = page.getByTestId("card-name").locator("h3").allInnerTexts();
-
-        assertThat(cardHeadings).contains(
-                "Διαχείριση Χρηστών",
-                "Διαχείριση Ενδυμάτων",
-                "Παραγγελίες",
-                "Διαχείριση Αποθηκών"
-        );
+        Assertions.assertThat(cardHeadings).contains("Διαχείριση Χρηστών", "Διαχείριση Ενδυμάτων", "Παραγγελίες", "Διαχείριση Αποθηκών");
     }
 }
