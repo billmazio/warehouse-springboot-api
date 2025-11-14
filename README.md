@@ -30,6 +30,17 @@ Full-stack warehouse management system for clothing inventory across multiple st
 
 ---
 
+## 🗄️ Database
+
+**Core Entities:** Store, User, Material, Order, Size, UserRole
+
+**Key Relationships:**
+- Store contains Users, Materials, Orders
+- Order connects User + Material + Size + Store
+- Users have Roles (many-to-many with UserRole)
+
+**Dependency Order for Tests:** Store/Size/Role → User/Material → Order
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -43,20 +54,6 @@ Full-stack warehouse management system for clothing inventory across multiple st
 git clone https://github.com/billmazio/warehouse-springboot-api.git
 
 ```
-
-## 🗄️ Database
-
-**Core Entities:** Store, User, Material, Order, Size, UserRole
-
-**Key Relationships:**
-- Store contains Users, Materials, Orders
-- Order connects User + Material + Size + Store
-- Users have Roles (many-to-many with UserRole)
-
-**Dependency Order for Tests:** Store/Size/Role → User/Material → Order
-
----
-
 ## 🧪 Testing
 
 Comprehensive E2E test suite with **20+ test cases** using Playwright and Page Object Model.
