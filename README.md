@@ -60,13 +60,12 @@ Comprehensive E2E test suite with **20+ test cases** using Playwright and Page O
 
 ### Test Structure
 ```
-src/test/java/
-├── base/ 
-├── components/  / 
-├── constants/ 
-├── pages/          # Page Object Model (LoginPage, MaterialsPage, etc.)
-├── tests/          # Test cases by feature (login, materials, orders, etc.)
-└── suites/         # Test suites (Smoke, Regression, Full Integration)
+src/test/java/gr/clothesmanager/
+├── base/          # Test configuration
+├── pages/         # 6 Page Objects (POM pattern)
+├── components/    # Reusable components
+├── tests/         # 14 test classes, 20+ test cases
+└── suites/        # 3 test suites
 ```
 
 ### Run Tests
