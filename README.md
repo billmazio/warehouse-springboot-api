@@ -8,7 +8,7 @@
 REST API for warehouse inventory management with comprehensive E2E test automation.
 
 ## 🔗 Related Repository
-- **Frontend**: [warehouse-react-app](https://github.com/YOUR_USERNAME/warehouse-react-ui)
+- **Frontend**: [warehouse-react-app](https://github.com/billmazio/warehouse-react-ui.git/warehouse-react-ui)
 
 ---
 
@@ -19,8 +19,6 @@ Full-stack warehouse management system for clothing inventory across multiple st
 **Key Features:**
 - JWT Authentication & Authorization
 - CRUD operations for materials, orders, stores, and users
-- Entity relationship management (stores → users → materials → orders)
-- Greek language support
 - Professional Page Object Model test automation
 
 ---
@@ -45,6 +43,17 @@ Full-stack warehouse management system for clothing inventory across multiple st
 git clone https://github.com/billmazio/warehouse-springboot-api.git
 
 ```
+
+## 🗄️ Database
+
+**Core Entities:** Store, User, Material, Order, Size, UserRole
+
+**Key Relationships:**
+- Store contains Users, Materials, Orders
+- Order connects User + Material + Size + Store
+- Users have Roles (many-to-many with UserRole)
+
+**Dependency Order for Tests:** Store/Size/Role → User/Material → Order
 
 ---
 
@@ -86,9 +95,4 @@ mvn test -Dtest=FullIntegrationTestSuite
 | Stores | 3 | Create, edit, delete |
 | Users | 2 | Create, delete |
 
-**Total: 25+ automated tests** with Page Object Model design pattern
-
----
-
-
-```
+**Total: 20+ automated tests** with Page Object Model design pattern
