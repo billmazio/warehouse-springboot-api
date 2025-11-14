@@ -1,4 +1,4 @@
-package gr.clothesmanager.tests.suites;
+package gr.clothesmanager.suites;
 
 
 import gr.clothesmanager.tests.*;
