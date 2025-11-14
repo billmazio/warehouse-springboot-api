@@ -115,6 +115,7 @@ mvn test -Dtest=FullIntegrationTestSuite
 | Feature | Tests | Coverage |
 |---------|-------|----------|
 | Authentication | 5 | Login, validation, errors |
+| Dashboard | 1 | Navigation, view |   
 | Materials | 6 | Create, edit, delete, search |
 | Orders | 3 | Create, edit, delete |
 | Stores | 3 | Create, edit, delete |
