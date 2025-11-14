@@ -8,7 +8,7 @@
 REST API for warehouse inventory management with comprehensive E2E test automation.
 
 ## 🔗 Related Repository
-- **Frontend**: [warehouse-react-app](https://github.com/YOUR_USERNAME/warehouse-react-app)
+- **Frontend**: [warehouse-react-app](https://github.com/YOUR_USERNAME/warehouse-react-ui)
 
 ---
 
