@@ -8,7 +8,7 @@
 REST API for warehouse inventory management with comprehensive E2E test automation.
 
 ## 🔗 Related Repository
-- **Frontend**: [warehouse-react-app](https://github.com/billmazio/warehouse-react-ui.git/warehouse-react-ui)
+- **Frontend**: [warehouse-react-app](https://github.com/billmazio/warehouse-react-ui)
 
 ---
 
@@ -61,11 +61,12 @@ Comprehensive E2E test suite with **20+ test cases** using Playwright and Page O
 ### Test Structure
 ```
 src/test/java/gr/clothesmanager/
-├── base/          # Test configuration
-├── pages/         # 6 Page Objects (POM pattern)
+├── base/          # BaseTest configuration
 ├── components/    # Reusable components
-├── tests/         # 14 test classes, 20+ test cases
-└── suites/        # 3 test suites
+├── constants/     # Test constants (URLs, credentials, timeouts)
+├── pages/         # 6 Page Objects (POM pattern)
+├── suites/        # 3 test suites
+└── tests/         # 14 test classes, 20+ test cases
 ```
 
 ### Run Tests
