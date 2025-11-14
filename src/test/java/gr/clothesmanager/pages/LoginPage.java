@@ -24,7 +24,7 @@ public class LoginPage extends BasePage {
     }
 
     public LoginPage open() {
-        navigate(TestConstants.LOGIN_URL);
+        navigate();
         waitForPageLoad();
         return this;
     }

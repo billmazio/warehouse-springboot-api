@@ -23,10 +23,9 @@ public abstract class BasePage {
 
     /**
      * Navigates to a URL
-     * @param url URL to navigate to
      */
-    protected void navigate(String url) {
-        page.navigate(url);
+    protected void navigate() {
+        page.navigate(TestConstants.LOGIN_URL);
         waitForNetworkIdle();
     }
 

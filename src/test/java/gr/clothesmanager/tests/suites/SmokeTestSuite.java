@@ -1,29 +1,29 @@
-package gr.clothesmanager.tests;
+package gr.clothesmanager.tests.suites;
 
 
+import gr.clothesmanager.tests.*;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
+/**
+ * Smoke Test Suite
+ * Quick validation of critical functionality
+ * Run this before every deployment or major change
+ * Execution time: ~2-3 minutes
+ * 
+ * @author Bill Maziotis
+ */
 @Execution(ExecutionMode.SAME_THREAD)
 @Suite
 @SelectClasses({
-
     LoginTests.class,
     DashboardTests.class,
     StoreCreateTests.class,
     UserCreateTests.class,
     MaterialCreateTests.class,
-    OrderCreateTests.class,
-    StoreEditTests.class,
-    MaterialEditTests.class,
-    OrderEditTests.class,
-    MaterialSearchTests.class,
-    OrderDeleteTests.class,
-    MaterialDeleteTests.class,
-    UserDeleteTests.class,
-    StoreDeleteTests.class
+    OrderCreateTests.class
 })
-public class FullIntegrationTestSuite {
+public class SmokeTestSuite {
 }
