@@ -1,199 +1,126 @@
-# Warehouse Management System - Backend Documentation
+# Warehouse Management System - Spring Boot API
 
-## Table of Contents
-1. [Backend Overview](#backend-overview)
-2. [Architecture](#architecture)
-3. [Technology Stack](#technology-stack)
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-green)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)](https://www.mysql.com/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.40-green)](https://playwright.dev/)
+[![Tests](https://img.shields.io/badge/Tests-20%2B%20Passing-green)]()
 
+REST API for warehouse inventory management with comprehensive E2E test automation.
 
-## Backend Overview
+## 🔗 Related Repository
+- **Frontend**: [warehouse-react-ui](https://github.com/billmazio/warehouse-react-ui)
 
-The backend of the Warehouse Management System provides RESTful API services for clothing inventory management across multiple store locations. It implements business logic, data validation, authentication, and database interaction.
+---
 
-### Key Objectives
-- Implement secure RESTful API services
-- Provide role-based access control
-- Process and validate inventory data
-- Manage database transactions and relationships
-- Support multi-store operations
+## 🎯 Overview
 
-### Target Users
-- Frontend application
-- Potential future mobile applications
-- System integrations
+Full-stack warehouse management system for clothing inventory across multiple store locations. Built with Spring Boot, includes JWT authentication, role-based access control, and 20+ automated test cases using Playwright.
 
-## Architecture
+**Key Features:**
+- JWT Authentication & Authorization
+- CRUD operations for materials, orders, stores, and users
+- Professional Page Object Model test automation
 
-The backend follows a multi-layered architecture using Spring Boot:
+---
 
+## 🛠️ Tech Stack
+
+**Backend:** Java 17 • Spring Boot • Spring Security • JPA/Hibernate • MySQL • JWT
+
+**Testing:** Playwright • JUnit 5 • AssertJ • Maven • Page Object Model
+
+---
+
+## 🗄️ Database
+
+**Core Entities:** Store, User, Material, Order, Size, UserRole
+
+**Key Relationships:**
+- Store contains Users, Materials, Orders
+- Order connects User + Material + Size + Store
+- Users have Roles (many-to-many with UserRole)
+
+**Dependency Order for Tests:** Store/Size/Role → User/Material → Order
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Java 17+
+- Maven 3.8+
+- MySQL 8.0
+
+### Setup
+```bash
+# Clone repository
+git clone https://github.com/billmazio/warehouse-springboot-api.git
+
+# Configure database in application.properties
+# spring.datasource.url=jdbc:mysql://localhost:3306/warehouse_db
+
+# Run application
+mvn spring-boot:run
 ```
-┌─────────────────────────────────────────┐
-│               Backend                   │
-│                                         │
-│  ┌─────────────┐    ┌─────────────────┐ │
-│  │  Controllers│    │     Services    │ │
-│  │  (REST API) │◄──►│  (Business Logic)│ │
-│  └─────────────┘    └─────────────────┘ │
-│          ▲                  ▲           │
-│          │                  │           │
-│          ▼                  ▼           │
-│  ┌─────────────┐    ┌─────────────────┐ │
-│  │   Security  │    │  Repositories   │ │
-│  │             │    │     (JPA)       │ │
-│  └─────────────┘    └─────────────────┘ │
-│                          ▲              │
-└──────────────────────────┼──────────────┘
-                           │
-                           ▼
-                  ┌─────────────────┐
-                  │    Database     │
-                  │     (MySQL)     │
-                  └─────────────────┘
-```
 
-### Key Components
-- **Controllers Layer**: REST endpoints for client interaction
-- **Services Layer**: Business logic implementation
-- **Repositories Layer**: Data access abstraction
-- **Security Layer**: Authentication and authorization
-- **Database**: Persistent data storage
+---
 
-## Technology Stack
+## 🧪 Testing
 
-### Core Technologies
-- **Spring Boot 3.4.0**: Enterprise Java framework
-- **Spring Web**: RESTful API development
-- **Spring Security**: Authentication and authorization framework
-- **Spring Data JPA**: Data access abstraction layer
-- **Hibernate ORM**: Object-relational mapping tool
-- **MySQL Connector**: Database connectivity
+Comprehensive E2E test suite with **20+ test cases** using Playwright and Page Object Model.
 
-### Security
-- **JWT (JSON Web Tokens)**: Stateless authentication
-- **BCrypt**: Password hashing
-- **Role-based Access Control**: Permission management
-
-### Development Tools
-- **Java 17**: Latest LTS version of Java
-- **Maven 3.6+**: Build automation and dependency management
-- **Lombok**: Java annotation library for reducing boilerplate
-- **JUnit 5**: Testing framework
-- **Mockito**: Mocking framework for unit tests
-
-
-The API will be available at `http://localhost:8080/api`
-
-### Database Setup
-
-1. Create a MySQL database:
-```sql
-CREATE DATABASE warehouse_db;
-```
-# End-to-End Testing with Playwright Java
-
-## Overview
-
-This project implements comprehensive end-to-end testing for our Warehouse Management System using Playwright, a modern automation framework that provides reliable end-to-end testing for web applications. Our test structure is designed to mirror the domain model of our application, ensuring that tests respect entity relationships and dependencies.
-
-## Key Features
-
-- **Cross-Browser Testing**: Tests run on Chromium, Firefox, and WebKit
-- **Domain-Driven Test Organization**: Tests structured around business entities and their relationships
-- **Automatic Wait**: Playwright automatically waits for elements to be actionable
-- **Reliable Automation**: Tests are resilient against dynamic content and async operations
-- **Page Object Pattern**: Improves test maintainability and readability
-
-## Test Architecture
-
-Our test architecture is organized to reflect the domain model of our application:
+### Test Structure
 ```
 src/test/java/gr/clothesmanager/
-├── BasePlaywrightTest.java            # Base class with common functionality
-├── LoginTests.java                    # Authentication tests
-├── DashboardTests.java                # Dashboard tests
-├── MaterialAndOrderTests.java         # Tests for materials and orders (related entities)
-└── StoreAndUserTests.java             # Tests for stores and users (related entities)
+├── base/          # BaseTest configuration
+├── components/    # Reusable components
+├── constants/     # Test constants (URLs, credentials, timeouts)
+├── pages/         # 7 Page Objects (POM pattern)
+│   ├── BasePage.java
+│   ├── DashboardPage.java
+│   ├── LoginPage.java
+│   ├── MaterialsPage.java
+│   ├── OrdersPage.java
+│   ├── StoresPage.java
+│   └── UsersPage.java
+├── suites/        # 3 test suites
+└── tests/         # 14 test classes, 20+ test cases
 ```
 
-Tests are structured to respect entity relationships and dependencies, ensuring that:
-1. Stores are created before users (since users belong to stores)
-2. Materials are created with proper store references
-3. Orders are created last (as they depend on users, materials, and stores)
-4. Deletion happens in reverse order to respect referential integrity
+### Test Execution Strategy
 
-## Test Base Class
+Tests run **sequentially** to maintain referential integrity:
+- `@TestMethodOrder(MethodOrderer.OrderAnnotation.class)` ensures dependency order
+- Store/Size/Role entities created first, then Users/Materials, finally Orders
+- Sequential execution prevents foreign key constraint violations
+- AssertJ assertions provide clear, readable validation
 
-Our `BasePlaywrightTest` class provides common functionality for all tests:
-```java
-@UsePlaywright
-public abstract class BasePlaywrightTest {
-    // Common methods for authentication, navigation, and test utilities
-    
-    protected void loginAsAdmin(Page page) {
-        // Login implementation
-    }
-    
-    protected void waitForDashboard(Page page) {
-        // Dashboard wait implementation
-    }
-    
-    protected void navigateToDashboardSection(Page page, String cardTestId, String expectedUrl) {
-        // Navigation implementation
-    }
-}
-```
-
-## Running the Tests
-
-Tests can be run using JUnit:
+### Run Tests
 ```bash
-# Run all tests
+# All tests
 mvn test
 
-# Run a specific test class
-mvn test -Dtest=StoreAndUserTests
+# Specific suite
+mvn test -Dtest=SmokeTestSuite          
+mvn test -Dtest=RegressionTestSuite      
+mvn test -Dtest=FullIntegrationTestSuite
 ```
 
-## JUnit 5 Configuration
+**Test Prerequisites:**
+- Backend running on port `8080` (`mvn spring-boot:run`)
+- Frontend running on port `3000` (`npm start`)
+- MySQL running with test database configured
 
-We use JUnit 5 with test ordering to ensure that tests run in the correct sequence:
-```java
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class StoreAndUserTests extends BasePlaywrightTest {
-    // Tests with @Order annotations to control execution sequence
-}
-```
+### Test Coverage
 
-## Playwright Java Setup
+| Feature | Tests | Coverage |
+|---------|-------|----------|
+| Authentication | 5 | Login, validation, errors |
+| Dashboard | 1 | Navigation, view |   
+| Materials | 6 | Create, edit, delete, search |
+| Orders | 3 | Create, edit, delete |
+| Stores | 3 | Create, edit, delete |
+| Users | 2 | Create, delete |
 
-Our test infrastructure uses:
+**Total: 20+ automated tests** with Page Object Model design pattern
 
-- Playwright Java 1.xx.x
-- JUnit 5 for test execution and assertions
-- Maven for dependency management
-
-Maven dependency:
-```xml
-<dependency>
-    <groupId>com.microsoft.playwright</groupId>
-    <artifactId>playwright</artifactId>
-    <version>1.XX.0</version>
-    <scope>test</scope>
-</dependency>
-```
-
-## Best Practices Implemented
-
-1. **Page Object Pattern**: Each page in the application has a corresponding Page class
-2. **Base Test Class**: Common functionality is centralized in the base test class
-3. **Test Independence**: Each test can run independently while respecting entity relationships
-4. **Proper Cleanup**: Entities are deleted in reverse dependency order
-5. **Meaningful Test Names**: Tests are named to clearly describe what they test
-6. **Order Annotations**: Tests run in a specific order to respect entity dependencies
-
-## Future Enhancements
-
-- Implement parallel test execution for faster feedback
-- Add visual testing capabilities
-- Integrate with CI/CD pipeline
-- Add reporting with screenshots and videos for failed tests
+---
