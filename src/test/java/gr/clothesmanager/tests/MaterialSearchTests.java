@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MaterialSearchTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_016: Should search materials by product name")
+    @DisplayName("Should search materials by product name")
     public void shouldSearchMaterialsByProductName(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
@@ -29,7 +29,7 @@ public class MaterialSearchTests extends BaseTest {
     }
     
     @Test
-    @DisplayName("TC_017: Should filter materials by size")
+    @DisplayName("Should filter materials by size")
     public void shouldFilterMaterialsBySize(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();

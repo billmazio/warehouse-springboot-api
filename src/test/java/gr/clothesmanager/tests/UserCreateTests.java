@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserCreateTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_010: Should create new user successfully")
+    @DisplayName("Should create new user successfully")
     public void shouldCreateUserSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         UsersPage usersPage = dashboardPage.navigateToUsers();

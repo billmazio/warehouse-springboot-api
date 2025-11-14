@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class StoreCreateTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_007: Should create new store successfully")
+    @DisplayName("Should create new store successfully")
     public void shouldCreateStoreSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();

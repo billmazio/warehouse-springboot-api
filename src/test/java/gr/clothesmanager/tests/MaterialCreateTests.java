@@ -19,7 +19,7 @@ public class MaterialCreateTests extends BaseTest {
     
     @Test
     @Order(1)
-    @DisplayName("TC_012: Should add material successfully")
+    @DisplayName("Should add material successfully")
     public void shouldAddMaterialSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
@@ -39,7 +39,7 @@ public class MaterialCreateTests extends BaseTest {
     @ParameterizedTest
     @Order(2)
     @ValueSource(strings = {"EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE"})
-    @DisplayName("TC_013: Should add materials with different sizes")
+    @DisplayName("Should add materials with different sizes")
     public void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();

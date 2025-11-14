@@ -15,7 +15,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 public class StoreEditTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_008: Should edit store successfully")
+    @DisplayName("Should edit store successfully")
     public void shouldEditStoreSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();

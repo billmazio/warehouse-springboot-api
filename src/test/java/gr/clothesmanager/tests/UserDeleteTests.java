@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserDeleteTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_011: Should delete user successfully")
+    @DisplayName("Should delete user successfully")
     public void shouldDeleteUserSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         UsersPage usersPage = dashboardPage.navigateToUsers();

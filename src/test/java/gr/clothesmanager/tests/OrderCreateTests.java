@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OrderCreateTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_018: Should create new order successfully")
+    @DisplayName("Should create new order successfully")
     public void shouldCreateOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         OrdersPage ordersPage = dashboardPage.navigateToOrders();

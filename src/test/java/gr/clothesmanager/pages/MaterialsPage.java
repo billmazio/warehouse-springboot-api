@@ -4,7 +4,13 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
 import gr.clothesmanager.components.ConfirmationDialog;
 
-
+/**
+ * Page Object for Materials management page
+ * Handles CRUD operations for materials (clothing items)
+ * Supports search and filtering by product name and size
+ *
+ * @author Bill Maziotis
+ */
 public class MaterialsPage extends BasePage {
 
     private static final String MATERIALS_TABLE = "materials-table";
@@ -43,136 +49,142 @@ public class MaterialsPage extends BasePage {
         return this;
     }
 
-    public MaterialsPage clickAddMaterial() {
+    private void clickAddMaterial() {
         clickByTestId(ADD_MATERIAL_BUTTON);
         waitForVisible(ADD_MATERIAL_MODAL);
-        return this;
     }
-    
-    public MaterialsPage fillMaterialName(String name) {
+
+    private void fillMaterialName(String name) {
         fillByTestId(ADD_MATERIAL_TEXT, name);
-        return this;
     }
-    
-    public MaterialsPage selectSize(String size) {
+
+    private void selectMaterialSize(String size) {
         selectOptionByTestId(ADD_MATERIAL_SIZE, size);
-        return this;
     }
-    
-    public MaterialsPage fillQuantity(String quantity) {
+
+    private void fillMaterialQuantity(String quantity) {
         fillByTestId(ADD_MATERIAL_QUANTITY, quantity);
-        return this;
     }
-    
-    public MaterialsPage selectStore(String store) {
+
+    private void selectMaterialStore(String store) {
         selectOptionByTestId(ADD_MATERIAL_STORE, store);
-        return this;
     }
-    
-    public MaterialsPage submitAddMaterial() {
+
+    private void submitAddMaterial() {
         clickByTestId(ADD_MATERIAL_SUBMIT);
         waitForHidden(ADD_MATERIAL_MODAL);
-        return this;
     }
 
-    public MaterialsPage addMaterial(String name, String size, String quantity, String store) {
+    /**
+     * Adds a new material with all required fields
+     * @param name Material name (e.g., "Μπλούζα Polo")
+     * @param size Material size (SMALL, MEDIUM, etc.)
+     * @param quantity Initial quantity
+     * @param store Store location
+     */
+    public void addMaterial(String name, String size, String quantity, String store) {
         clickAddMaterial();
         fillMaterialName(name);
-        selectSize(size);
-        fillQuantity(quantity);
-        selectStore(store);
+        selectMaterialSize(size);
+        fillMaterialQuantity(quantity);
+        selectMaterialStore(store);
         submitAddMaterial();
-        return this;
     }
 
-
-    public MaterialsPage clickEditFirstMaterial() {
+    private void clickEditFirstMaterial() {
         page.locator("[data-test='" + EDIT_BUTTON + "']").first().click();
         waitForVisible(EDIT_MODAL);
-        return this;
     }
-    
-    public MaterialsPage editMaterialName(String name) {
+
+    private void fillEditMaterialName(String name) {
         fillByTestId(EDIT_TEXT, name);
-        return this;
     }
-    
-    public MaterialsPage editSize(String size) {
+
+    private void selectEditSize(String size) {
         selectOptionByTestId(EDIT_SIZE, size);
-        return this;
     }
-    
-    public MaterialsPage editQuantity(String quantity) {
+
+    private void fillEditQuantity(String quantity) {
         fillByTestId(EDIT_QUANTITY, quantity);
-        return this;
     }
-    
-    public MaterialsPage confirmEdit() {
+
+    private void confirmEdit() {
         clickByTestId(EDIT_CONFIRM);
         waitForHidden(EDIT_MODAL);
-        return this;
     }
 
-    public MaterialsPage editFirstMaterial(String name, String size, String quantity) {
+    /**
+     * Edits the first material in the list
+     * @param name New material name
+     * @param size New size
+     * @param quantity New quantity
+     */
+    public void editFirstMaterial(String name, String size, String quantity) {
         clickEditFirstMaterial();
-        editMaterialName(name);
-        editSize(size);
-        editQuantity(quantity);
+        fillEditMaterialName(name);
+        selectEditSize(size);
+        fillEditQuantity(quantity);
         confirmEdit();
-        return this;
     }
 
 
-    public MaterialsPage clickDeleteFirstMaterial() {
+    /**
+     * Deletes the first material in the list
+     * Waits for deletion to complete by monitoring count change
+     */
+    public void deleteFirstMaterial() {
+        int countBeforeDelete = getMaterialCount();
+
         page.locator("[data-test='" + DELETE_BUTTON + "']").first().click();
-        return this;
-    }
-
-    public MaterialsPage confirmDelete() {
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-        return this;
-    }
 
-    public MaterialsPage deleteFirstMaterial() {
-        int countBeforeDelete = getMaterialCount();
-        clickDeleteFirstMaterial();
-        confirmDelete();
-
-        // Wait for count to decrease
         page.waitForCondition(() -> getMaterialCount() < countBeforeDelete);
-
-        return this;
     }
 
-    public MaterialsPage searchByProductName(String productName) {
+
+    /**
+     * Searches for materials by product name
+     * @param productName Product name to search for
+     */
+    public void searchByProductName(String productName) {
         fillByTestId(FILTER_PRODUCT, productName);
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        return this;
     }
-    
-    public MaterialsPage filterBySize(String size) {
+
+    /**
+     * Filters materials by size
+     * @param size Size to filter by
+     */
+    public void filterBySize(String size) {
         selectOptionByTestId(FILTER_SIZE, size);
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        return this;
     }
 
     public boolean isAddMaterialModalVisible() {
         return isVisible(ADD_MATERIAL_MODAL);
     }
-    
+
     public boolean isEditModalVisible() {
         return isVisible(EDIT_MODAL);
     }
-    
+
     public boolean isConfirmationDialogVisible() {
         return confirmationDialog.isVisible();
     }
-    
+
+    /**
+     * Gets the current count of materials displayed
+     * @return Number of material rows
+     */
     public int getMaterialCount() {
         return getCount("[data-test='" + MATERIAL_ROW + "']");
     }
-    
+
+    /**
+     * Checks if any materials are present
+     * @return true if at least one material exists
+     */
     public boolean hasMaterials() {
         return getMaterialCount() > 0;
     }

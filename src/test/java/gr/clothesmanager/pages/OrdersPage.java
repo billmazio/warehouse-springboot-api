@@ -4,7 +4,13 @@ import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
 import gr.clothesmanager.constants.TestConstants;
 
-
+/**
+ * Page Object for Orders management page
+ * Handles CRUD operations for orders
+ * Orders depend on materials and are associated with stores and users
+ *
+ * @author Bill Maziotis
+ */
 public class OrdersPage extends BasePage {
 
     private static final String ORDERS_TABLE = "orders-table";
@@ -37,120 +43,127 @@ public class OrdersPage extends BasePage {
         return this;
     }
 
-    public OrdersPage fillQuantity(String quantity) {
+    private void fillOrderQuantity(String quantity) {
         fillByTestId(ORDER_QUANTITY, quantity);
-        return this;
     }
-    
-    public OrdersPage fillDate(String date) {
+
+    private void fillOrderDate(String date) {
         fillByTestId(ORDER_DATE, date);
-        return this;
     }
-    
-    public OrdersPage selectStore(String store) {
+
+    private void selectOrderStore(String store) {
         selectOptionByTestId(ORDER_STORE, store);
         pause(500);
-        return this;
     }
-    
-    public OrdersPage selectMaterial(String material) {
+
+    private void selectOrderMaterial(String material) {
         selectOptionByTestId(ORDER_MATERIAL, material);
-        pause(500);
-        return this;
+        pause(500); // Wait for size dropdown to populate
     }
-    
-    public OrdersPage selectSize(String size) {
+
+    private void selectOrderSize(String size) {
         selectOptionByTestId(ORDER_SIZE, size);
-        return this;
     }
-    
-    public OrdersPage selectUser(String user) {
+
+    private void selectOrderUser(String user) {
         selectOptionByTestId(ORDER_USER, user);
-        return this;
     }
-    
-    public OrdersPage selectStatus(String status) {
+
+    private void selectOrderStatus(String status) {
         selectOptionByTestId(ORDER_STATUS, status);
-        return this;
     }
-    
-    public OrdersPage clickCreateOrder() {
+
+    private void clickCreateOrderButton() {
         clickByTestId(CREATE_ORDER_BUTTON);
         waitForNetworkIdle();
         pause(TestConstants.WAIT_FOR_LOAD);
-        return this;
     }
 
-    public OrdersPage createOrder(String quantity, String date, String store, 
-                                   String material, String size, String user, String status) {
-        fillQuantity(quantity);
-        fillDate(date);
-        selectStore(store);
-        selectMaterial(material);
-        selectSize(size);
-        selectUser(user);
-        selectStatus(status);
-        clickCreateOrder();
-        return this;
+    /**
+     * Creates a new order with all required fields
+     * @param quantity Order quantity
+     * @param date Order date (format: yyyy-MM-dd)
+     * @param store Store name
+     * @param material Material name
+     * @param size Material size
+     * @param user Username
+     * @param status Order status
+     */
+    public void createOrder(String quantity, String date, String store,
+                            String material, String size, String user, String status) {
+        fillOrderQuantity(quantity);
+        fillOrderDate(date);
+        selectOrderStore(store);
+        selectOrderMaterial(material);
+        selectOrderSize(size);
+        selectOrderUser(user);
+        selectOrderStatus(status);
+        clickCreateOrderButton();
     }
 
-    public OrdersPage clickEditFirstOrder() {
+    private void clickEditFirstOrder() {
         page.locator("[data-test='" + EDIT_BUTTON + "']").first().click();
         pause(TestConstants.WAIT_FOR_LOAD);
-        return this;
     }
-    
-    public OrdersPage updateQuantity(String quantity) {
+
+    private void updateOrderQuantity(String quantity) {
         fillByTestId(ORDER_QUANTITY, quantity);
-        return this;
     }
-    
-    public OrdersPage updateStatus(String status) {
+
+    private void updateOrderStatus(String status) {
         selectOptionByTestId(ORDER_STATUS, status);
-        return this;
     }
-    
-    public OrdersPage clickUpdateOrder() {
+
+    private void clickUpdateOrderButton() {
         clickByTestId(UPDATE_ORDER_BUTTON);
-        return this;
     }
-    
-    public OrdersPage editFirstOrder(String quantity, String status) {
+
+    /**
+     * Edits the first order in the list
+     * @param quantity New quantity
+     * @param status New status
+     */
+    public void editFirstOrder(String quantity, String status) {
         clickEditFirstOrder();
-        updateQuantity(quantity);
-        updateStatus(status);
-        clickUpdateOrder();
-        return this;
+        updateOrderQuantity(quantity);
+        updateOrderStatus(status);
+        clickUpdateOrderButton();
     }
 
-    public OrdersPage clickDeleteFirstOrder() {
+    /**
+     * Deletes the first order in the list
+     * Waits for deletion to complete
+     */
+    public void deleteFirstOrder() {
+        int countBeforeDelete = getOrderCount();
+
         page.locator("[data-test='" + DELETE_BUTTON + "']").first().click();
-        return this;
-    }
-
-    public OrdersPage confirmDelete() {
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-        pause(2000);
-        return this;
-    }
-    
-    public OrdersPage deleteFirstOrder() {
-        clickDeleteFirstOrder();
-        confirmDelete();
-        return this;
+
+        page.waitForCondition(() -> getOrderCount() < countBeforeDelete);
     }
 
     public boolean isUpdateOrderButtonVisible() {
         return isVisible(UPDATE_ORDER_BUTTON);
     }
-    
+
     public boolean isConfirmationDialogVisible() {
         return confirmationDialog.isVisible();
     }
-    
-    public int getOrderCount() {return getCount("[data-test='" + ORDER_ROW + "']");}
-    
+
+    /**
+     * Gets the current count of orders displayed
+     * @return Number of order rows
+     */
+    public int getOrderCount() {
+        return getCount("[data-test='" + ORDER_ROW + "']");
+    }
+
+    /**
+     * Checks if any orders are present
+     * @return true if at least one order exists
+     */
     public boolean hasOrders() {
         return getOrderCount() > 0;
     }

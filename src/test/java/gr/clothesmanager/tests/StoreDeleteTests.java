@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class StoreDeleteTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_009: Should delete custom store successfully")
+    @DisplayName("Should delete custom store successfully")
     public void shouldDeleteCustomStoreSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class OrderEditTests extends BaseTest {
 
     @Test
-    @DisplayName("TC_014: Should edit order successfully")
+    @DisplayName("Should edit order successfully")
     public void shouldEditOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         OrdersPage ordersPage = dashboardPage.navigateToOrders().waitForLoad();

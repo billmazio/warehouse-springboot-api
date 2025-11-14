@@ -5,7 +5,13 @@ import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
 import gr.clothesmanager.constants.TestConstants;
 
-
+/**
+ * Page Object for Users management page
+ * Handles user creation and deletion
+ * Users must be associated with a store
+ *
+ * @author Bill Maziotis
+ */
 public class UsersPage extends BasePage {
 
     private static final String USER_TABLE = "user-table";
@@ -19,9 +25,9 @@ public class UsersPage extends BasePage {
     private static final String CREATE_USER_BUTTON = ".user-create-form .create-button";
 
     private static final String DELETE_BUTTON = "delete-button";
-    
+
     private final ConfirmationDialog confirmationDialog;
-    
+
     public UsersPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
@@ -33,84 +39,109 @@ public class UsersPage extends BasePage {
         return this;
     }
 
-    public UsersPage fillUsername(String username) {
+    private void fillUserUsername(String username) {
         fillByTestId(USER_CREATE_USERNAME, username);
-        return this;
     }
-    
-    public UsersPage fillPassword(String password) {
+
+    private void fillUserPassword(String password) {
         fillByTestId(USER_CREATE_PASSWORD, password);
-        return this;
     }
-    
-    public UsersPage selectRole(String role) {
+
+    private void selectUserRole(String role) {
         selectOptionByTestId(USER_CREATE_ROLE, role);
-        return this;
     }
-    
-    public UsersPage selectStatus(String status) {
+
+    private void selectUserStatus(String status) {
         selectOptionByTestId(USER_CREATE_STATUS, status);
-        return this;
     }
-    
-    public UsersPage selectStore(String store) {
+
+    private void selectUserStore(String store) {
         selectOptionByTestId(USER_CREATE_STORE, store);
-        return this;
     }
-    
-    public UsersPage clickCreateUser() {
+
+    private void clickCreateUserButton() {
         click(CREATE_USER_BUTTON);
         waitForNetworkIdle();
         pause(TestConstants.WAIT_FOR_LOAD);
-        return this;
     }
 
-    public UsersPage createUser(String username, String password, String role, 
-                                 String status, String store) {
-        fillUsername(username);
-        fillPassword(password);
-        selectRole(role);
-        selectStatus(status);
-        selectStore(store);
-        clickCreateUser();
-        return this;
+    /**
+     * Creates a new user with all required fields
+     * User must be associated with a store
+     *
+     * @param username Unique username for the user
+     * @param password User password
+     * @param role User role (LOCAL_ADMIN, etc.)
+     * @param status User status (ACTIVE/INACTIVE)
+     * @param store Store to associate user with
+     */
+    public void createUser(String username, String password, String role,
+                           String status, String store) {
+        fillUserUsername(username);
+        fillUserPassword(password);
+        selectUserRole(role);
+        selectUserStatus(status);
+        selectUserStore(store);
+        clickCreateUserButton();
     }
 
-    public UsersPage clickDeleteFirstEnabledUser() {
+    /**
+     * Deletes the first enabled user in the list
+     * Only deletes users with enabled delete buttons (not system users)
+     * Waits for deletion to complete
+     */
+    public void deleteFirstEnabledUser() {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
-        if (enabledDeleteButtons.count() > 0) {
-            enabledDeleteButtons.first().click();
+
+        if (enabledDeleteButtons.count() == 0) {
+            return; // No deletable users, skip
         }
-        return this;
-    }
-    
-    public UsersPage confirmDelete() {
+
+        int countBeforeDelete = getUserCount();
+
+        enabledDeleteButtons.first().click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-        pause(2000);
-        return this;
-    }
-    
-    public UsersPage deleteFirstEnabledUser() {
-        clickDeleteFirstEnabledUser();
-        confirmDelete();
-        return this;
+
+        // Wait for count to actually decrease
+        page.waitForCondition(() -> getUserCount() < countBeforeDelete);
     }
 
     public boolean isConfirmationDialogVisible() {
         return confirmationDialog.isVisible();
     }
-    
+
+    /**
+     * Gets the current count of users displayed
+     * @return Number of user rows
+     */
     public int getUserCount() {
         return getCount("[data-test='" + USER_ROW + "']");
     }
-    
+
+    /**
+     * Checks if any users are present
+     * @return true if at least one user exists
+     */
     public boolean hasUsers() {
         return getUserCount() > 0;
     }
-    
-    public int getEnabledDeleteButtonCount() {return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();}
-    
+
+    /**
+     * Gets count of users with enabled delete buttons
+     * System/admin users may have disabled delete buttons
+     * @return Number of deletable users
+     */
+    public int getEnabledDeleteButtonCount() {
+        return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();
+    }
+
+    /**
+     * Gets a locator for text verification
+     * Useful for checking if specific username is visible
+     * @param text Text to locate
+     * @return Locator for the text
+     */
     public Locator getTextLocator(String text) {
         return page.getByText(text);
     }

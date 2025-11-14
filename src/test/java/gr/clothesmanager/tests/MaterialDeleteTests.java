@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MaterialDeleteTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_015: Should delete material successfully")
+    @DisplayName("Should delete material successfully")
     public void shouldDeleteMaterialSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();

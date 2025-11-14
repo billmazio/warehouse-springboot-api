@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class MaterialEditTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_014: Should edit material successfully")
+    @DisplayName("Should edit material successfully")
     public void shouldEditMaterialSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();

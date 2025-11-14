@@ -2,9 +2,15 @@ package gr.clothesmanager.pages;
 
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.constants.TestConstants;
-
 import java.util.List;
 
+/**
+ * Page Object for Dashboard page
+ * Handles navigation to different sections (materials, orders, stores, users)
+ * and displays main menu cards
+ *
+ * @author Bill Maziotis
+ */
 public class DashboardPage extends BasePage {
 
     private static final String LOGOUT_BUTTON = "logout-button";
@@ -20,7 +26,7 @@ public class DashboardPage extends BasePage {
     }
 
     public DashboardPage waitForLoad() {
-        waitForUrl("**/dashboard**", TestConstants.DEFAULT_TIMEOUT);
+        waitForUrl("**/dashboard**");
         waitForNetworkIdle();
         return this;
     }
@@ -47,16 +53,16 @@ public class DashboardPage extends BasePage {
     
     private void navigateToSection(String sectionTestId, String expectedUrl) {
         String sectionSelector = "[data-test-section='" + sectionTestId + "']";
-        waitForSelector(sectionSelector, TestConstants.DEFAULT_TIMEOUT);
+        waitForSelector(sectionSelector);
         click(sectionSelector);
-        waitForUrl(expectedUrl, TestConstants.DEFAULT_TIMEOUT);
+        waitForUrl(expectedUrl);
         waitForNetworkIdle();
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
-    public LoginPage logout() {
+    public void logout() {
         clickByTestId(LOGOUT_BUTTON);
-        return new LoginPage(page);
+        new LoginPage(page);
     }
 
     public boolean isLogoutButtonVisible() {

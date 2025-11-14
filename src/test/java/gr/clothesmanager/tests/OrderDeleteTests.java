@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class OrderDeleteTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_020: Should delete order successfully")
+    @DisplayName("Should delete order successfully")
     public void shouldDeleteOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         OrdersPage ordersPage = dashboardPage.navigateToOrders();

@@ -15,7 +15,7 @@ import java.util.List;
 public class DashboardTests extends BaseTest {
     
     @Test
-    @DisplayName("TC_006: Should display all menu cards on dashboard")
+    @DisplayName("Should display all menu cards on dashboard")
     public void shouldDisplayAllMenuCards(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         
