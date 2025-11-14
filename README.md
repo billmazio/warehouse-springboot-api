@@ -42,18 +42,8 @@ Full-stack warehouse management system for clothing inventory across multiple st
 ### Setup
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/warehouse-springboot-api.git
-cd warehouse-springboot-api
+git clone https://github.com/billmazio/warehouse-springboot-api.git
 
-# Create database
-mysql -u root -p
-CREATE DATABASE warehouse_db;
-
-```
-
-All endpoints except login require JWT token:
-```
-Authorization: Bearer <token>
 ```
 
 ---
@@ -65,6 +55,9 @@ Comprehensive E2E test suite with **20+ test cases** using Playwright and Page O
 ### Test Structure
 ```
 src/test/java/
+├── base/ 
+├── components/  / 
+├── constants/ 
 ├── pages/          # Page Object Model (LoginPage, MaterialsPage, etc.)
 ├── tests/          # Test cases by feature (login, materials, orders, etc.)
 └── suites/         # Test suites (Smoke, Regression, Full Integration)
@@ -76,9 +69,9 @@ src/test/java/
 mvn test
 
 # Specific suite
-mvn test -Dtest=SmokeTestSuite           # 2-3 minutes
-mvn test -Dtest=RegressionTestSuite      # 5-7 minutes
-mvn test -Dtest=FullIntegrationTestSuite # 7-10 minutes
+mvn test -Dtest=SmokeTestSuite          
+mvn test -Dtest=RegressionTestSuite      
+mvn test -Dtest=FullIntegrationTestSuite 
 ```
 
 **Prerequisites:** Backend running on `:8080`, Frontend on `:3000`
@@ -93,35 +86,9 @@ mvn test -Dtest=FullIntegrationTestSuite # 7-10 minutes
 | Stores | 3 | Create, edit, delete |
 | Users | 2 | Create, delete |
 
-**Total: 20+ automated tests** with Page Object Model design pattern
+**Total: 25+ automated tests** with Page Object Model design pattern
 
 ---
 
-## 🗄️ Database
 
-**Entity Relationships:**
-```
-Store → Users
-Store → Materials → Orders ← Users
-```
-
-**Dependency Order:** Stores → Users → Materials → Orders
-
----
-
-## 📖 What I Learned
-
-- Spring Boot REST API development with JWT authentication
-- Database design with complex entity relationships
-- Professional test automation with Page Object Model
-- Playwright browser automation and smart waiting strategies
-- Clean code architecture and documentation
-
-
-## 🔮 Future Enhancements
-
-- API documentation with Swagger
-- Docker containerization
-- CI/CD with GitHub Actions
-- API test automation with RestAssured
 ```
