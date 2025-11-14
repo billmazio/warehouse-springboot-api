@@ -11,7 +11,7 @@ import org.junit.platform.suite.api.Suite;
  * Smoke Test Suite
  * Quick validation of critical functionality
  * Run this before every deployment or major change
- * Execution time: ~2-3 minutes
+ * Execution time: ~40-50 sec
  * 
  * @author Bill Maziotis
  */

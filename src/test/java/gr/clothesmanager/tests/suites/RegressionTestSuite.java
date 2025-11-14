@@ -10,7 +10,7 @@ import org.junit.platform.suite.api.Suite;
  * Regression Test Suite
  * Comprehensive CRUD testing for all features
  * Run this for thorough testing before releases
- * Execution time: ~5-7 minutes
+ * Execution time: ~50-60 sec
  * 
  * @author Bill Maziotis
  */
@@ -18,18 +18,18 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
 
-    StoreCreateTests.class,
-    StoreEditTests.class,
-    StoreDeleteTests.class,
-    UserCreateTests.class,
-    UserDeleteTests.class,
-    MaterialCreateTests.class,
-    MaterialEditTests.class,
-    MaterialSearchTests.class,
-    MaterialDeleteTests.class,
-    OrderCreateTests.class,
-    OrderEditTests.class,
-    OrderDeleteTests.class
+        StoreCreateTests.class,
+        UserCreateTests.class,
+        MaterialCreateTests.class,
+        OrderCreateTests.class,
+        StoreEditTests.class,
+        MaterialEditTests.class,
+        OrderEditTests.class,
+        MaterialSearchTests.class,
+        OrderDeleteTests.class,
+        MaterialDeleteTests.class,
+        UserDeleteTests.class,
+        StoreDeleteTests.class
 })
 public class RegressionTestSuite {
 }

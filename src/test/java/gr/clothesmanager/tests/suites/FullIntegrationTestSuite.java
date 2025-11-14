@@ -12,7 +12,7 @@ import org.junit.platform.suite.api.Suite;
  * Complete test coverage including login, dashboard, and all CRUD operations
  * Respects database dependencies (create stores before users, etc.)
  * Run this for complete validation
- * Execution time: ~7-10 minutes
+ * Execution time: ~1-2 minutes
  *
  * @author Bill Maziotis
  */
@@ -20,20 +20,20 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
 
-    LoginTests.class,
-    DashboardTests.class,
-    StoreCreateTests.class,
-    UserCreateTests.class,
-    MaterialCreateTests.class,
-    OrderCreateTests.class,
-    StoreEditTests.class,
-    MaterialEditTests.class,
-    OrderEditTests.class,
-    MaterialSearchTests.class,
-    OrderDeleteTests.class,
-    MaterialDeleteTests.class,
-    UserDeleteTests.class,
-    StoreDeleteTests.class
+        LoginTests.class,
+        DashboardTests.class,
+        StoreCreateTests.class,
+        UserCreateTests.class,
+        MaterialCreateTests.class,
+        OrderCreateTests.class,
+        StoreEditTests.class,
+        MaterialEditTests.class,
+        OrderEditTests.class,
+        MaterialSearchTests.class,
+        OrderDeleteTests.class,
+        MaterialDeleteTests.class,
+        UserDeleteTests.class,
+        StoreDeleteTests.class
 })
 public class FullIntegrationTestSuite {
 }
