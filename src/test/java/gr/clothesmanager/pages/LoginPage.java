@@ -72,27 +72,14 @@ public class LoginPage extends BasePage {
 
     /**
      * Attempts login with invalid credentials (stays on login page)
+     *
      * @param username Invalid username
      * @param password Invalid password
-     * @return LoginPage (stays on same page due to error)
      */
-    public LoginPage attemptLoginWith(String username, String password) {
+    public void attemptLoginWith(String username, String password) {
         enterUsername(username);
         enterPassword(password);
         clickSignIn();
-        return this; // Stay on LoginPage because login will fail
-    }
-
-    public boolean isUsernameErrorVisible() {
-        return isVisible(USERNAME_ERROR);
-    }
-
-    public boolean isPasswordErrorVisible() {
-        return isVisible(PASSWORD_ERROR);
-    }
-
-    public boolean isLoginErrorVisible() {
-        return isVisible(LOGIN_ERROR);
     }
 
     /**
@@ -134,5 +121,9 @@ public class LoginPage extends BasePage {
         waitForVisible(USERNAME_INPUT);
         waitForVisible(PASSWORD_INPUT);
         waitForNetworkIdle();
+    }
+
+    public DashboardPage loginAsAdmin(String adminUsername, String adminPassword) {
+        return loginAs(adminUsername, adminPassword);
     }
 }

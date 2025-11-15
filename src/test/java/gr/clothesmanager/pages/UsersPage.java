@@ -94,7 +94,7 @@ public class UsersPage extends BasePage {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
         if (enabledDeleteButtons.count() == 0) {
-            return; // No deletable users, skip
+            return;
         }
 
         int countBeforeDelete = getUserCount();
@@ -103,12 +103,7 @@ public class UsersPage extends BasePage {
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
-        // Wait for count to actually decrease
         page.waitForCondition(() -> getUserCount() < countBeforeDelete);
-    }
-
-    public boolean isConfirmationDialogVisible() {
-        return confirmationDialog.isVisible();
     }
 
     /**

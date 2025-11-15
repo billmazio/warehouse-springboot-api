@@ -148,10 +148,6 @@ public class OrdersPage extends BasePage {
         return isVisible(UPDATE_ORDER_BUTTON);
     }
 
-    public boolean isConfirmationDialogVisible() {
-        return confirmationDialog.isVisible();
-    }
-
     /**
      * Gets the current count of orders displayed
      * @return Number of order rows

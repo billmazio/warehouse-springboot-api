@@ -24,30 +24,8 @@ public abstract class BaseTest {
         }
     }
 
-
-
     protected LoginPage getLoginPage(Page page) {
         return new LoginPage(page);
-    }
-    
-    protected DashboardPage getDashboardPage(Page page) {
-        return new DashboardPage(page);
-    }
-    
-    protected MaterialsPage getMaterialsPage(Page page) {
-        return new MaterialsPage(page);
-    }
-    
-    protected OrdersPage getOrdersPage(Page page) {
-        return new OrdersPage(page);
-    }
-    
-    protected StoresPage getStoresPage(Page page) {
-        return new StoresPage(page);
-    }
-    
-    protected UsersPage getUsersPage(Page page) {
-        return new UsersPage(page);
     }
 
     protected DashboardPage loginAsAdmin(Page page) {

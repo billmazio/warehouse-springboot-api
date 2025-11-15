@@ -107,7 +107,7 @@ public class StoresPage extends BasePage {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
         if (enabledDeleteButtons.count() == 0) {
-            return; // No deletable stores, skip
+            return;
         }
 
         int countBeforeDelete = getStoreCount();
@@ -117,14 +117,6 @@ public class StoresPage extends BasePage {
         waitForNetworkIdle();
 
         page.waitForCondition(() -> getStoreCount() < countBeforeDelete);
-    }
-
-    public boolean isEditStoreModalVisible() {
-        return isVisible(EDIT_STORE_MODAL);
-    }
-
-    public boolean isConfirmationDialogVisible() {
-        return confirmationDialog.isVisible();
     }
 
     /**
