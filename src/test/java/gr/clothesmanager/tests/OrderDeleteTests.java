@@ -1,7 +1,6 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.base.BaseTest;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.OrdersPage;

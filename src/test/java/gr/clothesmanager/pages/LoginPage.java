@@ -3,6 +3,7 @@ package gr.clothesmanager.pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.constants.TestConstants;
+import org.springframework.security.access.method.P;
 
 /**
  * Page Object for Login page
@@ -121,9 +122,5 @@ public class LoginPage extends BasePage {
         waitForVisible(USERNAME_INPUT);
         waitForVisible(PASSWORD_INPUT);
         waitForNetworkIdle();
-    }
-
-    public DashboardPage loginAsAdmin(String adminUsername, String adminPassword) {
-        return loginAs(adminUsername, adminPassword);
     }
 }
