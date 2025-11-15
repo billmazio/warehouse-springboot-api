@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@UsePlaywright
 @DisplayName("Order Edit Tests")
 public class OrderEditTests extends BaseTest {
 

@@ -13,8 +13,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@UsePlaywright
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Login Functionality Tests")
 public class LoginTests extends BaseTest {

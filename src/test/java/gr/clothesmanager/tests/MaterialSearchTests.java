@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@UsePlaywright
 @DisplayName("Material Search Tests")
 public class MaterialSearchTests extends BaseTest {
     

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@UsePlaywright
 @DisplayName("User Create Tests")
 public class UserCreateTests extends BaseTest {
     

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@UsePlaywright
 @DisplayName("Order Delete Tests")
 public class OrderDeleteTests extends BaseTest {
     

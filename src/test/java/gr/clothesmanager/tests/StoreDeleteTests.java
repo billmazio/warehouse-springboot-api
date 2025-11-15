@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@UsePlaywright
 @DisplayName("Store Delete Tests")
 public class StoreDeleteTests extends BaseTest {
     

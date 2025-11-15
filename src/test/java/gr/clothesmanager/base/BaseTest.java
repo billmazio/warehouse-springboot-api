@@ -16,15 +16,15 @@ public abstract class BaseTest {
     public static class MyOptions implements OptionsFactory {
         @Override
         public Options getOptions() {
-            return new Options()
-                    .setLaunchOptions(
+            return new Options().setLaunchOptions(
                             new BrowserType.LaunchOptions()
-                                    .setHeadless(false)
                                     .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
-                    )
+                    ).setHeadless(false)
                     .setTestIdAttribute("data-test");
         }
     }
+
+
 
     protected LoginPage getLoginPage(Page page) {
         return new LoginPage(page);

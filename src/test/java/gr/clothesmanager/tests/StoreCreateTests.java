@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@UsePlaywright
 @DisplayName("Store Create Tests")
 public class StoreCreateTests extends BaseTest {
     

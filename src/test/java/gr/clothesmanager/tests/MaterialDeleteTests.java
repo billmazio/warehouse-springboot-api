@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@UsePlaywright
 @DisplayName("Material Delete Tests")
 public class MaterialDeleteTests extends BaseTest {
     

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@UsePlaywright
 @DisplayName("Material Edit Tests")
 public class MaterialEditTests extends BaseTest {
     

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@UsePlaywright
 @DisplayName("Store Edit Tests")
 public class StoreEditTests extends BaseTest {
     

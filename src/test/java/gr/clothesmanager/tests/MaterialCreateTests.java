@@ -12,7 +12,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@UsePlaywright
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Material Create Tests")
 public class MaterialCreateTests extends BaseTest {

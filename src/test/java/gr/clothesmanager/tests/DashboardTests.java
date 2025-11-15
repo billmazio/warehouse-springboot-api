@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-@UsePlaywright
 @DisplayName("Dashboard Functionality Tests")
 public class DashboardTests extends BaseTest {
     
