@@ -60,7 +60,7 @@ public abstract class BasePage {
      * @param testId data-test attribute value
      */
     protected void waitForVisible(String testId) {
-        page.locator("[data-test='" + testId + "']").waitFor(
+        page.getByTestId(testId).waitFor(
                 new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE)
         );
     }
@@ -70,7 +70,7 @@ public abstract class BasePage {
      * @param testId data-test attribute value
      */
     protected void waitForHidden(String testId) {
-        page.locator("[data-test='" + testId + "']").waitFor(
+        page.getByTestId(testId).waitFor(
                 new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN)
         );
     }
@@ -92,7 +92,7 @@ public abstract class BasePage {
      * @param testId data-test attribute value
      */
     protected void clickByTestId(String testId) {
-        page.locator("[data-test='" + testId + "']").click();
+        page.getByTestId(testId).click();
     }
 
     /**
@@ -101,7 +101,7 @@ public abstract class BasePage {
      * @param text Text to fill
      */
     protected void fillByTestId(String testId, String text) {
-        page.locator("[data-test='" + testId + "']").fill(text);
+        page.getByTestId(testId).fill(text);
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class BasePage {
      * @param testId data-test attribute value
      */
     protected void clearByTestId(String testId) {
-        page.locator("[data-test='" + testId + "']").clear();
+        page.getByTestId(testId).clear();
     }
 
     /**
@@ -118,7 +118,7 @@ public abstract class BasePage {
      * @param value Option value to select
      */
     protected void selectOptionByTestId(String testId, String value) {
-        page.locator("[data-test='" + testId + "']").selectOption(value);
+        page.getByTestId(testId).selectOption(value);
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class BasePage {
      * @return Locator for the element
      */
     protected Locator getByTestId(String testId) {
-        return page.locator("[data-test='" + testId + "']");
+        return page.getByTestId(testId);
     }
 
     /**
@@ -163,7 +163,7 @@ public abstract class BasePage {
      * @return Text content of the element
      */
     protected String getText(String testId) {
-        return page.locator("[data-test='" + testId + "']").textContent();
+        return page.getByTestId(testId).textContent();
     }
 
     /**
@@ -172,7 +172,7 @@ public abstract class BasePage {
      * @return true if element is visible
      */
     protected boolean isVisible(String testId) {
-        return page.locator("[data-test='" + testId + "']").isVisible();
+        return page.getByTestId(testId).isVisible();
     }
 
     /**
