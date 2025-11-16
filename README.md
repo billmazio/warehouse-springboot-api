@@ -71,9 +71,10 @@ Comprehensive E2E test suite with **20+ test cases** using Playwright and Page O
 ### Test Structure
 ```
 src/test/java/gr/clothesmanager/
-├── base/          # BaseTest configuration
 ├── components/    # Reusable components
+├── config/        # Browser config
 ├── constants/     # Test constants (URLs, credentials, timeouts)
+├── helpers/       # Helper utility for reusable login flows
 ├── pages/         # 7 Page Objects (POM pattern)
 │   ├── BasePage.java
 │   ├── DashboardPage.java
