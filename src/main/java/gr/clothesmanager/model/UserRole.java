@@ -33,10 +33,9 @@ public class UserRole extends AbstractEntity{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserRoleDTO roleDTO = (UserRoleDTO) o;
-        return Objects.equals(tag, roleDTO.getTag());
+        UserRole userRole = (UserRole) o;
+        return Objects.equals(id, userRole.id) && Objects.equals(name, userRole.name);
     }
 
     @Override
