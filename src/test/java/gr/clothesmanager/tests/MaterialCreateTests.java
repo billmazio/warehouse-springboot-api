@@ -1,7 +1,8 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
-import gr.clothesmanager.base.BaseTest;
+import com.microsoft.playwright.junit.UsePlaywright;
+import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
@@ -9,11 +10,12 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Material Create Tests")
-public class MaterialCreateTests extends BaseTest {
+@UsePlaywright(HeadlessChromeOptions.class)
+public class MaterialCreateTests {
     
     @Test
     @Order(1)

@@ -1,16 +1,18 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
-import gr.clothesmanager.base.BaseTest;
+import com.microsoft.playwright.junit.UsePlaywright;
+import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("Store Delete Tests")
-public class StoreDeleteTests extends BaseTest {
+@UsePlaywright(HeadlessChromeOptions.class)
+public class StoreDeleteTests {
     
     @Test
     @DisplayName("Should delete custom store successfully")

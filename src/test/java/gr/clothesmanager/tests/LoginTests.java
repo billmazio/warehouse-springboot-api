@@ -1,7 +1,8 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
-import gr.clothesmanager.base.BaseTest;
+import com.microsoft.playwright.junit.UsePlaywright;
+import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.LoginPage;
@@ -10,11 +11,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Login Functionality Tests")
-public class LoginTests extends BaseTest {
+@UsePlaywright(HeadlessChromeOptions.class)
+public class LoginTests {
 
     @Test
     @Order(1)

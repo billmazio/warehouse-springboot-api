@@ -1,7 +1,8 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
-import gr.clothesmanager.base.BaseTest;
+import com.microsoft.playwright.junit.UsePlaywright;
+import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.UsersPage;
@@ -9,10 +10,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("User Create Tests")
-public class UserCreateTests extends BaseTest {
+@UsePlaywright(HeadlessChromeOptions.class)
+public class UserCreateTests {
     
     @Test
     @DisplayName("Should create new user successfully")

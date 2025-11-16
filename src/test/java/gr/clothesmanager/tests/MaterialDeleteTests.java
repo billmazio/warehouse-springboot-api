@@ -1,6 +1,8 @@
 package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.junit.UsePlaywright;
+import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.base.BaseTest;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
@@ -10,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Material Delete Tests")
+@UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialDeleteTests extends BaseTest {
     
     @Test

@@ -19,7 +19,7 @@ public class ConfirmationDialog {
     }
 
     public void confirmDelete() {
-        page.locator("[data-test='" + CONFIRM_DELETE_BUTTON + "']").click();  // CHANGED
+        page.locator("[data-test='" + CONFIRM_DELETE_BUTTON + "']").click();
         waitForDialogToClose();
     }
     
