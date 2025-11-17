@@ -28,8 +28,8 @@ public class OrderCreateTests {
             "1",
             "2025-12-31",
             TestConstants.STORE_KENTRIKA,
-            "Μπλούζα",
-            TestConstants.SIZE_SMALL,
+            "Μπλούζα Polo",
+            TestConstants.SIZE_MEDIUM,
             "admin",
             TestConstants.STATUS_PENDING
         );
