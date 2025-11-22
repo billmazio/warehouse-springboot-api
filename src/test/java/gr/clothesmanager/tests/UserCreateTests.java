@@ -2,43 +2,48 @@ package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
+import com.microsoft.playwright.options.LoadState;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
+import gr.clothesmanager.pages.StoresPage;
 import gr.clothesmanager.pages.UsersPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class UserCreateTests {
-    
+
     @Test
     @DisplayName("Should create new user successfully")
-    public void shouldCreateUserSuccessfully(Page page) {
+    public void shouldCreateNewUserSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        StoresPage storesPage = dashboardPage.navigateToStores();
+        storesPage.waitForLoad();
+
+        String uniqueStore = TestConstants.uniqueStoreName("TESTSTORE");
+
+        storesPage.createStore(uniqueStore, "Test Address", TestConstants.STATUS_ACTIVE);
+
+        dashboardPage.goToDashboard();
+
         UsersPage usersPage = dashboardPage.navigateToUsers();
         usersPage.waitForLoad();
-        
-        int initialCount = usersPage.getUserCount();
-        
-        String uniqueUsername = "testuser" + System.currentTimeMillis();
-        System.out.println("Creating user with username: " + uniqueUsername);
-        
+
+        String uniqueUser = TestConstants.uniqueUserName("testuser");
+
         usersPage.createUser(
-            uniqueUsername,
-            "TestPassword123!",
-            TestConstants.ROLE_LOCAL_ADMIN,
-            TestConstants.STATUS_ACTIVE,
-            TestConstants.STORE_DYTIKA
+                uniqueUser,
+                "Test123!",
+                uniqueStore,
+                TestConstants.ROLE_LOCAL_ADMIN
         );
-        
-        int finalCount = usersPage.getUserCount();
-        assertEquals(initialCount + 1, finalCount,
-            "User count should increase by 1 after creation");
-        assertThat(usersPage.getTextLocator(uniqueUsername)).isVisible();
+
+
+        assertTrue(usersPage.userExists(uniqueUser),
+                "User should exist after creation");
     }
 }

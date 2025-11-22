@@ -1,6 +1,7 @@
 package gr.clothesmanager.pages;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.LoadState;
 import gr.clothesmanager.constants.TestConstants;
 import java.util.List;
 
@@ -73,8 +74,18 @@ public class DashboardPage extends BasePage {
         page.locator("[data-test='" + CARD_NAME + "']").first().waitFor();
         return page.locator("[data-test='" + CARD_NAME + "']").locator("h3").allInnerTexts();
     }
-    
-    public boolean isOnDashboard() {
-        return getCurrentUrl().contains("/dashboard");
+
+    /**
+     * Navigate back to dashboard from any page
+     * @return DashboardPage instance
+     */
+    public DashboardPage goToDashboard() {
+        page.locator("[data-test='back-to-dashboard']").click();
+
+
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1000);
+
+        return this;
     }
 }

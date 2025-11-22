@@ -153,4 +153,26 @@ public class StoresPage extends BasePage {
     public Locator getTextLocator(String text) {
         return page.getByText(text);
     }
+
+    /**
+     * Check if a store exists in the list
+     * @param storeName Name of the store to check
+     * @return true if store exists, false otherwise
+     */
+    public boolean storeExists(String storeName) {
+        try {
+            return page.locator("text=" + storeName).isVisible();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get the name of the most recently created store
+     * Useful for verification after creation
+     */
+    public String getLatestStoreName() {
+        // Assuming stores are sorted with newest first
+        return page.locator("[data-test='store-create-title']").first().textContent();
+    }
 }

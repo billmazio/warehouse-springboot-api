@@ -1,0 +1,56 @@
+name: Smoke Tests
+
+# Πότε τρέχει
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    name: Quick Smoke Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Πάρε τον κώδικα
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Setup Java 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Install Playwright browsers
+      - name: Install Playwright Browsers
+        run: |
+          mvn exec:java -e \
+            -D exec.mainClass=com.microsoft.playwright.CLI \
+            -D exec.args="install --with-deps chromium"
+
+      # 4. Run Smoke Tests
+      - name: Run Smoke Test Suite
+        run: |
+          mvn test -Dtest=gr.clothesmanager.suites.SmokeTestSuite
+
+      # 5. Upload test results
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: smoke-test-results
+          path: target/surefire-reports/
+          retention-days: 7
+
+      # 6. Upload screenshots (if tests fail)
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: smoke-screenshots
+          path: target/screenshots/
+          retention-days: 7

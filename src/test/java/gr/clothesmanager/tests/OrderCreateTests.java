@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
+import gr.clothesmanager.pages.MaterialsPage;
 import gr.clothesmanager.pages.OrdersPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,30 +13,46 @@ import org.junit.jupiter.api.Test;
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 @UsePlaywright(HeadlessChromeOptions.class)
 public class OrderCreateTests {
-    
+
     @Test
     @DisplayName("Should create new order successfully")
     public void shouldCreateOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
+        materialsPage.waitForLoad();
+
+        String uniqueMaterial = TestConstants.uniqueMaterialName("Μπλούζα");
+
+        materialsPage.addMaterial(
+                uniqueMaterial,
+                TestConstants.SIZE_MEDIUM,
+                "10",
+                TestConstants.STORE_KENTRIKA
+        );
+
+        dashboardPage.goToDashboard();
+
         OrdersPage ordersPage = dashboardPage.navigateToOrders();
         ordersPage.waitForLoad();
-        
+
         int initialCount = ordersPage.getOrderCount();
-        
+
         ordersPage.createOrder(
-            "1",
-            "2025-12-31",
-            TestConstants.STORE_KENTRIKA,
-            "Μπλούζα Polo",
-            TestConstants.SIZE_MEDIUM,
-            "admin",
-            TestConstants.STATUS_PENDING
+                "1",
+                "2025-12-31",
+                TestConstants.STORE_KENTRIKA,
+                uniqueMaterial,
+                TestConstants.SIZE_MEDIUM,
+                "admin",
+                TestConstants.STATUS_PENDING
         );
-        
+
         int finalCount = ordersPage.getOrderCount();
+
         assertEquals(initialCount + 1, finalCount,
-            "Order count should increase by 1 after creation");
+                "Order count should increase by 1 after creation");
     }
 }

@@ -72,16 +72,15 @@ public class UsersPage extends BasePage {
      * @param username Unique username for the user
      * @param password User password
      * @param role User role (LOCAL_ADMIN, etc.)
-     * @param status User status (ACTIVE/INACTIVE)
      * @param store Store to associate user with
      */
-    public void createUser(String username, String password, String role,
-                           String status, String store) {
+    public void createUser(String username, String password,
+                           String store, String role) {
         fillUserUsername(username);
         fillUserPassword(password);
-        selectUserRole(role);
-        selectUserStatus(status);
         selectUserStore(store);
+        selectUserRole(role);
+        selectUserStatus(TestConstants.STATUS_ACTIVE);  // Default to ACTIVE
         clickCreateUserButton();
     }
 
@@ -139,5 +138,18 @@ public class UsersPage extends BasePage {
      */
     public Locator getTextLocator(String text) {
         return page.getByText(text);
+    }
+
+    /**
+     * Check if a user exists in the list
+     * @param username Username to check
+     * @return true if user exists, false otherwise
+     */
+    public boolean userExists(String username) {
+        try {
+            return page.locator("text=" + username).isVisible();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

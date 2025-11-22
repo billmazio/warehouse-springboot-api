@@ -80,7 +80,7 @@ public class OrdersPage extends BasePage {
     }
 
     /**
-     * Creates a new order with all required fields
+     * Create a new order with all required fields
      * @param quantity Order quantity
      * @param date Order date (format: yyyy-MM-dd)
      * @param store Store name
@@ -154,13 +154,5 @@ public class OrdersPage extends BasePage {
      */
     public int getOrderCount() {
         return getCount("[data-test='" + ORDER_ROW + "']");
-    }
-
-    /**
-     * Checks if any orders are present
-     * @return true if at least one order exists
-     */
-    public boolean hasOrders() {
-        return getOrderCount() > 0;
     }
 }

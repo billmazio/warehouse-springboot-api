@@ -28,4 +28,41 @@ public class TestConstants {
 
     public static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
     public static final String ROLE_LOCAL_ADMIN = "LOCAL_ADMIN";
+
+    // ========== UNIQUE NAME GENERATORS ==========
+
+    /**
+     * Generate unique store name for testing
+     * @param baseName Base store name (e.g., "ΔΥΤΙΚΑ")
+     * @return Unique store name with timestamp
+     */
+    public static String uniqueStoreName(String baseName) {
+        return baseName + "_" + System.currentTimeMillis();
+    }
+
+    /**
+     * Generate unique material name for testing
+     * @param baseName Base material name (e.g., "Μπλούζα")
+     * @return Unique material name with timestamp
+     */
+    public static String uniqueMaterialName(String baseName) {
+        return baseName + "_" + System.currentTimeMillis();
+    }
+
+    /**
+     * Generate unique username for testing
+     * @param baseName Base username (e.g., "testuser")
+     * @return Unique username with timestamp
+     */
+    public static String uniqueUserName(String baseName) {
+        return baseName + System.currentTimeMillis();
+    }
+
+    /**
+     * Generate unique order ID for tracking
+     * @return Unique order identifier
+     */
+    public static String uniqueOrderId() {
+        return "ORD_" + System.currentTimeMillis();
+    }
 }

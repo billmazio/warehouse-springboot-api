@@ -180,12 +180,4 @@ public class MaterialsPage extends BasePage {
     public int getMaterialCount() {
         return getCount("[data-test='" + MATERIAL_ROW + "']");
     }
-
-    /**
-     * Checks if any materials are present
-     * @return true if at least one material exists
-     */
-    public boolean hasMaterials() {
-        return getMaterialCount() > 0;
-    }
 }

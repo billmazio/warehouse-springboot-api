@@ -32,8 +32,9 @@ import org.junit.platform.suite.api.Suite;
         MaterialSearchTests.class,
         OrderDeleteTests.class,
         MaterialDeleteTests.class,
-        UserDeleteTests.class,
-        StoreDeleteTests.class
+        StoreDeleteTests.class,
+        UserDeleteTests.class
+
 })
 public class FullIntegrationTestSuite {
 }
