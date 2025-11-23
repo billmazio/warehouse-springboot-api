@@ -27,7 +27,7 @@ jobs:
       - name: Install Playwright Browsers
         run: |
           npm install -g @playwright/test
-          npx playwright install --with-deps"
+          npx playwright install --with-deps
 
       # Τρέξε το FullIntegrationTestSuite
       - name: Run Full Integration Test Suite

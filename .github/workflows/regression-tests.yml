@@ -25,7 +25,7 @@ jobs:
       - name: Install Playwright Browsers
         run: |
           npm install -g @playwright/test
-          npx playwright install --with-deps"
+          npx playwright install --with-deps
 
       - name: Run Regression Test Suite
         run: |
