@@ -28,9 +28,8 @@ jobs:
       # 3. Install Playwright browsers
       - name: Install Playwright Browsers
         run: |
-          mvn exec:java -e \
-            -D exec.mainClass=com.microsoft.playwright.CLI \
-            -D exec.args="install --with-deps chromium"
+          npm install -g @playwright/test
+          npx playwright install --with-deps
 
       # 4. Run Smoke Tests
       - name: Run Smoke Test Suite

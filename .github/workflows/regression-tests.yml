@@ -24,9 +24,8 @@ jobs:
 
       - name: Install Playwright Browsers
         run: |
-          mvn exec:java -e \
-            -D exec.mainClass=com.microsoft.playwright.CLI \
-            -D exec.args="install --with-deps"
+          npm install -g @playwright/test
+          npx playwright install --with-deps"
 
       - name: Run Regression Test Suite
         run: |
