@@ -5,14 +5,12 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
-
 import gr.clothesmanager.pages.MaterialsPage;
 import gr.clothesmanager.pages.OrdersPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 

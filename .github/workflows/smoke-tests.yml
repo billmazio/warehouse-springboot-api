@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   smoke:
-    name: Quick Smoke Tests
+    name: Smoke Test Suite
     runs-on: ubuntu-latest
 
     steps:
@@ -83,4 +83,3 @@ jobs:
         with:
           name: smoke-screenshots
           path: backend/target/screenshots/
-          retention-days: 7
