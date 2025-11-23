@@ -42,9 +42,9 @@ public class AuthenticationController {
             String token = authenticationService.authenticateAndGenerateToken(loginRequest);
 
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("message", "Login successful");
+            responseBody.put("message", "Login failed");
             responseBody.put("token", token);
-            responseBody.put("expiresInMinutes", 15);
+            responseBody.put("expiresInMinutes",30);
             responseBody.put("tokenType", "Bearer"); // Helpful for frontend
 
             LOGGER.info("Login successful for user: {} from IP: {}", loginRequest.getUsername(), clientIp);
