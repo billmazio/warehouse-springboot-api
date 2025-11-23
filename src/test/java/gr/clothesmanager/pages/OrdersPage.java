@@ -155,4 +155,14 @@ public class OrdersPage extends BasePage {
     public int getOrderCount() {
         return getCount("[data-test='" + ORDER_ROW + "']");
     }
+
+    /**
+     * Verifies that an order exists for the given material
+     * @param material The material name to search for
+     * @return true if order exists, false otherwise
+     */
+    public boolean orderExists(String material) {
+        return getCount("[data-test='" + ORDER_ROW + "']" +
+                ":has-text('" + material + "')") > 0;
+    }
 }

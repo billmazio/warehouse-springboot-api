@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
+
 import gr.clothesmanager.pages.MaterialsPage;
 import gr.clothesmanager.pages.OrdersPage;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @UsePlaywright(HeadlessChromeOptions.class)
@@ -38,8 +40,6 @@ public class OrderCreateTests {
         OrdersPage ordersPage = dashboardPage.navigateToOrders();
         ordersPage.waitForLoad();
 
-        int initialCount = ordersPage.getOrderCount();
-
         ordersPage.createOrder(
                 "1",
                 "2025-12-31",
@@ -50,9 +50,7 @@ public class OrderCreateTests {
                 TestConstants.STATUS_PENDING
         );
 
-        int finalCount = ordersPage.getOrderCount();
-
-        assertEquals(initialCount + 1, finalCount,
-                "Order count should increase by 1 after creation");
+        assertTrue(ordersPage.orderExists(uniqueMaterial),
+                "Order should exist after creation");
     }
 }
