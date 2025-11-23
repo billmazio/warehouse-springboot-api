@@ -1,6 +1,5 @@
 name: Smoke Tests
 
-# Πότε τρέχει
 on:
   push:
     branches: [ main, develop ]
@@ -13,11 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Πάρε τον κώδικα
-      - name: Checkout code
+      - name: Checkout backend code
         uses: actions/checkout@v4
+        with:
+          path: backend
 
-      # 2. Setup Java 17
+      - name: Checkout frontend code
+        uses: actions/checkout@v4
+        with:
+          repository: billmazio/warehouse-react-ui
+          path: frontend
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -25,31 +30,57 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3. Install Playwright browsers
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Install Playwright Browsers
         run: |
           npm install -g @playwright/test
           npx playwright install --with-deps
 
-      # 4. Run Smoke Tests
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Start Spring Boot Backend
+        run: |
+          cd backend
+          mvn spring-boot:run -DskipTests &
+          sleep 15
+
+      - name: Start React Frontend
+        run: |
+          cd frontend
+          npm start &
+          sleep 15
+
+      - name: Wait for services to be ready
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:8080/health || true; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:3000 || true; do sleep 2; done'
+
       - name: Run Smoke Test Suite
         run: |
+          cd backend
           mvn test -Dtest=gr.clothesmanager.suites.SmokeTestSuite
 
-      # 5. Upload test results
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: smoke-test-results
-          path: target/surefire-reports/
+          path: backend/target/surefire-reports/
           retention-days: 7
 
-      # 6. Upload screenshots (if tests fail)
       - name: Upload Screenshots
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: smoke-screenshots
-          path: target/screenshots/
+          path: backend/target/screenshots/
           retention-days: 7
