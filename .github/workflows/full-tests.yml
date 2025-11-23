@@ -69,7 +69,7 @@ jobs:
       - name: Run Full Integration Test Suite
         run: |
           cd backend
-          mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
+          mvn test -test=gr.clothesmanager.suites.FullIntegrationTestSuite
 
       - name: Upload Test Results
         if: always()

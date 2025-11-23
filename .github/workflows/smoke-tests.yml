@@ -67,7 +67,7 @@ jobs:
       - name: Run Smoke Test Suite
         run: |
           cd backend
-          mvn test -Dtest=gr.clothesmanager.suites.SmokeTestSuite
+          mvn test -test=gr.clothesmanager.suites.SmokeTestSuite
 
       - name: Upload Test Results
         if: always()

@@ -65,7 +65,7 @@ jobs:
       - name: Run Regression Test Suite
         run: |
           cd backend
-          mvn test -Dtest=gr.clothesmanager.suites.RegressionTestSuite
+          mvn test -test=gr.clothesmanager.suites.RegressionTestSuite
 
       - name: Upload Test Results
         if: always()
