@@ -125,3 +125,114 @@ mvn test -Dtest=FullIntegrationTestSuite
 **Total: 20+ automated tests** with Page Object Model design pattern
 
 ---
+# Continuous Integration & Deployment
+
+This project uses GitHub Actions to automate test execution across three distinct test suites. All workflows are configured to run your Playwright tests with Java 17, Maven, and JUnit 5.
+
+## Test Workflows Overview
+
+### Smoke Tests
+Lightweight, quick-running tests that verify core functionality. These run on every push to `main` and `develop` branches, as well as on pull requests to `main`. This provides fast feedback during development and code review.
+
+**Triggers:**
+- Push to `main` or `develop` branches
+- Pull requests to `main`
+
+**What happens:**
+- Checks out your code
+- Sets up JDK 17 with Maven caching
+- Installs Playwright (chromium only for speed)
+- Runs `gr.clothesmanager.suites.SmokeTestSuite`
+- Uploads test results (retained 7 days)
+- Uploads screenshots on failure (retained 7 days)
+
+### Full Integration Tests
+Comprehensive end-to-end tests covering all major user workflows and integrations. These run on push, pull requests, and daily at 2 AM UTC to catch issues in your main branch.
+
+**Triggers:**
+- Push to `main` branch
+- Pull requests to `main`
+- Daily schedule: 2 AM UTC
+
+**What happens:**
+- Checks out your code
+- Sets up JDK 17 with Maven caching
+- Installs all Playwright browsers
+- Runs `gr.clothesmanager.suites.FullIntegrationTestSuite`
+- Uploads test results to artifacts (retained 30 days)
+- Uploads screenshots on failure (retained 7 days)
+- Publishes formatted test report using dorny/test-reporter
+
+### Regression Tests
+Deep test suite that validates no existing functionality has broken. Runs weekly on Sunday at midnight UTC to provide a regular health check without blocking development.
+
+**Triggers:**
+- Weekly schedule: Every Sunday at midnight UTC
+- Manual trigger (if configured)
+
+**What happens:**
+- Checks out your code
+- Sets up JDK 17 with Maven caching
+- Installs all Playwright browsers with system dependencies
+- Runs `gr.clothesmanager.suites.RegressionTestSuite`
+- Uploads test results to artifacts (retained 30 days)
+- Uploads screenshots on failure
+
+## Running Tests Locally
+
+To run the same test suites locally before pushing:
+
+```bash
+# Run Smoke Tests
+mvn test -Dtest=gr.clothesmanager.suites.SmokeTestSuite
+
+# Run Full Integration Tests
+mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
+
+# Run Regression Tests
+mvn test -Dtest=gr.clothesmanager.suites.RegressionTestSuite
+```
+
+## Viewing Test Results
+
+All workflows upload artifacts that you can download:
+
+1. Go to the **Actions** tab in your GitHub repository
+2. Click on the workflow run you want to inspect
+3. Scroll to the **Artifacts** section
+4. Download the relevant artifact (test results or screenshots)
+
+For the Full Integration Tests workflow, a formatted test report is also published directly in the workflow summary.
+
+## Browser Configuration
+
+- **Smoke Tests:** Chromium only (faster execution)
+- **Integration & Regression Tests:** All Playwright browsers (chromium, firefox, webkit)
+
+All browsers are installed with system dependencies (`--with-deps`) to ensure stability on Ubuntu runners.
+
+## Requirements
+
+The workflows automatically handle setup, but locally you'll need:
+
+- JDK 17 or later
+- Maven 3.6+
+- Playwright drivers (installed via Maven plugin)
+- Node.js (optional, if using Node-based Playwright tools)
+
+## Troubleshooting CI Failures
+
+If a workflow fails, check the following:
+
+1. **Test Results Artifact:** Download to see detailed test failures and logs
+2. **Screenshots Artifact:** Review failure screenshots for visual debugging
+3. **Workflow Logs:** Click the failed step in the Actions tab for detailed Maven/test output
+4. **Local Reproduction:** Run the same test suite locally with `mvn test -Dtest=<SuiteClass>`
+
+## Playwright & Java Configuration
+
+These workflows use:
+- **Playwright:** Latest version via Maven dependencies
+- **Java:** JDK 17 (Temurin distribution)
+- **Build Tool:** Maven with caching enabled for faster builds
+- **Test Framework:** JUnit 5 with SureFire reports
