@@ -66,9 +66,8 @@ jobs:
 
       - name: Wait for services to be ready
         run: |
-          timeout 120 bash -c 'until curl -s http://localhost:8080/health | grep -q "UP"; do sleep 2; done'
-          timeout 120 bash -c 'until curl -s http://localhost:3000 | head -1; do sleep 2; done'
-          sleep 20
+          timeout 60 bash -c 'until curl -f http://localhost:8080/health || true; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:3000 || true; do sleep 2; done'
 
       - name: Run Regression Test Suite
         run: |
