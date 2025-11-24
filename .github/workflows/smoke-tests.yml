@@ -2,9 +2,9 @@ name: Smoke Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   smoke:
@@ -33,9 +33,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
-          cache-dependency-path: frontend/package.json
+          cache-dependency-path: frontend/frontend/package-lock.json
 
       - name: Install Playwright Browsers
         run: |
@@ -45,29 +45,35 @@ jobs:
       - name: Install frontend dependencies
         run: |
           cd frontend/frontend
-          npm install
+          npm ci
 
       - name: Start Spring Boot Backend
         run: |
           cd backend
           mvn spring-boot:run -DskipTests &
-          sleep 15
+          sleep 60
+
+      - name: Configure frontend environment
+        run: |
+          cd frontend/frontend
+          echo "REACT_APP_API_URL=http://localhost:8080" > .env
 
       - name: Start React Frontend
         run: |
           cd frontend/frontend
           npm start &
-          sleep 15
+          sleep 30
 
       - name: Wait for services to be ready
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8080/health || true; do sleep 2; done'
-          timeout 60 bash -c 'until curl -f http://localhost:3000 || true; do sleep 2; done'
+          timeout 120 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null | grep -q "UP"; do sleep 2; done'
+          timeout 120 bash -c 'until curl -f http://localhost:3000 2>/dev/null; do sleep 2; done'
+          sleep 20
 
       - name: Run Smoke Test Suite
         run: |
           cd backend
-          mvn test -test=gr.clothesmanager.suites.SmokeTestSuite
+          mvn test -Dtest=gr.clothesmanager.suites.SmokeTestSuite
 
       - name: Upload Test Results
         if: always()
