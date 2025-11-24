@@ -42,11 +42,6 @@ jobs:
           npm install -g @playwright/test
           npx playwright install --with-deps
 
-      - name: Configure frontend environment
-        run: |
-          cd frontend/frontend
-          echo "REACT_APP_API_URL=http://localhost:8080" > .env
-
       - name: Install frontend dependencies
         run: |
           cd frontend/frontend
@@ -61,7 +56,7 @@ jobs:
       - name: Start React Frontend
         run: |
           cd frontend/frontend
-          npm start &
+          REACT_APP_API_URL=http://localhost:8080 npm start &
           sleep 30
 
       - name: Wait for services to be ready
