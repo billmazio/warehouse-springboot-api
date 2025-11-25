@@ -37,8 +37,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/frontend/package-lock.json
 
-      - name: Install Playwright browsers
-        run: npx playwright install
+      - name : Install Playwright browsers
+        run : |
+          npx playwright install-deps
+          npx playwright install
 
       - name: Install frontend dependencies
         run: |
