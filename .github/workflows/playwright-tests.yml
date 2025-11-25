@@ -75,8 +75,8 @@ jobs:
       - name: Run Full Integration Tests
         run: |
           cd backend
-          mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
-
+          xvfb-run mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
+      
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
