@@ -37,10 +37,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/frontend/package-lock.json
 
-      - name: Install Playwright Browsers
-        run: |
-          cd backend
-          mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps"
+      - name: Install Playwright browsers
+        run: npx playwright install
 
       - name: Install frontend dependencies
         run: |
@@ -71,10 +69,10 @@ jobs:
           done
           sleep 10
 
-      - name: Run Full Integration Tests
+      - name: Run Playwright Tests
         run: |
           cd backend
-          mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
+          mvn verify
 
       - name: Upload Test Results
         if: always()
