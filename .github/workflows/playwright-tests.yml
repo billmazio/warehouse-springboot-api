@@ -47,36 +47,53 @@ jobs:
           cd frontend/frontend
           npm ci
 
+      # -----------------------------
+      # START BACKEND WITH HEALTH CHECK
+      # -----------------------------
       - name: Start Spring Boot Backend
         run: |
           cd backend
-          mvn spring-boot:run -DskipTests &
-          sleep 60
+          mvn spring-boot:run -DskipTests > /tmp/backend.log 2>&1 &
+          
+          echo "Waiting for backend on :8080..."
+          for i in {1..90}; do
+            if curl -s http://localhost:8080/actuator/health | grep -q "UP"; then
+              echo "Backend is ready!"
+              break
+            fi
+            echo "Backend not ready yet ($i)..."
+            sleep 2
+          done
 
+      # -----------------------------
+      # START FRONTEND WITH HEALTH CHECK
+      # -----------------------------
       - name: Start React Frontend
         run: |
           cd frontend/frontend
-          export REACT_APP_API_URL=http://localhost:8080
-          npm start > /tmp/frontend.log 2>&1 &
-          sleep 40
-
-      - name: Wait for frontend to be ready
-        run: |
-          for i in {1..60}; do
+          REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
+          
+          echo "Waiting for frontend on :3000..."
+          for i in {1..120}; do
             if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
-              echo "Frontend is ready"
+              echo "Frontend is ready!"
               break
             fi
-            echo "Attempt $i: waiting for frontend..."
+            echo "Frontend not ready yet ($i)..."
             sleep 2
           done
-          sleep 10
 
+      # -----------------------------
+      # RUN INTEGRATION TEST SUITE
+      # -----------------------------
       - name: Run Full Integration Tests
         run: |
           cd backend
           xvfb-run mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
-      
+
+      # -----------------------------
+      # UPLOAD ARTIFACTS
+      # -----------------------------
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
