@@ -56,13 +56,21 @@ jobs:
       - name: Start React Frontend
         run: |
           cd frontend/frontend
-          REACT_APP_API_URL=http://localhost:8080 npm start &
-          sleep 30
+          export REACT_APP_API_URL=http://localhost:8080
+          npm start > /tmp/frontend.log 2>&1 &
+          sleep 40
 
-      - name: Wait for services to be ready
+      - name: Wait for frontend to be ready
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8080/health || true; do sleep 2; done'
-          timeout 60 bash -c 'until curl -f http://localhost:3000 || true; do sleep 2; done'
+          for i in {1..60}; do
+            if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
+              echo "Frontend is ready"
+              break
+            fi
+            echo "Attempt $i: waiting for frontend..."
+            sleep 2
+          done
+          sleep 10
 
       - name: Run Smoke Test Suite
         run: |
