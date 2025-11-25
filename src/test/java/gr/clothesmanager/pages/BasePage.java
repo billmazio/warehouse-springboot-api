@@ -19,7 +19,10 @@ public abstract class BasePage {
 
     public BasePage(Page page) {
         this.page = page;
+        page.setDefaultTimeout(60000);
+        page.setDefaultNavigationTimeout(60000);
     }
+
 
     protected void navigate() {
         page.navigate(TestConstants.LOGIN_URL);
