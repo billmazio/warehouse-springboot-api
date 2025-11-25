@@ -25,5 +25,6 @@ import org.junit.platform.suite.api.Suite;
     MaterialCreateTests.class,
     OrderCreateTests.class
 })
+
 public class SmokeTestSuite {
 }

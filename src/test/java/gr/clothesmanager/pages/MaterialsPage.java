@@ -75,13 +75,6 @@ public class MaterialsPage extends BasePage {
         waitForHidden(ADD_MATERIAL_MODAL);
     }
 
-    /**
-     * Adds a new material with all required fields
-     * @param name Material name (e.g., "Μπλούζα Polo")
-     * @param size Material size (SMALL, MEDIUM, etc.)
-     * @param quantity Initial quantity
-     * @param store Store location
-     */
     public void addMaterial(String name, String size, String quantity, String store) {
         clickAddMaterial();
         fillMaterialName(name);
@@ -92,7 +85,7 @@ public class MaterialsPage extends BasePage {
     }
 
     private void clickEditFirstMaterial() {
-        page.locator("[data-test='" + EDIT_BUTTON + "']").first().click();
+        page.getByTestId(EDIT_BUTTON).first().click();
         waitForVisible(EDIT_MODAL);
     }
 
@@ -113,12 +106,6 @@ public class MaterialsPage extends BasePage {
         waitForHidden(EDIT_MODAL);
     }
 
-    /**
-     * Edits the first material in the list
-     * @param name New material name
-     * @param size New size
-     * @param quantity New quantity
-     */
     public void editFirstMaterial(String name, String size, String quantity) {
         clickEditFirstMaterial();
         fillEditMaterialName(name);
@@ -127,35 +114,21 @@ public class MaterialsPage extends BasePage {
         confirmEdit();
     }
 
-
-    /**
-     * Deletes the first material in the list
-     * Waits for deletion to complete by monitoring count change
-     */
     public void deleteFirstMaterial() {
         int countBeforeDelete = getMaterialCount();
 
-        page.locator("[data-test='" + DELETE_BUTTON + "']").first().click();
+        page.getByTestId(DELETE_BUTTON).first().click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
         page.waitForCondition(() -> getMaterialCount() < countBeforeDelete);
     }
 
-
-    /**
-     * Searches for materials by product name
-     * @param productName Product name to search for
-     */
     public void searchByProductName(String productName) {
         fillByTestId(FILTER_PRODUCT, productName);
         page.waitForLoadState(LoadState.NETWORKIDLE);
     }
 
-    /**
-     * Filters materials by size
-     * @param size Size to filter by
-     */
     public void filterBySize(String size) {
         selectOptionByTestId(FILTER_SIZE, size);
         page.waitForLoadState(LoadState.NETWORKIDLE);
@@ -169,15 +142,5 @@ public class MaterialsPage extends BasePage {
         return isVisible(EDIT_MODAL);
     }
 
-    public boolean isConfirmationDialogVisible() {
-        return confirmationDialog.isVisible();
-    }
-
-    /**
-     * Gets the current count of materials displayed
-     * @return Number of material rows
-     */
-    public int getMaterialCount() {
-        return getCount("[data-test='" + MATERIAL_ROW + "']");
-    }
+    public int getMaterialCount() {return getCountByTestId(MATERIAL_ROW);}
 }

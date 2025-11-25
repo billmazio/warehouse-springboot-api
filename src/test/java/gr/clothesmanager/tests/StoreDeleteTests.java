@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +34,6 @@ public class StoreDeleteTests {
         storesPage.deleteFirstEnabledStore();
         
         int finalCount = storesPage.getStoreCount();
-        assertEquals(initialCount - 1, finalCount,
-            "Store count should decrease by 1 after deletion");
+        Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
     }
 }

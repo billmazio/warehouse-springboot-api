@@ -1,8 +1,10 @@
 package gr.clothesmanager.pages;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
 import gr.clothesmanager.constants.TestConstants;
+
 
 /**
  * Page Object for Orders management page
@@ -79,16 +81,6 @@ public class OrdersPage extends BasePage {
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
-    /**
-     * Create a new order with all required fields
-     * @param quantity Order quantity
-     * @param date Order date (format: yyyy-MM-dd)
-     * @param store Store name
-     * @param material Material name
-     * @param size Material size
-     * @param user Username
-     * @param status Order status
-     */
     public void createOrder(String quantity, String date, String store,
                             String material, String size, String user, String status) {
         fillOrderQuantity(quantity);
@@ -102,7 +94,7 @@ public class OrdersPage extends BasePage {
     }
 
     private void clickEditFirstOrder() {
-        page.locator("[data-test='" + EDIT_BUTTON + "']").first().click();
+        page.getByTestId(EDIT_BUTTON).first().click();
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
@@ -118,11 +110,6 @@ public class OrdersPage extends BasePage {
         clickByTestId(UPDATE_ORDER_BUTTON);
     }
 
-    /**
-     * Edits the first order in the list
-     * @param quantity New quantity
-     * @param status New status
-     */
     public void editFirstOrder(String quantity, String status) {
         clickEditFirstOrder();
         updateOrderQuantity(quantity);
@@ -130,14 +117,10 @@ public class OrdersPage extends BasePage {
         clickUpdateOrderButton();
     }
 
-    /**
-     * Deletes the first order in the list
-     * Waits for deletion to complete
-     */
     public void deleteFirstOrder() {
         int countBeforeDelete = getOrderCount();
 
-        page.locator("[data-test='" + DELETE_BUTTON + "']").first().click();
+        page.getByTestId(DELETE_BUTTON).first().click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
@@ -148,21 +131,11 @@ public class OrdersPage extends BasePage {
         return isVisible(UPDATE_ORDER_BUTTON);
     }
 
-    /**
-     * Gets the current count of orders displayed
-     * @return Number of order rows
-     */
-    public int getOrderCount() {
-        return getCount("[data-test='" + ORDER_ROW + "']");
-    }
+    public int getOrderCount() {return getCountByTestId(ORDER_ROW);}
 
-    /**
-     * Verifies that an order exists for the given material
-     * @param material The material name to search for
-     * @return true if order exists, false otherwise
-     */
     public boolean orderExists(String material) {
-        return getCount("[data-test='" + ORDER_ROW + "']" +
-                ":has-text('" + material + "')") > 0;
+        return page.getByTestId(ORDER_ROW)
+                .filter(new Locator.FilterOptions().setHasText(material))
+                .count() > 0;
     }
 }

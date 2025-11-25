@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.OrdersPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,6 @@ public class OrderDeleteTests {
         ordersPage.deleteFirstOrder();
         
         int finalCount = ordersPage.getOrderCount();
-        assertEquals(initialCount - 1, finalCount,
-            "Order count should decrease by 1 after deletion");
+        Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
     }
 }

@@ -6,6 +6,7 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,6 @@ public class StoreCreateTests {
                 TestConstants.STATUS_ACTIVE
         );
 
-        assertTrue(storesPage.storeExists(uniqueStore),
-                "Store should exist after creation");
+        Assertions.assertThat(storesPage.storeExists(uniqueStore)).isTrue();
     }
 }

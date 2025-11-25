@@ -65,15 +65,6 @@ public class UsersPage extends BasePage {
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
-    /**
-     * Creates a new user with all required fields
-     * User must be associated with a store
-     *
-     * @param username Unique username for the user
-     * @param password User password
-     * @param role User role (LOCAL_ADMIN, etc.)
-     * @param store Store to associate user with
-     */
     public void createUser(String username, String password,
                            String store, String role) {
         fillUserUsername(username);
@@ -84,11 +75,6 @@ public class UsersPage extends BasePage {
         clickCreateUserButton();
     }
 
-    /**
-     * Deletes the first enabled user in the list
-     * Only deletes users with enabled delete buttons (not system users)
-     * Waits for deletion to complete
-     */
     public void deleteFirstEnabledUser() {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
@@ -105,51 +91,13 @@ public class UsersPage extends BasePage {
         page.waitForCondition(() -> getUserCount() < countBeforeDelete);
     }
 
-    /**
-     * Gets the current count of users displayed
-     * @return Number of user rows
-     */
     public int getUserCount() {
-        return getCount("[data-test='" + USER_ROW + "']");
+        return getCountByTestId(USER_ROW);
     }
 
-    /**
-     * Checks if any users are present
-     * @return true if at least one user exists
-     */
-    public boolean hasUsers() {
-        return getUserCount() > 0;
-    }
-
-    /**
-     * Gets count of users with enabled delete buttons
-     * System/admin users may have disabled delete buttons
-     * @return Number of deletable users
-     */
     public int getEnabledDeleteButtonCount() {
         return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();
     }
 
-    /**
-     * Gets a locator for text verification
-     * Useful for checking if specific username is visible
-     * @param text Text to locate
-     * @return Locator for the text
-     */
-    public Locator getTextLocator(String text) {
-        return page.getByText(text);
-    }
-
-    /**
-     * Check if a user exists in the list
-     * @param username Username to check
-     * @return true if user exists, false otherwise
-     */
-    public boolean userExists(String username) {
-        try {
-            return page.locator("text=" + username).isVisible();
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    public boolean userExists(String username) {return page.getByText(username).count() > 0;}
 }

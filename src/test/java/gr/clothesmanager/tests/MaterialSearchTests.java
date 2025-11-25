@@ -6,11 +6,12 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialSearchTests {
@@ -25,7 +26,7 @@ public class MaterialSearchTests {
         materialsPage.searchByProductName("Μπλούζα");
         
         int count = materialsPage.getMaterialCount();
-        assertTrue(count > 0, "Should find materials matching 'Μπλούζα'");
+        Assertions.assertThat(count).isGreaterThan(0);
     }
     
     @Test
@@ -38,6 +39,6 @@ public class MaterialSearchTests {
         materialsPage.filterBySize(TestConstants.SIZE_SMALL);
         
         int count = materialsPage.getMaterialCount();
-        assertTrue(count >= 0, "Should show filtered materials");
+        Assertions.assertThat(count).isGreaterThanOrEqualTo(0);
     }
 }

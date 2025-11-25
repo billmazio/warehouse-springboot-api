@@ -17,7 +17,6 @@ import org.junit.platform.suite.api.Suite;
 @Execution(ExecutionMode.SAME_THREAD)
 @Suite
 @SelectClasses({
-
         StoreCreateTests.class,
         UserCreateTests.class,
         MaterialCreateTests.class,
@@ -30,7 +29,7 @@ import org.junit.platform.suite.api.Suite;
         MaterialDeleteTests.class,
         StoreDeleteTests.class,
         UserDeleteTests.class
-
 })
+
 public class RegressionTestSuite {
 }

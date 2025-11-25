@@ -57,12 +57,4 @@ public class TestConstants {
     public static String uniqueUserName(String baseName) {
         return baseName + System.currentTimeMillis();
     }
-
-    /**
-     * Generate unique order ID for tracking
-     * @return Unique order identifier
-     */
-    public static String uniqueOrderId() {
-        return "ORD_" + System.currentTimeMillis();
-    }
 }

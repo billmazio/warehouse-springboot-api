@@ -60,12 +60,6 @@ public class StoresPage extends BasePage {
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
-    /**
-     * Creates a new store with all required fields
-     * @param title Store title/name
-     * @param address Store address
-     * @param status Store status (ACTIVE/INACTIVE)
-     */
     public void createStore(String title, String address, String status) {
         fillStoreTitle(title);
         fillStoreAddress(address);
@@ -74,7 +68,7 @@ public class StoresPage extends BasePage {
     }
 
     private void clickEditFirstStore() {
-        page.locator("[data-test='" + EDIT_BUTTON + "']").first().click();
+        page.getByTestId(EDIT_BUTTON).first().click();
         waitForVisible(EDIT_STORE_MODAL);
     }
 
@@ -88,21 +82,12 @@ public class StoresPage extends BasePage {
         waitForNetworkIdle();
     }
 
-    /**
-     * Edits the address of the first store in the list
-     * @param address New address for the store
-     */
     public void editFirstStoreAddress(String address) {
         clickEditFirstStore();
         fillEditStoreAddress(address);
         confirmEditStore();
     }
 
-    /**
-     * Deletes the first enabled store in the list
-     * Only deletes stores that have enabled delete buttons (not system stores)
-     * Waits for deletion to complete
-     */
     public void deleteFirstEnabledStore() {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
@@ -119,60 +104,19 @@ public class StoresPage extends BasePage {
         page.waitForCondition(() -> getStoreCount() < countBeforeDelete);
     }
 
-    /**
-     * Gets the current count of stores displayed
-     * @return Number of store rows
-     */
     public int getStoreCount() {
-        return getCount("[data-test='" + STORE_ROW + "']");
+        return getCountByTestId(STORE_ROW);
     }
 
-    /**
-     * Checks if any stores are present
-     * @return true if at least one store exists
-     */
-    public boolean hasStores() {
-        return getStoreCount() > 0;
-    }
-
-    /**
-     * Gets count of stores with enabled delete buttons
-     * System stores may have disabled delete buttons
-     * @return Number of deletable stores
-     */
     public int getEnabledDeleteButtonCount() {
         return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();
     }
 
-    /**
-     * Gets a locator for text verification
-     * Useful for checking if specific store name/address is visible
-     * @param text Text to locate
-     * @return Locator for the text
-     */
     public Locator getTextLocator(String text) {
         return page.getByText(text);
     }
 
-    /**
-     * Check if a store exists in the list
-     * @param storeName Name of the store to check
-     * @return true if store exists, false otherwise
-     */
     public boolean storeExists(String storeName) {
-        try {
-            return page.locator("text=" + storeName).isVisible();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Get the name of the most recently created store
-     * Useful for verification after creation
-     */
-    public String getLatestStoreName() {
-        // Assuming stores are sorted with newest first
-        return page.locator("[data-test='store-create-title']").first().textContent();
+       return page.getByText(storeName).count() > 0;
     }
 }

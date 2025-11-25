@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,12 +24,11 @@ public class MaterialDeleteTests {
         materialsPage.waitForLoad();
         
         int initialCount = materialsPage.getMaterialCount();
-        assertTrue(initialCount > 0, "Should have materials to delete");
+        Assertions.assertThat(initialCount).isGreaterThan(0);
         
         materialsPage.deleteFirstMaterial();
         
         int finalCount = materialsPage.getMaterialCount();
-        assertEquals(initialCount - 1, finalCount,
-            "Material count should decrease by 1 after deletion");
+        Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
     }
 }

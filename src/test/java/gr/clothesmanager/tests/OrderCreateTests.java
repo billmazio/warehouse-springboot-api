@@ -7,6 +7,7 @@ import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
 import gr.clothesmanager.pages.OrdersPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +49,8 @@ public class OrderCreateTests {
                 TestConstants.STATUS_PENDING
         );
 
-        assertTrue(ordersPage.orderExists(uniqueMaterial),
-                "Order should exist after creation");
+        ordersPage.goToLastPage();
+
+        Assertions.assertThat(ordersPage.orderExists(uniqueMaterial)).isTrue();
     }
 }

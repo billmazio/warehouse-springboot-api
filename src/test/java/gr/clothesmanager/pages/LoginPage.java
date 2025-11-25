@@ -50,12 +50,6 @@ public class LoginPage extends BasePage {
         clickByTestId(SIGN_IN_BUTTON);
     }
 
-    /**
-     * Complete login workflow - enters credentials and submits
-     * @param username Username to enter
-     * @param password Password to enter
-     * @return DashboardPage after successful navigation
-     */
     public DashboardPage loginAs(String username, String password) {
         enterUsername(username);
         enterPassword(password);
@@ -63,61 +57,32 @@ public class LoginPage extends BasePage {
         return new DashboardPage(page);
     }
 
-    /**
-     * Convenience method to login as admin using default credentials
-     * @return DashboardPage after successful login
-     */
     public DashboardPage loginAsAdmin() {
         return loginAs(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD);
     }
 
-    /**
-     * Attempts login with invalid credentials (stays on login page)
-     *
-     * @param username Invalid username
-     * @param password Invalid password
-     */
     public void attemptLoginWith(String username, String password) {
         enterUsername(username);
         enterPassword(password);
         clickSignIn();
     }
 
-    /**
-     * Get username error locator for complex assertions
-     * @return Locator for username error element
-     */
     public Locator getUsernameError() {
         return getByTestId(USERNAME_ERROR);
     }
 
-    /**
-     * Get password error locator for complex assertions
-     * @return Locator for password error element
-     */
     public Locator getPasswordError() {
         return getByTestId(PASSWORD_ERROR);
     }
 
-    /**
-     * Get login error locator for complex assertions
-     * @return Locator for login error element
-     */
     public Locator getLoginError() {
         return getByTestId(LOGIN_ERROR);
     }
 
-    /**
-     * Get page title for verification
-     * @return Page title text
-     */
     public String getPageTitle() {
         return getTitle();
     }
 
-    /**
-     * Wait for login page to fully load
-     */
     private void waitForPageLoad() {
         waitForVisible(USERNAME_INPUT);
         waitForVisible(PASSWORD_INPUT);

@@ -6,6 +6,7 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.OrdersPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,6 @@ public class OrderEditTests {
 
         ordersPage.editFirstOrder("1", TestConstants.STATUS_COMPLETED);
 
-        assertTrue(ordersPage.isUpdateOrderButtonVisible(),
-                "Update order button should be visible");
+        Assertions.assertThat(ordersPage.isUpdateOrderButtonVisible()).isTrue();
     }
 }

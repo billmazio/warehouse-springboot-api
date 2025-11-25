@@ -71,21 +71,13 @@ public class DashboardPage extends BasePage {
     }
 
     public List<String> getCardHeadings() {
-        page.locator("[data-test='" + CARD_NAME + "']").first().waitFor();
-        return page.locator("[data-test='" + CARD_NAME + "']").locator("h3").allInnerTexts();
+        page.getByTestId(CARD_NAME).first().waitFor();
+        return page.getByTestId(CARD_NAME).locator("h3").allInnerTexts();
     }
 
-    /**
-     * Navigate back to dashboard from any page
-     * @return DashboardPage instance
-     */
-    public DashboardPage goToDashboard() {
-        page.locator("[data-test='back-to-dashboard']").click();
-
-
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.waitForTimeout(1000);
-
-        return this;
+    public void goToDashboard() {
+        page.getByTestId("back-to-dashboard").click();
+        waitForNetworkIdle();
+        pause(1000);
     }
 }

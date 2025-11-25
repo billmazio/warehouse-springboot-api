@@ -1,4 +1,4 @@
-name: Full Integration Tests
+name: Playwright Tests
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  integration:
-    name: Full E2E Tests
+  test:
+    name: Full Integration Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -72,7 +72,7 @@ jobs:
           done
           sleep 10
 
-      - name: Run Full Integration Test Suite
+      - name: Run Full Integration Tests
         run: |
           cd backend
           mvn test -Dtest=gr.clothesmanager.suites.FullIntegrationTestSuite
@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-test-results
+          name: test-results
           path: |
             backend/target/surefire-reports/
             backend/target/test-results/
@@ -91,6 +91,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: full-test-screenshots
+          name: screenshots
           path: backend/target/screenshots/
           retention-days: 7

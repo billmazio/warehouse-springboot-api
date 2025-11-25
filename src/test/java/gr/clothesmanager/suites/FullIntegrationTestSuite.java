@@ -19,7 +19,6 @@ import org.junit.platform.suite.api.Suite;
 @Execution(ExecutionMode.SAME_THREAD)
 @Suite
 @SelectClasses({
-
         LoginTests.class,
         DashboardTests.class,
         StoreCreateTests.class,
@@ -34,7 +33,7 @@ import org.junit.platform.suite.api.Suite;
         MaterialDeleteTests.class,
         StoreDeleteTests.class,
         UserDeleteTests.class
-
 })
+
 public class FullIntegrationTestSuite {
 }

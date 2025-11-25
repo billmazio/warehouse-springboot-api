@@ -6,6 +6,7 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,7 @@ public class MaterialEditTests {
             TestConstants.SIZE_SMALL,
             "50"
         );
-        
-        assertFalse(materialsPage.isEditModalVisible(),
-            "Edit modal should be hidden after submission");
+
+        Assertions.assertThat(materialsPage.isEditModalVisible()).isFalse();
     }
 }

@@ -7,11 +7,12 @@ import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
 import org.junit.jupiter.api.*;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 
 @UsePlaywright(HeadlessChromeOptions.class)
@@ -33,8 +34,7 @@ public class MaterialCreateTests {
                 "10",
                 TestConstants.STORE_KENTRIKA
         );
-        
-        assertFalse(materialsPage.isAddMaterialModalVisible(),
-            "Modal should close after adding material with size: " + size);
+
+        Assertions.assertThat(materialsPage.isAddMaterialModalVisible()).isFalse();
     }
 }

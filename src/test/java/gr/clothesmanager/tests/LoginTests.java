@@ -7,12 +7,13 @@ import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.LoginPage;
 import org.junit.jupiter.api.*;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @UsePlaywright(HeadlessChromeOptions.class)
@@ -26,8 +27,7 @@ public class LoginTests {
         loginPage.open();
 
         String title = loginPage.getPageTitle();
-        assertTrue(title.contains("Warehouse Management System"),
-                "Page title should contain 'Warehouse Management System'");
+        Assertions.assertThat(title).contains("Warehouse Management System");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class LoginTests {
     public void shouldLoginAndLogoutSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
 
-        assertTrue(dashboardPage.isLogoutButtonVisible(), "Logout button should be visible");
+        Assertions.assertThat(dashboardPage.isLogoutButtonVisible()).isTrue();
 
         dashboardPage.logout();
 

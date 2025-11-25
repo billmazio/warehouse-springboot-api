@@ -2,17 +2,17 @@ package gr.clothesmanager.tests;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
-import com.microsoft.playwright.options.LoadState;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
 import gr.clothesmanager.pages.UsersPage;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class UserCreateTests {
@@ -43,7 +43,6 @@ public class UserCreateTests {
         );
 
 
-        assertTrue(usersPage.userExists(uniqueUser),
-                "User should exist after creation");
+        Assertions.assertThat(usersPage.userExists(uniqueUser)).isTrue();
     }
 }
