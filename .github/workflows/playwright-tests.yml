@@ -37,8 +37,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/frontend/package-lock.json
 
-      - name : Install Playwright browsers
-        run : |
+      - name: Install Playwright browsers
+        run: |
           npx playwright install-deps
           npx playwright install
 
@@ -51,13 +51,22 @@ jobs:
         run: |
           cd backend
           mvn spring-boot:run -DskipTests > /tmp/backend.log 2>&1 &
-          sleep 90
+
+      - name: Wait for backend to be ready
+        run: |
+          for i in {1..60}; do
+            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+              echo "Backend is ready"
+              break
+            fi
+            echo "Attempt $i: waiting for backend..."
+            sleep 3
+          done
 
       - name: Start React Frontend
         run: |
           cd frontend/frontend
           REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
-          sleep 60
 
       - name: Wait for frontend to be ready
         run: |
@@ -69,7 +78,14 @@ jobs:
             echo "Attempt $i: waiting for frontend..."
             sleep 2
           done
-          sleep 30
+          sleep 10
+
+      - name: Verify services are running
+        run: |
+          echo "Checking backend..."
+          curl -v http://localhost:8080 || echo "Backend not responding"
+          echo "Checking frontend..."
+          curl -s http://localhost:3000 | head -20
 
       - name: Run Playwright Tests
         run: |
@@ -90,4 +106,20 @@ jobs:
         with:
           name: screenshots
           path: backend/target/screenshots/
+          retention-days: 7
+
+      - name: Upload Backend Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-logs
+          path: /tmp/backend.log
+          retention-days: 7
+
+      - name: Upload Frontend Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-logs
+          path: /tmp/frontend.log
           retention-days: 7
