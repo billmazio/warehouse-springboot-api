@@ -20,15 +20,12 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-cmd="mysqladmin ping"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=3
 
     steps:
-      # -------------------------
-      # CHECKOUT
-      # -------------------------
       - name: Checkout backend
         uses: actions/checkout@v4
         with:
@@ -40,9 +37,6 @@ jobs:
           repository: billmazio/warehouse-react-ui
           path: frontend
 
-      # -------------------------
-      # ENVIRONMENT SETUP
-      # -------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -62,52 +56,11 @@ jobs:
           npx playwright install-deps
           npx playwright install
 
-      # -------------------------
-      # FRONTEND
-      # -------------------------
       - name: Install frontend dependencies
         run: |
           cd frontend/frontend
           npm ci
 
-      - name: Build frontend (production)
-        run: |
-          cd frontend/frontend
-          npm run build
-
-      - name: Start frontend (serve)
-        run: |
-          cd frontend/frontend
-          npx serve -s build -l 3000 > /tmp/frontend.log 2>&1 &
-
-      - name: Wait for frontend to be ready
-        run: |
-          for i in {1..60}; do
-            if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
-              echo "Frontend ready"
-              break
-            fi
-            echo "Waiting for frontend ($i)..."
-            sleep 2
-          done
-
-      # -------------------------
-      # MYSQL READY CHECK
-      # -------------------------
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 --silent; then
-              echo "MySQL is ready"
-              break
-            fi
-            echo "Waiting for MySQL ($i)..."
-            sleep 2
-          done
-
-      # -------------------------
-      # BACKEND
-      # -------------------------
       - name: Start Spring Boot Backend
         env:
           DB_DATABASE: ${{ secrets.DB_DATABASE }}
@@ -117,52 +70,60 @@ jobs:
           JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
         run: |
           cd backend
-
-          export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/${DB_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+          
+          export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/${DB_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true"
           export SPRING_DATASOURCE_USERNAME="${DB_USER}"
           export SPRING_DATASOURCE_PASSWORD="${DB_PASSWORD}"
           export SPRING_JPA_HIBERNATE_DIALECT="org.hibernate.dialect.MySQL8Dialect"
           export SPRING_JPA_HIBERNATE_DDL_AUTO="update"
           export SPRING_DEVTOOLS_RESTART_ENABLED=false
-
+          
           mvn spring-boot:run -DskipTests > /tmp/backend.log 2>&1 &
 
       - name: Wait for backend to be ready
         run: |
           for i in {1..60}; do
-            if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
-              echo "Backend ready"
+            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+              echo "Backend is ready"
               break
             fi
-            echo "Waiting for backend ($i)..."
+            echo "Attempt $i: waiting for backend..."
             sleep 3
           done
 
-      # -------------------------
-      # DEBUG INFO
-      # -------------------------
+      - name: Start React Frontend
+        run: |
+          cd frontend/frontend
+          REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
+
+      - name: Wait for frontend to be ready
+        run: |
+          for i in {1..60}; do
+            if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
+              echo "Frontend is ready"
+              break
+            fi
+            echo "Attempt $i: waiting for frontend..."
+            sleep 2
+          done
+          sleep 10
+
       - name: Verify services are running
         run: |
-          echo "--- Backend check ---"
-          curl -v http://localhost:8080 || echo "Backend unavailable"
-          echo "--- Frontend check ---"
+          echo "Checking backend..."
+          curl -v http://localhost:8080 || echo "Backend not responding"
+          echo "Checking frontend..."
           curl -s http://localhost:3000 | head -20
 
-      - name: Show backend logs (tail)
+      - name: Show backend logs
         if: always()
-        run: tail -150 /tmp/backend.log
+        run: cat /tmp/backend.log | tail -150
 
-      # -------------------------
-      # PLAYWRIGHT TESTS
-      # -------------------------
       - name: Run Playwright Tests
         run: |
           cd backend
           mvn verify
 
-      # -------------------------
-      # ARTIFACTS
-      # -------------------------
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
