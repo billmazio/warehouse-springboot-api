@@ -87,7 +87,8 @@ jobs:
             --spring.datasource.username=root \
             --spring.datasource.password=root \
             --spring.jpa.hibernate.ddl-auto=update \
-            --spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect \
+            --spring.sql.init.mode=always \
+            --spring.jpa.defer-datasource-initialization=true \
             --application.security.jwt.secret-key=${{ secrets.JWT_SECRET_KEY }} \
             --jwt.expiration=${{ secrets.JWT_EXPIRATION }} \
             --cors.allowed-origins=http://localhost:3000,http://127.0.0.1:3000 \
