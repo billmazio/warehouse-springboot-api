@@ -5,6 +5,8 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import gr.clothesmanager.constants.TestConstants;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,9 +55,9 @@ public class DashboardPage extends BasePage {
         navigateToSection(CARD_USERS, "**/manage-users**");
         return new UsersPage(page);
     }
-    
+
     private void navigateToSection(String sectionTestId, String expectedUrl) {
-        String sectionSelector = "[data-test-section='" + sectionTestId + "']";
+        String sectionSelector = "[data-test='" + sectionTestId + "']";
         waitForSelector(sectionSelector);
         click(sectionSelector);
         waitForUrl(expectedUrl);
@@ -68,31 +70,25 @@ public class DashboardPage extends BasePage {
         new LoginPage(page);
     }
 
-  /*  public boolean isLogoutButtonVisible() {
+    public boolean isLogoutButtonVisible() {
         return isVisible(LOGOUT_BUTTON);
-    }*/
+    }
 
     public List<String> getCardHeadings() {
-        page.getByTestId(CARD_NAME).first().waitFor();
-        return page.getByTestId(CARD_NAME).locator("h3").allInnerTexts();
+        page.getByTestId(CARD_USERS).waitFor();
+
+        List<String> headings = new ArrayList<>();
+        headings.add(page.getByTestId(CARD_USERS).locator("h3").textContent());
+        headings.add(page.getByTestId(CARD_MATERIALS).locator("h3").textContent());
+        headings.add(page.getByTestId(CARD_ORDERS).locator("h3").textContent());
+        headings.add(page.getByTestId(CARD_STORES).locator("h3").textContent());
+
+        return headings;
     }
 
     public void goToDashboard() {
         page.getByTestId("back-to-dashboard").click();
         waitForNetworkIdle();
         pause(1000);
-    }
-
-    public boolean isLogoutButtonVisible() {
-        // Wait for it first, then check
-        try {
-            page.getByTestId(LOGOUT_BUTTON)
-                    .waitFor(new Locator.WaitForOptions()
-                            .setState(WaitForSelectorState.VISIBLE)
-                            .setTimeout(10000));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }
