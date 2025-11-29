@@ -7,7 +7,9 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 import gr.clothesmanager.constants.TestConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Page Object for Dashboard page
@@ -19,12 +21,11 @@ import java.util.List;
 public class DashboardPage extends BasePage {
 
     private static final String LOGOUT_BUTTON = "logout-button";
-    private static final String CARD_NAME = "card-name";
-
     private static final String CARD_MATERIALS = "card-materials";
     private static final String CARD_ORDERS = "card-orders";
     private static final String CARD_STORES = "card-stores";
     private static final String CARD_USERS = "card-users";
+    private static final String MENU_CARDS = "menu-cards";
     
     public DashboardPage(Page page) {
         super(page);
@@ -33,6 +34,7 @@ public class DashboardPage extends BasePage {
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
+        page.getByTestId(MENU_CARDS).waitFor();
         return this;
     }
 
@@ -75,15 +77,13 @@ public class DashboardPage extends BasePage {
     }
 
     public List<String> getCardHeadings() {
+        List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
+        
         page.getByTestId(CARD_USERS).waitFor();
 
-        List<String> headings = new ArrayList<>();
-        headings.add(page.getByTestId(CARD_USERS).locator("h3").textContent());
-        headings.add(page.getByTestId(CARD_MATERIALS).locator("h3").textContent());
-        headings.add(page.getByTestId(CARD_ORDERS).locator("h3").textContent());
-        headings.add(page.getByTestId(CARD_STORES).locator("h3").textContent());
-
-        return headings;
+        return cardTestIds.stream()
+                .map(testId -> page.getByTestId(testId).locator("h3").textContent())
+                .collect(Collectors.toList());
     }
 
     public void goToDashboard() {
