@@ -15,15 +15,17 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
         ports:
           - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=5
 
     steps:
       - name: Checkout backend
@@ -61,55 +63,59 @@ jobs:
           cd frontend/frontend
           npm ci
 
-      - name: Wait for MySQL to be ready
+      - name: Wait for MySQL
         run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.DB_PASSWORD }} --silent 2>/dev/null; then
-              echo "MySQL is ready!"
-              break
-            fi
-            echo "Waiting for MySQL... attempt $i"
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
             sleep 2
           done
+          echo "MySQL is ready!"
 
-      - name: Start Spring Boot Backend
-        env:
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: 3306
-          CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      - name: Build backend
         run: |
           cd backend
-          mvn spring-boot:run -DskipTests > /tmp/backend.log 2>&1 &
+          mvn clean package -DskipTests
 
-      - name: Wait for backend to be ready
+      - name: Start backend
+        run: |
+          cd backend
+          java -jar target/*.jar \
+            --spring.datasource.url=jdbc:mysql://127.0.0.1:3306/clothes_manager?useSSL=false\&allowPublicKeyRetrieval=true \
+            --spring.datasource.username=clothes_user \
+            --spring.datasource.password=clothes_user \
+            --spring.jpa.hibernate.ddl-auto=update \
+            --application.security.jwt.secret-key=${{ secrets.JWT_SECRET_KEY }} \
+            --jwt.expiration=${{ secrets.JWT_EXPIRATION }} \
+            --cors.allowed-origins=http://localhost:3000,http://127.0.0.1:3000 \
+            > /tmp/backend.log 2>&1 &
+
+      - name: Wait for backend
         run: |
           for i in {1..60}; do
-            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+            if curl -s http://localhost:8080/api/setup/status > /dev/null 2>&1; then
               echo "Backend is ready!"
-              break
+              exit 0
             fi
-            echo "Attempt $i: waiting for backend..."
+            echo "Attempt $i: waiting..."
             sleep 3
           done
+          echo "Backend failed to start!"
+          cat /tmp/backend.log | tail -100
+          exit 1
 
-      - name: Start React Frontend
+      - name: Start frontend
         run: |
           cd frontend/frontend
           REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
 
-      - name: Wait for frontend to be ready
+      - name: Wait for frontend
         run: |
           for i in {1..30}; do
             if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
               echo "Frontend is ready!"
               break
             fi
-            echo "Attempt $i: waiting for frontend..."
+            echo "Attempt $i: waiting..."
             sleep 2
           done
 
@@ -134,10 +140,6 @@ jobs:
           path: backend/target/screenshots/
           retention-days: 7
 
-      - name: Show Backend Logs on Failure
+      - name: Show Backend Logs
         if: failure()
-        run: cat /tmp/backend.log | tail -100
-
-      - name: Show Frontend Logs on Failure
-        if: failure()
-        run: cat /tmp/frontend.log | tail -50
+        run: cat /tmp/backend.log | tail -150
