@@ -34,7 +34,10 @@ public class DashboardPage extends BasePage {
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
+
         page.getByTestId(MENU_CARDS).waitFor();
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
         return this;
     }
 
@@ -80,7 +83,11 @@ public class DashboardPage extends BasePage {
         List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
 
         return cardTestIds.stream()
-                .map(testId -> page.getByTestId(testId).locator("h3").textContent())
+                .map(testId -> {
+                    Locator cardLocator = page.getByTestId(testId);
+                    cardLocator.waitFor(new Locator.WaitForOptions().setTimeout(10000)); 
+                    return cardLocator.locator("h3").textContent();
+                })
                 .collect(Collectors.toList());
     }
 
