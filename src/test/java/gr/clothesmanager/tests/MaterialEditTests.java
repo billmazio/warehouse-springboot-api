@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialEditTests {
