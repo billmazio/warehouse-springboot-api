@@ -79,11 +79,21 @@ public class DashboardPage extends BasePage {
     }
 
     public List<String> getCardHeadings() {
-        List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
+        List<Locator> cardLocators = Arrays.asList(
+                page.getByTestId(CARD_USERS),
+                page.getByTestId(CARD_MATERIALS),
+                page.getByTestId(CARD_ORDERS),
+                page.getByTestId(CARD_STORES)
+        );
 
-        return cardTestIds.stream()
-                .map(testId -> page.getByTestId(testId).locator("h3").textContent())
+        return cardLocators.stream()
+                .map(this::getCardHeading)
                 .collect(Collectors.toList());
+    }
+
+    private String getCardHeading(Locator cardLocator) {
+        cardLocator.waitFor();
+        return cardLocator.locator("h3").textContent();
     }
 
     public void goToDashboard() {
