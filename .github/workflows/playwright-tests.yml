@@ -8,6 +8,7 @@ on:
 
 jobs:
   smoke-test:
+    name: Smoke Tests
     runs-on: ubuntu-latest
 
     services:
@@ -46,17 +47,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/frontend/package-lock.json
-
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Install Playwright browsers
         run: |
@@ -75,6 +68,11 @@ jobs:
             sleep 2
           done
           echo "MySQL is ready!"
+
+      - name: Verify MySQL connection
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
+          echo "MySQL connection verified!"
 
       - name: Build backend
         run: |
@@ -100,30 +98,42 @@ jobs:
         run: |
           echo "Waiting for backend to start..."
           for i in {1..90}; do
-            if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+            if curl -s http://localhost:8080/api/setup/status > /dev/null 2>&1; then
               echo "Backend is ready!"
               exit 0
             fi
-            echo "Attempt $i: waiting..."
+            if [ $((i % 10)) -eq 0 ]; then
+              echo "Attempt $i: still waiting... (checking logs)"
+              tail -20 /tmp/backend.log 2>/dev/null || true
+            else
+              echo "Attempt $i: waiting..."
+            fi
             sleep 2
           done
           echo "Backend failed to start after 3 minutes!"
+          echo "=== Full backend logs ==="
           cat /tmp/backend.log
           exit 1
 
       - name: Seed test data
         run: |
-          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
+           mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
 
-      - name: Build frontend
+      - name: Test backend endpoints
+        run: |
+          echo "Testing setup status endpoint..."
+          curl -v http://localhost:8080/api/setup/status
+          echo ""
+          echo "Testing CORS preflight..."
+          curl -v -X OPTIONS http://localhost:8080/api/auth/login \
+            -H "Origin: http://localhost:3000" \
+            -H "Access-Control-Request-Method: POST" \
+            -H "Access-Control-Request-Headers: Content-Type"
+
+      - name: Start frontend
         run: |
           cd frontend/frontend
-          npm run build
-
-      - name: Serve frontend
-        run: |
-          cd frontend/frontend
-          npx serve -s build -l 3000 > /tmp/frontend.log 2>&1 &
+          REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
 
       - name: Wait for frontend
         run: |
@@ -140,10 +150,10 @@ jobs:
           cat /tmp/frontend.log | tail -50
           exit 1
 
-      - name: Run Smoke Tests with Playwright tracing
+      - name: Run Smoke Tests
         run: |
           cd backend
-          mvn test -Dtest=SmokeTestSuite -Dplaywright.trace=on
+          mvn test -Dtest=SmokeTestSuite
 
       - name: Upload Test Results
         if: always()
@@ -153,22 +163,22 @@ jobs:
           path: backend/target/surefire-reports/
           retention-days: 7
 
-      - name: Upload Playwright Traces
+      - name: Upload Screenshots
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces
-          path: backend/trace.zip
+          name: screenshots
+          path: backend/target/screenshots/
           retention-days: 7
 
       - name: Show Backend Logs
         if: always()
         run: |
           echo "=== Backend Logs ==="
-          tail -150 /tmp/backend.log
+          cat /tmp/backend.log | tail -150
 
       - name: Show Frontend Logs
         if: failure()
         run: |
           echo "=== Frontend Logs ==="
-          tail -50 /tmp/frontend.log
+          cat /tmp/frontend.log | tail -50

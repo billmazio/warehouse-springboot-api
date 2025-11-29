@@ -80,16 +80,17 @@ public class DashboardPage extends BasePage {
 
     public List<String> getCardHeadings() {
         List<Locator> cardLocators = Arrays.asList(
-                page.getByTestId(CARD_USERS),
-                page.getByTestId(CARD_MATERIALS),
-                page.getByTestId(CARD_ORDERS),
-                page.getByTestId(CARD_STORES)
+                page.locator("[data-test='card-users']"),
+                page.locator("[data-test='card-materials']"),
+                page.locator("[data-test='card-orders']"),
+                page.locator("[data-test='card-stores']")
         );
 
         return cardLocators.stream()
                 .map(this::getCardHeading)
                 .collect(Collectors.toList());
     }
+
 
     private String getCardHeading(Locator cardLocator) {
         cardLocator.waitFor();
