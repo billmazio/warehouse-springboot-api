@@ -34,7 +34,9 @@ public class DashboardPage extends BasePage {
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
-        waitForVisible(CARD_USERS);
+
+        page.getByTestId(MENU_CARDS).waitFor();
+
         return this;
     }
 
