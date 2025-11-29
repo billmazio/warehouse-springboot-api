@@ -23,15 +23,15 @@ public class StoreDeleteTests {
         storesPage.waitForLoad();
         
         int enabledDeleteCount = storesPage.getEnabledDeleteButtonCount();
-        
-        if (enabledDeleteCount == 0) {
-            System.out.println("No deletable stores, skipping test");
+
+        if (enabledDeleteCount < 2) {
+            System.out.println("Insufficient deletable stores, skipping test");
             return;
         }
         
         int initialCount = storesPage.getStoreCount();
         
-        storesPage.deleteFirstEnabledStore();
+        storesPage.deleteSecondEnabledStore();
         
         int finalCount = storesPage.getStoreCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);

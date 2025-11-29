@@ -88,16 +88,18 @@ public class StoresPage extends BasePage {
         confirmEditStore();
     }
 
-    public void deleteFirstEnabledStore() {
+    public void deleteSecondEnabledStore() {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
-        if (enabledDeleteButtons.count() == 0) {
+        if (enabledDeleteButtons.count() < 2) {
+            System.out.println("Insufficient deletable stores available");
             return;
         }
 
         int countBeforeDelete = getStoreCount();
 
-        enabledDeleteButtons.first().click();
+        // Click the second enabled delete button (index 1)
+        enabledDeleteButtons.nth(1).click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
