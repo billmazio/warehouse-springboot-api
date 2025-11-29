@@ -13,6 +13,9 @@ VALUES (1, 'ΚΕΝΤΡΙΚΑ', 'Αθήνα', 0, 'ACTIVE');
 INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status)
 VALUES (1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE');
 
+INSERT IGNORE INTO clothes_manager.roles (id, name, tag, created_at, updated_at)
+VALUES (1, 'SUPER_ADMIN', 'Super Admin', NOW(), NOW());
+       
 -- Insert material
 INSERT IGNORE INTO materials (id, quantity, text, size_id, store_id)
 VALUES (1, 1, 'Μπλούζα', 3, 1);
