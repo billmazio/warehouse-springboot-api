@@ -30,14 +30,16 @@ public class DashboardPage extends BasePage {
     public DashboardPage(Page page) {
         super(page);
     }
-
+    
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
 
-        page.getByTestId(MENU_CARDS).waitFor();
-        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.getByTestId(MENU_CARDS).waitFor(new Locator.WaitForOptions().setTimeout(10000));
+        page.getByTestId(CARD_USERS).waitFor(new Locator.WaitForOptions().setTimeout(10000));
 
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        pause(1000);
         return this;
     }
 
@@ -83,11 +85,7 @@ public class DashboardPage extends BasePage {
         List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
 
         return cardTestIds.stream()
-                .map(testId -> {
-                    Locator cardLocator = page.getByTestId(testId);
-                    cardLocator.waitFor(new Locator.WaitForOptions().setTimeout(10000)); 
-                    return cardLocator.locator("h3").textContent();
-                })
+                .map(testId -> page.getByTestId(testId).locator("h3").textContent())
                 .collect(Collectors.toList());
     }
 
