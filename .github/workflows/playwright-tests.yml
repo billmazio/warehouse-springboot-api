@@ -15,10 +15,8 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: testpassword
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: clothes_manager
         ports:
           - 3306:3306
         options: >-
@@ -71,6 +69,11 @@ jobs:
           done
           echo "MySQL is ready!"
 
+      - name: Verify MySQL connection
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
+          echo "MySQL connection verified!"
+
       - name: Build backend
         run: |
           cd backend
@@ -80,10 +83,11 @@ jobs:
         run: |
           cd backend
           java -jar target/*.jar \
-            --spring.datasource.url=jdbc:mysql://127.0.0.1:3306/clothes_manager?useSSL=false\&allowPublicKeyRetrieval=true \
-            --spring.datasource.username=clothes_user \
-            --spring.datasource.password=clothes_user \
+            --spring.datasource.url=jdbc:mysql://127.0.0.1:3306/clothes_manager?useSSL=false\&allowPublicKeyRetrieval=true\&serverTimezone=UTC \
+            --spring.datasource.username=root \
+            --spring.datasource.password=root \
             --spring.jpa.hibernate.ddl-auto=update \
+            --spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect \
             --application.security.jwt.secret-key=${{ secrets.JWT_SECRET_KEY }} \
             --jwt.expiration=${{ secrets.JWT_EXPIRATION }} \
             --cors.allowed-origins=http://localhost:3000,http://127.0.0.1:3000 \
@@ -91,17 +95,35 @@ jobs:
 
       - name: Wait for backend
         run: |
-          for i in {1..60}; do
+          echo "Waiting for backend to start..."
+          for i in {1..90}; do
             if curl -s http://localhost:8080/api/setup/status > /dev/null 2>&1; then
               echo "Backend is ready!"
               exit 0
             fi
-            echo "Attempt $i: waiting..."
-            sleep 3
+            if [ $((i % 10)) -eq 0 ]; then
+              echo "Attempt $i: still waiting... (checking logs)"
+              tail -20 /tmp/backend.log 2>/dev/null || true
+            else
+              echo "Attempt $i: waiting..."
+            fi
+            sleep 2
           done
-          echo "Backend failed to start!"
-          cat /tmp/backend.log | tail -100
+          echo "Backend failed to start after 3 minutes!"
+          echo "=== Full backend logs ==="
+          cat /tmp/backend.log
           exit 1
+
+      - name: Test backend endpoints
+        run: |
+          echo "Testing setup status endpoint..."
+          curl -v http://localhost:8080/api/setup/status
+          echo ""
+          echo "Testing CORS preflight..."
+          curl -v -X OPTIONS http://localhost:8080/api/auth/login \
+            -H "Origin: http://localhost:3000" \
+            -H "Access-Control-Request-Method: POST" \
+            -H "Access-Control-Request-Headers: Content-Type"
 
       - name: Start frontend
         run: |
@@ -110,14 +132,18 @@ jobs:
 
       - name: Wait for frontend
         run: |
-          for i in {1..30}; do
+          echo "Waiting for frontend to start..."
+          for i in {1..60}; do
             if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
               echo "Frontend is ready!"
-              break
+              exit 0
             fi
             echo "Attempt $i: waiting..."
             sleep 2
           done
+          echo "Frontend failed to start!"
+          cat /tmp/frontend.log | tail -50
+          exit 1
 
       - name: Run Smoke Tests
         run: |
@@ -141,5 +167,13 @@ jobs:
           retention-days: 7
 
       - name: Show Backend Logs
+        if: always()
+        run: |
+          echo "=== Backend Logs ==="
+          cat /tmp/backend.log | tail -150
+
+      - name: Show Frontend Logs
         if: failure()
-        run: cat /tmp/backend.log | tail -150
+        run: |
+          echo "=== Frontend Logs ==="
+          cat /tmp/frontend.log | tail -50
