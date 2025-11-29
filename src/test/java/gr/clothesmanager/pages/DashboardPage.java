@@ -33,8 +33,8 @@ public class DashboardPage extends BasePage {
 
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
-        waitForVisible(LOGOUT_BUTTON);
         waitForNetworkIdle();
+        waitForVisible(CARD_USERS);
         return this;
     }
 
@@ -80,13 +80,10 @@ public class DashboardPage extends BasePage {
         List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
 
         return cardTestIds.stream()
-                .map(testId -> {
-                    waitForVisible(testId);  // Changed: wait for visible before getting text
-                    return page.getByTestId(testId).locator("h3").textContent();
-                })
+                .map(testId -> page.getByTestId(testId).locator("h3").textContent())
                 .collect(Collectors.toList());
     }
-    
+
     public void goToDashboard() {
         page.getByTestId("back-to-dashboard").click();
         waitForNetworkIdle();
