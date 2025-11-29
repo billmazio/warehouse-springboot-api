@@ -114,6 +114,10 @@ jobs:
           echo "=== Full backend logs ==="
           cat /tmp/backend.log
           exit 1
+        
+      - name: Seed test data
+        run: |
+           mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
 
       - name: Test backend endpoints
         run: |
