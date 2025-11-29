@@ -1,7 +1,9 @@
 package gr.clothesmanager.pages;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import gr.clothesmanager.constants.TestConstants;
 import java.util.List;
 
@@ -66,9 +68,9 @@ public class DashboardPage extends BasePage {
         new LoginPage(page);
     }
 
-    public boolean isLogoutButtonVisible() {
+  /*  public boolean isLogoutButtonVisible() {
         return isVisible(LOGOUT_BUTTON);
-    }
+    }*/
 
     public List<String> getCardHeadings() {
         page.getByTestId(CARD_NAME).first().waitFor();
@@ -79,5 +81,18 @@ public class DashboardPage extends BasePage {
         page.getByTestId("back-to-dashboard").click();
         waitForNetworkIdle();
         pause(1000);
+    }
+
+    public boolean isLogoutButtonVisible() {
+        // Wait for it first, then check
+        try {
+            page.getByTestId(LOGOUT_BUTTON)
+                    .waitFor(new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(10000));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

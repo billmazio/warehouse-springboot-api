@@ -21,6 +21,7 @@ public class UserCreateTests {
     @DisplayName("Should create new user successfully")
     public void shouldCreateNewUserSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        dashboardPage.waitForLoad();
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
 

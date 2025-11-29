@@ -10,8 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialDeleteTests {

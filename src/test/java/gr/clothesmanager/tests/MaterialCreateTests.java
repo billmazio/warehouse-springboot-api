@@ -23,6 +23,7 @@ public class MaterialCreateTests {
     @DisplayName("Should add materials with different sizes")
     public void shouldAddMaterialsWithDifferentSizes(String size, Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        dashboardPage.waitForLoad();
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
         materialsPage.waitForLoad();
 

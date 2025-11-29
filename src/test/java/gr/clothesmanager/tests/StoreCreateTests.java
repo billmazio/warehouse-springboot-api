@@ -20,6 +20,7 @@ public class StoreCreateTests {
     @DisplayName("Should create new store successfully")
     public void shouldCreateStoreSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        dashboardPage.waitForLoad();
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
 

@@ -88,6 +88,7 @@ public class LoginTests {
     @DisplayName("Should login and logout successfully")
     public void shouldLoginAndLogoutSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        dashboardPage.waitForLoad();
 
         Assertions.assertThat(dashboardPage.isLogoutButtonVisible()).isTrue();
 

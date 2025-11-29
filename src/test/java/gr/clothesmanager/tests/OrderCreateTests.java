@@ -22,6 +22,7 @@ public class OrderCreateTests {
     @DisplayName("Should create new order successfully")
     public void shouldCreateOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
+        dashboardPage.waitForLoad();
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
         materialsPage.waitForLoad();
 
