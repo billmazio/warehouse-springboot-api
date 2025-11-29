@@ -78,7 +78,7 @@ public class DashboardPage extends BasePage {
 
     public List<String> getCardHeadings() {
         List<String> cardTestIds = Arrays.asList(CARD_USERS, CARD_MATERIALS, CARD_ORDERS, CARD_STORES);
-        
+
         page.getByTestId(CARD_USERS).waitFor();
 
         return cardTestIds.stream()

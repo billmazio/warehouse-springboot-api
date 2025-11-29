@@ -19,7 +19,7 @@ public class DashboardTests {
     @DisplayName("Should display all menu cards on dashboard")
     public void shouldDisplayAllMenuCards(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
-        
+        dashboardPage.waitForLoad();
         List<String> cardHeadings = dashboardPage.getCardHeadings();
         Assertions.assertThat(cardHeadings).contains("Διαχείριση Χρηστών", "Διαχείριση Ενδυμάτων", "Παραγγελίες", "Διαχείριση Αποθηκών");
     }
