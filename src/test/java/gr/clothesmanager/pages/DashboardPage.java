@@ -35,12 +35,6 @@ public class DashboardPage extends BasePage {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
         page.getByTestId(MENU_CARDS).waitFor();
-        
-        page.getByTestId(CARD_USERS).waitFor();
-        page.getByTestId(CARD_MATERIALS).waitFor();
-        page.getByTestId(CARD_ORDERS).waitFor();
-        page.getByTestId(CARD_STORES).waitFor();
-
         return this;
     }
 
