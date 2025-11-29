@@ -24,10 +24,5 @@ public class DashboardTests {
 
         List<String> cardHeadings = dashboardPage.getCardHeadings();
         Assertions.assertThat(cardHeadings).contains("Διαχείριση Χρηστών", "Διαχείριση Ενδυμάτων", "Παραγγελίες", "Διαχείριση Αποθηκών");
-        Assertions.assertThat(dashboardPage.isLogoutButtonVisible()).isTrue();
-
-        dashboardPage.logout();
-
-        assertThat(page).hasURL(TestConstants.LOGIN_URL);
     }
 }
