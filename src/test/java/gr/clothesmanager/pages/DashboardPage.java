@@ -30,16 +30,14 @@ public class DashboardPage extends BasePage {
     public DashboardPage(Page page) {
         super(page);
     }
-    
+
     public DashboardPage waitForLoad() {
         waitForUrl("**/dashboard**");
         waitForNetworkIdle();
 
-        page.getByTestId(MENU_CARDS).waitFor(new Locator.WaitForOptions().setTimeout(10000));
-        page.getByTestId(CARD_USERS).waitFor(new Locator.WaitForOptions().setTimeout(10000));
+        page.getByTestId(MENU_CARDS).waitFor();
+        page.waitForLoadState(LoadState.NETWORKIDLE);
 
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        pause(1000);
         return this;
     }
 
