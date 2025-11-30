@@ -20,13 +20,12 @@ VALUES (1, NOW(), NOW(), 'SUPER_ADMIN', 'Super Admin');
 INSERT IGNORE INTO warehouse_db.roles (id, created_at, updated_at, name, tag)
 VALUES (2, NOW(), NOW(), 'LOCAL_ADMIN', 'Local Admin');
 
--- Insert admin user (password: Admin!1234) - SUPER_ADMIN
+-- Insert admin and test users
 INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status)
-VALUES (1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE');
-
--- Insert test user (password: Test!1234) - LOCAL_ADMIN
-INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status)
-VALUES (2, 'testuser', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'ACTIVE');
+VALUES
+(1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE'),
+(2, 'testuser1', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'INACTIVE');
+(3, 'testuser2', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'INACTIVE');
 
 -- Assign SUPER_ADMIN role to admin user
 INSERT IGNORE INTO warehouse_db.user_roles (user_id, role_id)
