@@ -71,12 +71,13 @@ Comprehensive E2E test suite with 24 automated tests using Playwright and Page O
 ## Test Structure
 ```
 src/test/java/gr/clothesmanager/
-├── pages/          # 7 Page Objects
-├── tests/          # 14 test classes, 24 tests
-├── suites/         # FullIntegrationTestSuite
-├── helpers/        # Reusable utilities
-├── constants/      # Test data & URLs
-└── config/         # Browser configuration
+├── components/      # Reusable UI components
+├── config/          # Browser configuration
+├── constants/       # Test constants (URLs, credentials)
+├── helpers/         # Reusable test utilities
+├── pages/           # 7 Page Objects (POM pattern)
+├── suites/          # TestSuites
+└── tests/           # 14 test classes
 ```
 
 ## Test Coverage
@@ -125,10 +126,30 @@ mvn test -Dtest=FullIntegrationTestSuite
 
 ## Test Data
 
-| User | Role | Password | Deletable |
-|------|------|----------|-----------|
-| admin | SUPER_ADMIN | Admin!1234 | No |
-| testuser | LOCAL_ADMIN | Admin!1234 | Yes |
+The `data.sql` file automatically seeds the database with:
+
+**Test Users:**
+- `admin` (SUPER_ADMIN) - Can manage all entities, cannot be deleted
+- `testuser` (LOCAL_ADMIN) - Can be deleted in tests
+
+**Test Stores:**
+- Store 1: ΚΕΝΤΡΙΚΑ (Central) - Protected, cannot be deleted
+- Store 2: TEST_STORE - Can be deleted in tests
+
+**Test Roles:**
+- SUPER_ADMIN - Full system access
+- LOCAL_ADMIN - Store-level access
+
+**Other Test Data:**
+- 5 Size options (XS, S, M, L, XL)
+- Sample materials and orders
+
+The test data is automatically loaded when the backend starts with:
+```bash
+--spring.sql.init.mode=always
+```
+
+This ensures tests always have consistent data to work with.
 
 ## CI/CD
 
@@ -143,9 +164,9 @@ Tests run automatically on:
 ## Troubleshooting
 
 **Tests fail locally?**
-- Verify MySQL is running: `mysqladmin ping -h 127.0.0.1`
-- Check backend: `curl http://localhost:8080/api/setup/status`
-- Check frontend: `curl http://localhost:3000`
+- Verify MySQL is running
+- Verify backend is running on http://localhost:8080
+- Verify frontend is running on http://localhost:3000
 
 **Tests fail in CI?**
 1. Download `integration-test-results` artifact
