@@ -105,11 +105,11 @@ src/test/java/gr/clothesmanager/
 # Start MySQL
 docker run -d -p 3306:3306 \
   -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=clothes_manager \
+  -e MYSQL_DATABASE=warehouse_db \
   mysql:8.0
 
 # Seed test data
-mysql -u root -proot clothes_manager < src/main/resources/data.sql
+mysql -u root -proot warehouse_db < src/main/resources/data.sql
 
 # Build and run backend
 mvn clean package -DskipTests
