@@ -20,7 +20,7 @@ public class UserDeleteTests  {
         DashboardPage dashboardPage = loginAsAdmin(page);
         UsersPage usersPage = dashboardPage.navigateToUsers();
         usersPage.waitForLoad();
-        
+
         int initialCount = usersPage.getUserCount();
 
         usersPage.deleteEnabledUser();
