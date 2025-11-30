@@ -17,7 +17,6 @@ import org.junit.platform.suite.api.Suite;
 @Execution(ExecutionMode.SAME_THREAD)
 @Suite
 @SelectClasses({
-        //StoreCreateTests.class,
         UserCreateTests.class,
         MaterialCreateTests.class,
         OrderCreateTests.class,

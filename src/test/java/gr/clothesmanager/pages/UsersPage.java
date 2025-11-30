@@ -76,7 +76,7 @@ public class UsersPage extends BasePage {
     }
 
 
-    public void deleteEnabledUser() {
+    public void deleteUser() {
         int countBeforeDelete = getUserCount();
 
         page.getByTestId(DELETE_BUTTON).nth(1).click();

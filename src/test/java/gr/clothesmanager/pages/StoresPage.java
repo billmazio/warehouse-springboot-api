@@ -89,16 +89,10 @@ public class StoresPage extends BasePage {
     }
 
     public void deleteStore() {
-        Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
-
-        if (enabledDeleteButtons.count() < 2) {
-            System.out.println("No deletable stores available");
-            return;
-        }
 
         int countBeforeDelete = getStoreCount();
 
-        enabledDeleteButtons.nth(1).click();
+        page.getByTestId(DELETE_BUTTON).nth(1).click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 

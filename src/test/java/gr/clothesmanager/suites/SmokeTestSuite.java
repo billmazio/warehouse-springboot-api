@@ -20,7 +20,6 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
     LoginTests.class,
     DashboardTests.class,
-    //StoreCreateTests.class,
     UserCreateTests.class,
     MaterialCreateTests.class,
     OrderCreateTests.class

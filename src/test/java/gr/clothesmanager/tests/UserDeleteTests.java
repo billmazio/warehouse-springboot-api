@@ -23,7 +23,7 @@ public class UserDeleteTests  {
 
         int initialCount = usersPage.getUserCount();
 
-        usersPage.deleteEnabledUser();
+        usersPage.deleteUser();
 
         int finalCount = usersPage.getUserCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);

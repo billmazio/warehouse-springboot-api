@@ -21,14 +21,7 @@ public class StoreDeleteTests {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
-        
-        int enabledDeleteCount = storesPage.getEnabledDeleteButtonCount();
 
-        if (enabledDeleteCount < 2) {
-            System.out.println("Insufficient deletable stores, skipping test");
-            return;
-        }
-        
         int initialCount = storesPage.getStoreCount();
         
         storesPage.deleteStore();
