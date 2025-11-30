@@ -84,7 +84,7 @@ public class UsersPage extends BasePage {
 
         int countBeforeDelete = getUserCount();
 
-        enabledDeleteButtons.first().click();
+        enabledDeleteButtons.nth(0).click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
