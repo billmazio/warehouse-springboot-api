@@ -20,14 +20,7 @@ public class UserDeleteTests  {
         DashboardPage dashboardPage = loginAsAdmin(page);
         UsersPage usersPage = dashboardPage.navigateToUsers();
         usersPage.waitForLoad();
-
-        int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
-
-        if (enabledDeleteCount < 1) {
-            System.out.println("No deletable users");
-            return;
-        }
-
+        
         int initialCount = usersPage.getUserCount();
 
         usersPage.deleteEnabledUser();
