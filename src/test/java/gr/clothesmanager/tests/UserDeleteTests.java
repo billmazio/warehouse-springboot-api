@@ -6,6 +6,7 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.UsersPage;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,25 +14,25 @@ import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class UserDeleteTests  {
-    
+
     @Test
     @DisplayName("Should delete user successfully")
     public void shouldDeleteUserSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
         UsersPage usersPage = dashboardPage.navigateToUsers();
         usersPage.waitForLoad();
-        
+
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
-        
-        if (enabledDeleteCount < 2) {
-            System.out.println("No deletable users, skipping test");
+
+        if (enabledDeleteCount < 1) {
+            System.out.println("No deletable users (all assigned to protected store)");
             return;
         }
-        
+
         int initialCount = usersPage.getUserCount();
-        
-        usersPage.deleteSecondEnabledUser();
-        
+
+        usersPage.deleteUser();
+
         int finalCount = usersPage.getUserCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
     }

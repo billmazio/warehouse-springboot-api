@@ -2,7 +2,6 @@ package gr.clothesmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gr.clothesmanager.core.enums.Status;
-import gr.clothesmanager.dto.StoreDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;

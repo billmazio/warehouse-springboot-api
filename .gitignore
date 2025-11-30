@@ -37,3 +37,6 @@ build/
 .vscode/
 application-dev.properties
 application-test.properties
+
+# Database cleanup script
+clean-db.sh

@@ -31,7 +31,7 @@ public class StoreDeleteTests {
         
         int initialCount = storesPage.getStoreCount();
         
-        storesPage.deleteSecondEnabledStore();
+        storesPage.deleteStore();
         
         int finalCount = storesPage.getStoreCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);

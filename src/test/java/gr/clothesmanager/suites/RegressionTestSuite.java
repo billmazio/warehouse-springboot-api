@@ -27,8 +27,9 @@ import org.junit.platform.suite.api.Suite;
         MaterialSearchTests.class,
         OrderDeleteTests.class,
         MaterialDeleteTests.class,
-        StoreDeleteTests.class,
-        UserDeleteTests.class
+        UserDeleteTests.class,
+        StoreDeleteTests.class
+
 })
 
 public class RegressionTestSuite {
