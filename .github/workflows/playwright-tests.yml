@@ -1,4 +1,4 @@
-name: Smoke Tests
+name: Integration Tests
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  smoke-test:
-    name: Smoke Tests
+  integration-test:
+    name: Integration Tests
     runs-on: ubuntu-latest
 
     services:
@@ -117,7 +117,7 @@ jobs:
 
       - name: Seed test data
         run: |
-           mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
+          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
 
       - name: Test backend endpoints
         run: |
@@ -150,24 +150,24 @@ jobs:
           cat /tmp/frontend.log | tail -50
           exit 1
 
-      - name: Run Smoke Tests
+      - name: Run Integration Tests
         run: |
           cd backend
-          mvn test -Dtest=SmokeTestSuite
+          mvn test -Dtest=FullIntegrationTestSuite
 
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-test-results
+          name: integration-test-results
           path: backend/target/surefire-reports/
           retention-days: 7
 
       - name: Upload Screenshots
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots
+          name: integration-test-screenshots
           path: backend/target/screenshots/
           retention-days: 7
 
