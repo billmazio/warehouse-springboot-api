@@ -23,6 +23,7 @@ import org.junit.platform.suite.api.Suite;
         DashboardTests.class,
         //StoreCreateTests.class,
         UserCreateTests.class,
+        UserDeleteTests.class,
         MaterialCreateTests.class,
         OrderCreateTests.class,
         StoreEditTests.class,
@@ -31,8 +32,8 @@ import org.junit.platform.suite.api.Suite;
         MaterialSearchTests.class,
         OrderDeleteTests.class,
         MaterialDeleteTests.class,
-        UserDeleteTests.class,
         StoreDeleteTests.class
+
 
 })
 
