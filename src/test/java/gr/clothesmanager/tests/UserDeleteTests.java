@@ -6,7 +6,6 @@ import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.UsersPage;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,7 @@ public class UserDeleteTests  {
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
 
         if (enabledDeleteCount < 1) {
-            System.out.println("Need at least 2 deletable users");
+            System.out.println("No deletable users");
             return;
         }
 
