@@ -23,7 +23,7 @@ public class UserDeleteTests  {
 
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
 
-        if (enabledDeleteCount < 1) {  // Changed from < 2
+        if (enabledDeleteCount < 1) {
             System.out.println("No deletable users");
             return;
         }
