@@ -24,12 +24,15 @@ VALUES (2, NOW(), NOW(), 'LOCAL_ADMIN', 'Local Admin');
 INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status)
 VALUES
 (1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE'),
-(2, 'testuser1', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'INACTIVE'),
-(3, 'testuser2', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'INACTIVE');
+(2, 'testuser', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'ACTIVE');
 
-
+-- Assign SUPER_ADMIN role to admin user
 INSERT IGNORE INTO warehouse_db.user_roles (user_id, role_id)
-VALUES (1, 1), (2, 2), (3, 2);;
+VALUES (1, 1);
+
+-- Assign LOCAL_ADMIN role to test user
+INSERT IGNORE INTO warehouse_db.user_roles (user_id, role_id)
+VALUES (2, 2);
 
 -- Insert material
 INSERT IGNORE INTO materials (id, quantity, text, size_id, store_id)
