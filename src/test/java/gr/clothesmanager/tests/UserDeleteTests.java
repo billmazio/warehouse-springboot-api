@@ -24,14 +24,14 @@ public class UserDeleteTests  {
 
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
 
-        if (enabledDeleteCount < 2) {
+        if (enabledDeleteCount < 1) {
             System.out.println("Need at least 2 deletable users");
             return;
         }
 
         int initialCount = usersPage.getUserCount();
 
-        usersPage.deleteSecondEnabledUser();
+        usersPage.deleteUser();
 
         int finalCount = usersPage.getUserCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);

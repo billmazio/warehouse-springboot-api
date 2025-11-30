@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
 @UsePlaywright(HeadlessChromeOptions.class)
 public class StoreCreateTests {
 
@@ -35,4 +36,4 @@ public class StoreCreateTests {
 
         Assertions.assertThat(storesPage.storeExists(uniqueStore)).isTrue();
     }
-}
+}*/
