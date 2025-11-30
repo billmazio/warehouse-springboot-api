@@ -74,10 +74,6 @@ jobs:
           cd backend
           mvn clean package -DskipTests
 
-      - name: Seed test data
-        run: |
-          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
-
       - name: Start backend
         run: |
           cd backend
@@ -104,6 +100,10 @@ jobs:
           echo "Backend failed to start!"
           cat /tmp/backend.log
           exit 1
+
+      - name: Seed test data
+        run: |
+          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
 
       - name: Start frontend
         run: |
