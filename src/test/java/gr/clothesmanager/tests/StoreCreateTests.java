@@ -10,6 +10,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
+
 import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,7 +24,9 @@ public class StoreCreateTests {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
-
+        // Debug: Check if form is visible
+        System.out.println("Store create form visible: " + page.locator(".store-create-form").isVisible());
+        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("stores-debug.png")));
         String uniqueStore = TestConstants.uniqueStoreName("ΔΥΤΙΚΑ");
 
         storesPage.createStore(
