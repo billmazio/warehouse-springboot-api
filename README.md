@@ -131,52 +131,37 @@ This project uses GitHub Actions to automate test execution across three distinc
 
 ## Test Workflows Overview
 
-### Smoke Tests
-Lightweight, quick-running tests that verify core functionality. These run on every push to `main` and `develop` branches, as well as on pull requests to `main`. This provides fast feedback during development and code review.
+### Integration Tests
+Comprehensive end-to-end tests covering all major user workflows and integrations. These run on every push and pull request to ensure code quality.
 
 **Triggers:**
-- Push to `main` or `develop` branches
-- Pull requests to `main`
+- Push to `main` and `develop` branches
+- Pull requests to `main` and `develop`
 
 **What happens:**
-- Checks out your code
-- Sets up JDK 17 with Maven caching
-- Installs Playwright (chromium only for speed)
-- Runs `gr.clothesmanager.suites.SmokeTestSuite`
-- Uploads test results (retained 7 days)
-- Uploads screenshots on failure (retained 7 days)
+- Checks out backend and frontend code
+- Sets up JDK 17 and Node.js with Maven/npm caching
+- Installs Playwright browsers and dependencies
+- Starts MySQL database, backend (Spring Boot), and frontend (React) services
+- Seeds test data with admin user and test store
+- Runs `gr.clothesmanager.suites.FullIntegrationTestSuite` (24 tests)
+- Uploads test results to artifacts (retained 7 days)
+- Uploads screenshots on all runs (retained 7 days)
 
-### Full Integration Tests
-Comprehensive end-to-end tests covering all major user workflows and integrations. These run on push, pull requests, and daily at 2 AM UTC to catch issues in your main branch.
+**Test Coverage (24 tests):**
+- **Authentication** (6 tests) - Login validation, error handling, logout
+- **Dashboard** (1 test) - Dashboard layout and menu cards
+- **Store Management** (3 tests) - Create, edit, delete stores
+- **User Management** (2 tests) - Create and delete users
+- **Material Management** (8 tests) - Create, edit, delete, search materials
+- **Order Management** (3 tests) - Create, edit, delete orders
+- **Search Functionality** (2 tests) - Material search with filters
 
-**Triggers:**
-- Push to `main` branch
-- Pull requests to `main`
-- Daily schedule: 2 AM UTC
-
-**What happens:**
-- Checks out your code
-- Sets up JDK 17 with Maven caching
-- Installs all Playwright browsers
-- Runs `gr.clothesmanager.suites.FullIntegrationTestSuite`
-- Uploads test results to artifacts (retained 30 days)
-- Uploads screenshots on failure (retained 7 days)
-- Publishes formatted test report using dorny/test-reporter
-
-### Regression Tests
-Deep test suite that validates no existing functionality has broken. Runs weekly on Sunday at midnight UTC to provide a regular health check without blocking development.
-
-**Triggers:**
-- Weekly schedule: Every Sunday at midnight UTC
-- Manual trigger (if configured)
-
-**What happens:**
-- Checks out your code
-- Sets up JDK 17 with Maven caching
-- Installs all Playwright browsers with system dependencies
-- Runs `gr.clothesmanager.suites.RegressionTestSuite`
-- Uploads test results to artifacts (retained 30 days)
-- Uploads screenshots on failure
+**Test Framework:**
+- Playwright for browser automation
+- Page Object Model architecture
+- JUnit 5 with custom test suites
+- Professional wait strategies for CI/CD stability
 
 ## Running Tests Locally
 
@@ -200,39 +185,85 @@ All workflows upload artifacts that you can download:
 1. Go to the **Actions** tab in your GitHub repository
 2. Click on the workflow run you want to inspect
 3. Scroll to the **Artifacts** section
-4. Download the relevant artifact (test results or screenshots)
-
-For the Full Integration Tests workflow, a formatted test report is also published directly in the workflow summary.
+4. Download the relevant artifact:
+    - `integration-test-results` - Detailed test reports and logs
+    - `integration-test-screenshots` - Screenshots from all test runs (useful for debugging)
 
 ## Browser Configuration
 
-- **Smoke Tests:** Chromium only (faster execution)
-- **Integration & Regression Tests:** All Playwright browsers (chromium, firefox, webkit)
+- **Integration Tests:** Chromium only (optimized for CI/CD performance)
 
-All browsers are installed with system dependencies (`--with-deps`) to ensure stability on Ubuntu runners.
+Browsers are installed with system dependencies (`--with-deps`) to ensure stability on Ubuntu runners.
 
-## Requirements
+## Local Setup Requirements
 
-The workflows automatically handle setup, but locally you'll need:
+To run tests locally, you'll need:
 
-- JDK 17 or later
-- Maven 3.6+
-- Playwright drivers (installed via Maven plugin)
-- Node.js (optional, if using Node-based Playwright tools)
+- **JDK 17** or later
+- **Maven 3.6+**
+- **Node.js 18+** (for frontend)
+- **MySQL 8.0** (for database)
+- **Playwright drivers** (installed automatically via Maven)
+
+### Running Tests Locally
+```bash
+# Build backend
+cd backend
+mvn clean package -DskipTests
+
+# Start MySQL (or use Docker)
+docker run -d -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=clothes_manager \
+  mysql:8.0
+
+# Seed test data
+mysql -u root -proot clothes_manager < src/main/resources/data.sql
+
+# Start backend
+java -jar target/clothes-manager-*.jar
+
+# In another terminal, start frontend
+cd frontend/frontend
+npm install
+REACT_APP_API_URL=http://localhost:8080 npm start
+
+# In another terminal, run tests
+cd backend
+mvn test -Dtest=FullIntegrationTestSuite
+```
 
 ## Troubleshooting CI Failures
 
-If a workflow fails, check the following:
+If a workflow fails:
 
-1. **Test Results Artifact:** Download to see detailed test failures and logs
-2. **Screenshots Artifact:** Review failure screenshots for visual debugging
-3. **Workflow Logs:** Click the failed step in the Actions tab for detailed Maven/test output
-4. **Local Reproduction:** Run the same test suite locally with `mvn test -Dtest=<SuiteClass>`
+1. **Download Test Results** - Check `integration-test-results` artifact for detailed failures
+2. **Review Screenshots** - Download `integration-test-screenshots` for visual debugging
+3. **Check Workflow Logs** - Click the failed step in Actions tab for Maven/backend/frontend logs
+4. **Verify Test Data** - Ensure `data.sql` includes all required test users and stores
+5. **Local Reproduction** - Run the same test suite locally to isolate environment issues
+
+## Test Data Setup
+
+The integration tests use the following test users:
+
+- **Admin User** (SUPER_ADMIN)
+    - Username: `admin`
+    - Password: `Admin!1234`
+    - Can manage all entities (users, stores, materials, orders)
+
+- **Test User** (LOCAL_ADMIN)
+    - Username: `testuser`
+    - Password: `Admin!1234` (same hash)
+    - Assigned to test store, can be deleted in tests
+
+The test store (id=2) is not marked as system entity, allowing delete operations during tests. The central store (id=1) is protected and cannot be deleted.
 
 ## Playwright & Java Configuration
 
-These workflows use:
+The integration tests use:
 - **Playwright:** Latest version via Maven dependencies
 - **Java:** JDK 17 (Temurin distribution)
-- **Build Tool:** Maven with caching enabled for faster builds
-- **Test Framework:** JUnit 5 with SureFire reports
+- **Build Tool:** Maven with dependency caching for faster builds
+- **Test Framework:** JUnit 5 with Surefire reports and custom test suites
+- **Page Object Model:** Professional test architecture for maintainability
