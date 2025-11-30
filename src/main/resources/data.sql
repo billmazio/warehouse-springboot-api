@@ -14,10 +14,10 @@ INSERT IGNORE INTO stores (id, title, address, is_system_entity, status)
 VALUES (2, 'TEST_STORE', 'Test Address', 0, 'ACTIVE');
 
 -- Insert roles
-INSERT IGNORE INTO clothes_manager.roles (id, created_at, updated_at, name, tag)
+INSERT IGNORE INTO warehouse_db.roles (id, created_at, updated_at, name, tag)
 VALUES (1, NOW(), NOW(), 'SUPER_ADMIN', 'Super Admin');
 
-INSERT IGNORE INTO clothes_manager.roles (id, created_at, updated_at, name, tag)
+INSERT IGNORE INTO warehouse_db.roles (id, created_at, updated_at, name, tag)
 VALUES (2, NOW(), NOW(), 'LOCAL_ADMIN', 'Local Admin');
 
 -- Insert admin user (password: Admin!1234) - SUPER_ADMIN
@@ -29,11 +29,11 @@ INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, st
 VALUES (2, 'testuser', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 2, 0, 'ACTIVE');
 
 -- Assign SUPER_ADMIN role to admin user
-INSERT IGNORE INTO clothes_manager.user_roles (user_id, role_id)
+INSERT IGNORE INTO warehouse_db.user_roles (user_id, role_id)
 VALUES (1, 1);
 
 -- Assign LOCAL_ADMIN role to test user
-INSERT IGNORE INTO clothes_manager.user_roles (user_id, role_id)
+INSERT IGNORE INTO warehouse_db.user_roles (user_id, role_id)
 VALUES (2, 2);
 
 -- Insert material
