@@ -75,16 +75,16 @@ public class UsersPage extends BasePage {
         clickCreateUserButton();
     }
 
-    public void deleteUser() {
+    public void deleteSecondEnabledUser() {
         Locator enabledDeleteButtons = page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])");
 
-        if (enabledDeleteButtons.count() < 1) {
+        if (enabledDeleteButtons.count() < 2) {
             return;
         }
 
         int countBeforeDelete = getUserCount();
 
-        enabledDeleteButtons.nth(0).click();
+        enabledDeleteButtons.nth(1).click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
 
