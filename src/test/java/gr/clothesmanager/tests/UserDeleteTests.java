@@ -24,8 +24,8 @@ public class UserDeleteTests  {
 
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
 
-        if (enabledDeleteCount < 2) {
-            System.out.println("No deletable users (all assigned to protected store)");
+        if (enabledDeleteCount < 1) {  
+            System.out.println("No deletable users");
             return;
         }
 
