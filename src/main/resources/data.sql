@@ -10,12 +10,12 @@ INSERT IGNORE INTO stores (id, title, address, is_system_entity, status)
 VALUES (1, 'ΚΕΝΤΡΙΚΑ', 'Αθήνα', 0, 'ACTIVE');
 
 -- Insert role
-INSERT IGNORE INTO clothes_manager.roles (id, name, tag, created_at, updated_at)
-VALUES (1, 'SUPER_ADMIN', 'Super Admin', NOW(), NOW());
+INSERT IGNORE INTO clothes_manager.roles (id, created_at, updated_at, name, tag)
+VALUES (1, NOW(), NOW(), 'SUPER_ADMIN', 'Super Admin');
 
 -- Insert admin user (password: Admin!1234)
-INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status, created_at, updated_at)
-VALUES (1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE', NOW(), NOW());
+INSERT IGNORE INTO users (id, username, password, store_id, is_system_entity, status)
+VALUES (1, 'admin', '$2a$10$Pi/jMKcF8P4IhsAWPXFkBefqG2QuLtgaH5wqRrjVJt.xQr9Innui2', 1, 0, 'ACTIVE');
 
 -- Assign SUPER_ADMIN role to admin user
 INSERT IGNORE INTO clothes_manager.user_roles (user_id, role_id)
