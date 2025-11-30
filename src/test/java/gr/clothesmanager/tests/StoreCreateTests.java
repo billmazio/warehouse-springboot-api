@@ -24,9 +24,7 @@ public class StoreCreateTests {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
-        // Debug: Check if form is visible
-        System.out.println("Store create form visible: " + page.locator(".store-create-form").isVisible());
-        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("stores-debug.png")));
+  
         String uniqueStore = TestConstants.uniqueStoreName("ΔΥΤΙΚΑ");
 
         storesPage.createStore(
