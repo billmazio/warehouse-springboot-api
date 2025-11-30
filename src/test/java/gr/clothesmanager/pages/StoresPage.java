@@ -98,7 +98,6 @@ public class StoresPage extends BasePage {
 
         int countBeforeDelete = getStoreCount();
 
-        // Click the second enabled delete button (index 1)
         enabledDeleteButtons.nth(1).click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();

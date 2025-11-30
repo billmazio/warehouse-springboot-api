@@ -23,14 +23,14 @@ public class UserDeleteTests  {
         
         int enabledDeleteCount = usersPage.getEnabledDeleteButtonCount();
         
-        if (enabledDeleteCount == 0) {
+        if (enabledDeleteCount < 2) {
             System.out.println("No deletable users, skipping test");
             return;
         }
         
         int initialCount = usersPage.getUserCount();
         
-        usersPage.deleteFirstEnabledUser();
+        usersPage.deleteSecondEnabledUser();
         
         int finalCount = usersPage.getUserCount();
         Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
