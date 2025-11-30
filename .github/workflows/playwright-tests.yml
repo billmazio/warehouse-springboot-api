@@ -16,7 +16,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: clothes_manager
+          MYSQL_DATABASE: warehouse_db
         ports:
           - 3306:3306
         options: >-
@@ -109,7 +109,7 @@ jobs:
 
       - name: Seed test data
         run: |
-          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
+          mysql -h 127.0.0.1 -u root -proot warehouse_db < backend/src/main/resources/data.sql
 
       - name: Start frontend
         run: |
