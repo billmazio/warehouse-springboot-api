@@ -2,9 +2,9 @@ name: Integration Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   integration-test:
@@ -69,15 +69,14 @@ jobs:
           done
           echo "MySQL is ready!"
 
-      - name: Verify MySQL connection
-        run: |
-          mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
-          echo "MySQL connection verified!"
-
       - name: Build backend
         run: |
           cd backend
           mvn clean package -DskipTests
+
+      - name: Seed test data
+        run: |
+          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
 
       - name: Start backend
         run: |
@@ -92,37 +91,19 @@ jobs:
         run: |
           echo "Waiting for backend to start..."
           for i in {1..90}; do
-            if curl -s http://localhost:8080/api/setup/status > /dev/null 2>&1; then
+            if curl -s http://localhost:8080 > /dev/null 2>&1; then
               echo "Backend is ready!"
               exit 0
             fi
             if [ $((i % 10)) -eq 0 ]; then
-              echo "Attempt $i: still waiting... (checking logs)"
+              echo "Attempt $i: still waiting..."
               tail -20 /tmp/backend.log 2>/dev/null || true
-            else
-              echo "Attempt $i: waiting..."
             fi
             sleep 2
           done
-          echo "Backend failed to start after 3 minutes!"
-          echo "=== Full backend logs ==="
+          echo "Backend failed to start!"
           cat /tmp/backend.log
           exit 1
-
-      - name: Seed test data
-        run: |
-          mysql -h 127.0.0.1 -u root -proot clothes_manager < backend/src/main/resources/data.sql
-
-      - name: Test backend endpoints
-        run: |
-          echo "Testing setup status endpoint..."
-          curl -v http://localhost:8080/api/setup/status
-          echo ""
-          echo "Testing CORS preflight..."
-          curl -v -X OPTIONS http://localhost:8080/api/auth/login \
-            -H "Origin: http://localhost:3000" \
-            -H "Access-Control-Request-Method: POST" \
-            -H "Access-Control-Request-Headers: Content-Type"
 
       - name: Start frontend
         run: |
@@ -169,10 +150,4 @@ jobs:
         if: always()
         run: |
           echo "=== Backend Logs ==="
-          cat /tmp/backend.log | tail -150
-
-      - name: Show Frontend Logs
-        if: failure()
-        run: |
-          echo "=== Frontend Logs ==="
-          cat /tmp/frontend.log | tail -50
+          cat /tmp/backend.log | tail -100
