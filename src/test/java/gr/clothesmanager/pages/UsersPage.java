@@ -22,7 +22,7 @@ public class UsersPage extends BasePage {
     private static final String USER_CREATE_ROLE = "user-create-role";
     private static final String USER_CREATE_STATUS = "user-create-status";
     private static final String USER_CREATE_STORE = "user-create-store";
-    private static final String CREATE_USER_BUTTON = ".user-create-form .create-button";
+    private static final String CREATE_USER_BUTTON = "user-create-submit";
 
     private static final String DELETE_BUTTON = "delete-button";
 
@@ -60,21 +60,19 @@ public class UsersPage extends BasePage {
     }
 
     private void clickCreateUserButton() {
-        click(CREATE_USER_BUTTON);
+        clickByTestId(CREATE_USER_BUTTON);
         waitForNetworkIdle();
         pause(TestConstants.WAIT_FOR_LOAD);
     }
 
-    public void createUser(String username, String password,
-                           String store, String role) {
+    public void createUser(String username, String password,String role,String status,String store) {
         fillUserUsername(username);
         fillUserPassword(password);
-        selectUserStore(store);
         selectUserRole(role);
-        selectUserStatus(TestConstants.STATUS_ACTIVE);  // Default to ACTIVE
+        selectUserStatus(status);
+        selectUserStore(store);
         clickCreateUserButton();
     }
-
 
     public void deleteUser() {
         int countBeforeDelete = getUserCount();
@@ -86,13 +84,8 @@ public class UsersPage extends BasePage {
         page.waitForCondition(() -> getUserCount() < countBeforeDelete);
     }
 
-
     public int getUserCount() {
         return getCountByTestId(USER_ROW);
-    }
-
-    public int getEnabledDeleteButtonCount() {
-        return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();
     }
 
     public boolean userExists(String username) {return page.getByText(username).count() > 0;}

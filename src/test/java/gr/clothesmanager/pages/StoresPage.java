@@ -103,10 +103,6 @@ public class StoresPage extends BasePage {
         return getCountByTestId(STORE_ROW);
     }
 
-    public int getEnabledDeleteButtonCount() {
-        return page.locator("[data-test='" + DELETE_BUTTON + "']:not([disabled])").count();
-    }
-
     public Locator getTextLocator(String text) {
         return page.getByText(text);
     }

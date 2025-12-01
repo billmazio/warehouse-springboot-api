@@ -38,10 +38,10 @@ public class UserCreateTests {
         usersPage.createUser(
                 uniqueUser,
                 "Test123!",
-                uniqueStore,
-                TestConstants.ROLE_LOCAL_ADMIN
+                TestConstants.ROLE_LOCAL_ADMIN,
+                TestConstants.STATUS_INACTIVE,
+                uniqueStore
         );
-
 
         Assertions.assertThat(usersPage.userExists(uniqueUser)).isTrue();
     }

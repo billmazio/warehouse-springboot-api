@@ -23,6 +23,7 @@ public class TestConstants {
     public static final String SIZE_EXTRA_LARGE = "EXTRA LARGE";
 
     public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_INACTIVE = "INACTIVE";
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_COMPLETED = "COMPLETED";
 
