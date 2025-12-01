@@ -77,20 +77,20 @@ src/test/java/gr/clothesmanager/
 ├── helpers/         # Reusable test utilities
 ├── pages/           # 7 Page Objects (POM pattern)
 ├── suites/          # TestSuites
-└── tests/           # 14 test classes
+└── tests/           # 13 test classes
 ```
 
 ## Test Coverage
 
-- **Authentication** (6 tests) - Login, validation, errors, logout
-- **Dashboard** (1 test) - Layout and navigation
-- **Stores** (3 tests) - Create, edit, delete
-- **Users** (2 tests) - Create, delete
-- **Materials** (8 tests) - Create, edit, delete, search
-- **Orders** (3 tests) - Create, edit, delete
-- **Search** (2 tests) - Search with filters
 
-**Total: 24 tests**
+- **Dashboard** (1 test) Layout and navigation verification
+- **Login** (5 tests) Page title, validation, empty fields, invalid credentials, logout
+- **Materials** (5 tests) - Create with different sizes (5), delete, edit, search, filter
+- **Orders** (3 tests) - Create (includes material creation), delete, edit
+- **Stores** (2 tests) - Delete, edit
+- **Users** (2 tests) - Create (includes store creation), delete
+
+**Total: 18 tests**
 
 ## Running Tests Locally
 
