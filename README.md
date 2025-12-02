@@ -84,13 +84,13 @@ src/test/java/gr/clothesmanager/
 
 
 - **Dashboard** (1 test) Layout and navigation verification
-- **Login** (5 tests) Page title, validation, empty fields, invalid credentials, logout
-- **Materials** (5 tests) - Create with different sizes (5), delete, edit, search, filter
+- **Login** (6 tests) Page title, validation, empty fields (2), invalid credentials, logout
+- **Materials** (9 tests) - Create with different sizes (5), delete, edit, search, filter
 - **Orders** (3 tests) - Create (includes material creation), delete, edit
 - **Stores** (2 tests) - Delete, edit
 - **Users** (2 tests) - Create (includes store creation), delete
 
-**Total: 18 tests**
+**Total: 23 tests**
 
 ## Running Tests Locally
 
