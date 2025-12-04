@@ -173,3 +173,11 @@ Tests run automatically on:
 2. Check test failure details in HTML report
 3. Download `integration-test-screenshots` for visual debugging
 4. Run test locally to reproduce
+   
+## Allure Report
+
+![Allure Report](docs/images/allure-report.png)
+
+- **23 test cases** executed
+- **100% pass rate**
+- **13 test suites** covering all modules   
