@@ -169,9 +169,9 @@ jobs:
            cd backend
           mvn allure:report
 
-            - name: Deploy Allure Report to GitHub Pages
-              if: always()
-              uses: peaceiris/actions-gh-pages@v4
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                publish_dir: backend/target/site/allure-maven-plugin
+      - name: Deploy Allure Report to GitHub Pages
+        if: always()
+        uses: peaceIris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: backend/target/site/allure-maven-plugin
