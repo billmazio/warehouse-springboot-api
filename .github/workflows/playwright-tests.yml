@@ -76,7 +76,7 @@ jobs:
       - name: Build backend
         run: |
           cd backend
-          mvn clean package -DskipTests
+          mvn clean package -Dmaven.test.skip.exec=true
 
       - name: Start backend
         run: |
