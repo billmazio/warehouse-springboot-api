@@ -3,6 +3,7 @@ package gr.clothesmanager.tests;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
+import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
 import org.assertj.core.api.Assertions;
@@ -21,6 +22,14 @@ public class StoreDeleteTests {
         DashboardPage dashboardPage = loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
+
+        String uniqueAddress = TestConstants.uniqueStoreName("New Store");
+
+        storesPage.createStore(
+                uniqueAddress,
+                TestConstants.uniqueStoreName("ΑΝΑΤΟΛΙΚΑ"),
+                TestConstants.STATUS_ACTIVE
+        );
 
         int initialCount = storesPage.getStoreCount();
         

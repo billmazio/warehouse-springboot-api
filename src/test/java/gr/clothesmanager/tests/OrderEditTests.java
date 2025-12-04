@@ -5,6 +5,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
 import gr.clothesmanager.pages.DashboardPage;
+import gr.clothesmanager.pages.MaterialsPage;
 import gr.clothesmanager.pages.OrdersPage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -20,8 +21,35 @@ public class OrderEditTests {
     @DisplayName("Should edit order successfully")
     public void shouldEditOrderSuccessfully(Page page) {
         DashboardPage dashboardPage = loginAsAdmin(page);
-        OrdersPage ordersPage = dashboardPage.navigateToOrders().waitForLoad();
 
+        MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
+        materialsPage.waitForLoad();
+
+        String uniqueMaterial = TestConstants.uniqueMaterialName("EditTest");
+
+        materialsPage.addMaterial(
+                uniqueMaterial,
+                TestConstants.SIZE_MEDIUM,
+                "10",
+                TestConstants.STORE_KENTRIKA
+        );
+
+        dashboardPage.goToDashboard();
+
+        OrdersPage ordersPage = dashboardPage.navigateToOrders();
+        ordersPage.waitForLoad();
+
+        ordersPage.createOrder(
+                "1",
+                "2025-12-31",
+                TestConstants.STORE_KENTRIKA,
+                uniqueMaterial,
+                TestConstants.SIZE_MEDIUM,
+                "admin",
+                TestConstants.STATUS_PENDING
+        );
+
+        ordersPage.goToLastPage();
         ordersPage.editFirstOrder("1", TestConstants.STATUS_COMPLETED);
 
         Assertions.assertThat(ordersPage.isUpdateOrderButtonVisible()).isTrue();
