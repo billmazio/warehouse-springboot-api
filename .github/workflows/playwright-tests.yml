@@ -1,4 +1,3 @@
-
 name: Integration Tests
 
 on:
@@ -7,9 +6,9 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-    permissions:
-      contents: write
-      pages: write
+permissions:
+  contents: write
+  pages: write
 
 jobs:
   integration-test:
@@ -162,11 +161,11 @@ jobs:
         run: |
           echo "=== Backend Logs ==="
           cat /tmp/backend.log | tail -100
-          
+
       - name: Generate Allure Report
         if: always()
         run: |
-           cd backend
+          cd backend
           mvn allure:report
 
       - name: Deploy Allure Report to GitHub Pages
