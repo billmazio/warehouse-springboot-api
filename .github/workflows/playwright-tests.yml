@@ -162,7 +162,7 @@ jobs:
         run: |
           echo "=== Backend Logs ==="
           cat /tmp/backend.log | tail -100
-
+          
       - name: Generate Allure Report
         if: always()
         run: |
