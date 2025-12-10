@@ -5,6 +5,8 @@ import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
 import gr.clothesmanager.constants.TestConstants;
 
+import java.util.List;
+
 /**
  * Page Object for Users management page
  * Handles user creation and deletion
@@ -27,10 +29,12 @@ public class UsersPage extends BasePage {
     private static final String DELETE_BUTTON = "delete-button";
 
     private final ConfirmationDialog confirmationDialog;
+    private final Locator userRows;
 
     public UsersPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
+        this.userRows = page.getByTestId(USER_ROW);
     }
 
     public UsersPage waitForLoad() {
@@ -74,19 +78,21 @@ public class UsersPage extends BasePage {
         clickCreateUserButton();
     }
 
-    public void deleteUser() {
-        int countBeforeDelete = getUserCount();
+    public void deleteUser(String username) {
+        Locator itemRow = itemRow(username);
+        Locator deleteButton = itemRow.getByTestId(DELETE_BUTTON);
 
-        page.getByTestId(DELETE_BUTTON).nth(1).click();
+        deleteButton.click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-
-        page.waitForCondition(() -> getUserCount() < countBeforeDelete);
     }
 
-    public int getUserCount() {
-        return getCountByTestId(USER_ROW);
+    private Locator itemRow(String username) {
+        return page.getByTestId(USER_ROW)
+                .filter(new Locator.FilterOptions().setHasText(username));
     }
 
-    public boolean userExists(String username) {return page.getByText(username).count() > 0;}
+    public boolean userExists(String username) { return page.getByText(username).count() > 0; }
+
+    public List<String> usersList() { return userRows.allTextContents(); }
 }

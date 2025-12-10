@@ -24,11 +24,7 @@ public class LoginPage extends BasePage {
         super(page);
     }
 
-    public LoginPage open() {
-        navigate();
-        waitForPageLoad();
-        return this;
-    }
+    public LoginPage open() { navigate(); waitForPageLoad();return this; }
 
     public void enterUsername(String username) {
         fillByTestId(USERNAME_INPUT, username);
@@ -38,9 +34,7 @@ public class LoginPage extends BasePage {
         fillByTestId(PASSWORD_INPUT, password);
     }
 
-    public void clearUsername() {
-        clearByTestId(USERNAME_INPUT);
-    }
+    public void clearUsername() {clearByTestId(USERNAME_INPUT);}
 
     public void clearPassword() {
         clearByTestId(PASSWORD_INPUT);

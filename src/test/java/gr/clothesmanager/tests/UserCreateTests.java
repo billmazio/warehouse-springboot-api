@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
+import gr.clothesmanager.helpers.AuthenticationHelper;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.StoresPage;
 import gr.clothesmanager.pages.UsersPage;
@@ -11,16 +12,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-
-
 @UsePlaywright(HeadlessChromeOptions.class)
 public class UserCreateTests {
 
     @Test
     @DisplayName("Should create new user successfully")
     public void shouldCreateNewUserSuccessfully(Page page) {
-        DashboardPage dashboardPage = loginAsAdmin(page);
+        DashboardPage dashboardPage = AuthenticationHelper.loginAsAdmin(page);
         StoresPage storesPage = dashboardPage.navigateToStores();
         storesPage.waitForLoad();
 

@@ -23,11 +23,7 @@ public abstract class BasePage {
         page.setDefaultNavigationTimeout(60000);
     }
 
-
-    protected void navigate() {
-        page.navigate(TestConstants.LOGIN_URL);
-        waitForNetworkIdle();
-    }
+    protected void navigate() { page.navigate(TestConstants.LOGIN_URL); waitForNetworkIdle(); }
 
     protected void waitForUrl(String urlPattern) {
         page.waitForURL(urlPattern,
@@ -66,9 +62,7 @@ public abstract class BasePage {
         page.getByTestId(testId).click();
     }
 
-    protected void fillByTestId(String testId, String text) {
-        page.getByTestId(testId).fill(text);
-    }
+    protected void fillByTestId(String testId, String text) { page.getByTestId(testId).fill(text);}
 
     protected void clearByTestId(String testId) {
         page.getByTestId(testId).clear();

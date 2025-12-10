@@ -5,6 +5,8 @@ import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
 import gr.clothesmanager.constants.TestConstants;
 
+import java.util.List;
+
 
 /**
  * Page Object for Orders management page
@@ -33,10 +35,37 @@ public class OrdersPage extends BasePage {
     private static final String DELETE_BUTTON = "delete-button";
     
     private final ConfirmationDialog confirmationDialog;
+    private final Locator orderRows;
+    private final Locator orderQuantityInput;
+    private final Locator orderDateInput;
+    private final Locator selectOrderStore;
+    private final Locator selectOrderMaterial;
+    private final Locator selectOrderSize;
+    private final Locator selectOrderUser;
+    private final Locator selectOrderStatus;
+    private final Locator createOrderButton;
+    private final Locator editOrderButton;
+    private final Locator editQuantityInput;
+    private final Locator editStatus;
+    private final Locator updateOrderButton;
     
     public OrdersPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
+
+        this.orderQuantityInput = page.getByTestId(ORDER_QUANTITY);
+        this.orderRows = page.getByTestId(ORDER_ROW);
+        this.orderDateInput = page.getByTestId(ORDER_DATE);
+        this.selectOrderStore = page.getByTestId(ORDER_STORE);
+        this.selectOrderMaterial = page.getByTestId(ORDER_MATERIAL);
+        this.selectOrderSize = page.getByTestId(ORDER_SIZE);
+        this.selectOrderUser = page.getByTestId(ORDER_USER);
+        this.selectOrderStatus = page.getByTestId(ORDER_STATUS);
+        this.createOrderButton = page.getByTestId(CREATE_ORDER_BUTTON);
+        this.editOrderButton = page.getByTestId(EDIT_BUTTON);
+        this.editQuantityInput = page.getByTestId(ORDER_QUANTITY);
+        this.editStatus = page.getByTestId(ORDER_STATUS);
+        this.updateOrderButton = page.getByTestId(UPDATE_ORDER_BUTTON);
     }
 
     public OrdersPage waitForLoad() {
@@ -45,97 +74,43 @@ public class OrdersPage extends BasePage {
         return this;
     }
 
-    private void fillOrderQuantity(String quantity) {
-        fillByTestId(ORDER_QUANTITY, quantity);
+    public void createOrder(String quantity, String date, String store, String material, String size, String user,String status) {
+        orderQuantityInput.fill(quantity);
+        orderDateInput.fill(date);
+        selectOrderStore.selectOption(store);
+        selectOrderMaterial.selectOption(material);
+        selectOrderSize.selectOption(size);
+        selectOrderUser.selectOption(user);
+        selectOrderStatus.selectOption(status);
+        createOrderButton.click();
     }
 
-    private void fillOrderDate(String date) {
-        fillByTestId(ORDER_DATE, date);
+    public void editOrder(String quantity, String status) {
+        editOrderButton.first().click();
+        editQuantityInput.fill(quantity);
+        editStatus.selectOption(status);
+        updateOrderButton.click();
     }
 
-    private void selectOrderStore(String store) {
-        selectOptionByTestId(ORDER_STORE, store);
-        pause(500);
-    }
+    public void deleteOrder(String order) {
+        Locator itemRow = itemRow(order);
+        Locator deleteButton = itemRow.getByTestId(DELETE_BUTTON);
 
-    private void selectOrderMaterial(String material) {
-        selectOptionByTestId(ORDER_MATERIAL, material);
-        pause(500); // Wait for size dropdown to populate
-    }
-
-    private void selectOrderSize(String size) {
-        selectOptionByTestId(ORDER_SIZE, size);
-    }
-
-    private void selectOrderUser(String user) {
-        selectOptionByTestId(ORDER_USER, user);
-    }
-
-    private void selectOrderStatus(String status) {
-        selectOptionByTestId(ORDER_STATUS, status);
-    }
-
-    private void clickCreateOrderButton() {
-        clickByTestId(CREATE_ORDER_BUTTON);
-        waitForNetworkIdle();
-        pause(TestConstants.WAIT_FOR_LOAD);
-    }
-
-    public void createOrder(String quantity, String date, String store,
-                            String material, String size, String user, String status) {
-        fillOrderQuantity(quantity);
-        fillOrderDate(date);
-        selectOrderStore(store);
-        selectOrderMaterial(material);
-        selectOrderSize(size);
-        selectOrderUser(user);
-        selectOrderStatus(status);
-        clickCreateOrderButton();
-    }
-
-    private void clickEditFirstOrder() {
-        page.getByTestId(EDIT_BUTTON).first().click();
-        pause(TestConstants.WAIT_FOR_LOAD);
-    }
-
-    private void updateOrderQuantity(String quantity) {
-        fillByTestId(ORDER_QUANTITY, quantity);
-    }
-
-    private void updateOrderStatus(String status) {
-        selectOptionByTestId(ORDER_STATUS, status);
-    }
-
-    private void clickUpdateOrderButton() {
-        clickByTestId(UPDATE_ORDER_BUTTON);
-    }
-
-    public void editFirstOrder(String quantity, String status) {
-        clickEditFirstOrder();
-        updateOrderQuantity(quantity);
-        updateOrderStatus(status);
-        clickUpdateOrderButton();
-    }
-
-    public void deleteFirstOrder() {
-        int countBeforeDelete = getOrderCount();
-
-        page.getByTestId(DELETE_BUTTON).first().click();
+        deleteButton.click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-
-        page.waitForCondition(() -> getOrderCount() < countBeforeDelete);
     }
 
-    public boolean isUpdateOrderButtonVisible() {
-        return isVisible(UPDATE_ORDER_BUTTON);
+    private Locator itemRow(String order) {
+        return page.getByTestId(ORDER_ROW)
+                .filter(new Locator.FilterOptions().setHasText(order));
     }
-
-    public int getOrderCount() {return getCountByTestId(ORDER_ROW);}
 
     public boolean orderExists(String material) {
         return page.getByTestId(ORDER_ROW)
                 .filter(new Locator.FilterOptions().setHasText(material))
                 .count() > 0;
     }
+
+    public List<String> ordersList() { return orderRows.allTextContents(); }
 }

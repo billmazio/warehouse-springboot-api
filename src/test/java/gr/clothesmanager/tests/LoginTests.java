@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
+import gr.clothesmanager.helpers.AuthenticationHelper;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.LoginPage;
 import org.junit.jupiter.api.*;
@@ -12,8 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @UsePlaywright(HeadlessChromeOptions.class)
@@ -87,7 +86,7 @@ public class LoginTests {
     @Order(5)
     @DisplayName("Should login and logout successfully")
     public void shouldLoginAndLogoutSuccessfully(Page page) {
-        DashboardPage dashboardPage = loginAsAdmin(page);
+        DashboardPage dashboardPage = AuthenticationHelper.loginAsAdmin(page);
 
         Assertions.assertThat(dashboardPage.isLogoutButtonVisible()).isTrue();
 

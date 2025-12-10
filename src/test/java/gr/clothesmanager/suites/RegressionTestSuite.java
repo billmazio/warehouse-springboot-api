@@ -28,7 +28,6 @@ import org.junit.platform.suite.api.Suite;
         MaterialDeleteTests.class,
         UserDeleteTests.class,
         StoreDeleteTests.class
-
 })
 
 public class RegressionTestSuite {

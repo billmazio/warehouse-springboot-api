@@ -3,7 +3,8 @@ package gr.clothesmanager.pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
-import gr.clothesmanager.constants.TestConstants;
+
+import java.util.List;
 
 /**
  * Page Object for Stores management page
@@ -30,10 +31,27 @@ public class StoresPage extends BasePage {
     private static final String DELETE_BUTTON = "delete-button";
 
     private final ConfirmationDialog confirmationDialog;
+    private final Locator storeRows;
+    private final Locator storeTitleInput;
+    private final Locator storeAddressInput;
+    private final Locator storeStatusSelect;
+    private final Locator createButton;
+    private final Locator editButton;
+    private final Locator editAddressInput;
+    private final Locator editSubmitButton;
+
 
     public StoresPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
+        this.storeRows = page.getByTestId(STORE_ROW);
+        this.storeTitleInput = page.getByTestId(STORE_CREATE_TITLE);
+        this.storeAddressInput = page.getByTestId(STORE_CREATE_ADDRESS);
+        this.storeStatusSelect = page.getByTestId(STORE_CREATE_STATUS);
+        this.createButton = page.getByTestId(CREATE_STORE_BUTTON);
+        this.editButton = page.getByTestId(EDIT_BUTTON);
+        this.editAddressInput = page.getByTestId(EDIT_STORE_ADDRESS);
+        this.editSubmitButton = page.getByTestId(EDIT_STORE_SUBMIT);
     }
 
     public StoresPage waitForLoad() {
@@ -42,72 +60,41 @@ public class StoresPage extends BasePage {
         return this;
     }
 
-    private void fillStoreTitle(String title) {
-        fillByTestId(STORE_CREATE_TITLE, title);
-    }
-
-    private void fillStoreAddress(String address) {
-        fillByTestId(STORE_CREATE_ADDRESS, address);
-    }
-
-    private void selectStoreStatus(String status) {
-        selectOptionByTestId(STORE_CREATE_STATUS, status);
-    }
-
-    private void clickCreateStoreButton() {
-        clickByTestId(CREATE_STORE_BUTTON);
-        waitForNetworkIdle();
-        pause(TestConstants.WAIT_FOR_LOAD);
-    }
-
     public void createStore(String title, String address, String status) {
-        fillStoreTitle(title);
-        fillStoreAddress(address);
-        selectStoreStatus(status);
-        clickCreateStoreButton();
+        storeTitleInput.fill(title);
+        storeAddressInput.fill(address);
+        storeStatusSelect.selectOption(status);
+        createButton.click();
     }
 
-    private void clickEditFirstStore() {
-        page.getByTestId(EDIT_BUTTON).first().click();
+    public void editStore(String address) {
+        editButton.first().click();
         waitForVisible(EDIT_STORE_MODAL);
-    }
-
-    private void fillEditStoreAddress(String address) {
-        fillByTestId(EDIT_STORE_ADDRESS, address);
-    }
-
-    private void confirmEditStore() {
-        clickByTestId(EDIT_STORE_SUBMIT);
+        editAddressInput.fill(address);
+        editSubmitButton.click();
         waitForHidden(EDIT_STORE_MODAL);
         waitForNetworkIdle();
     }
 
-    public void editFirstStoreAddress(String address) {
-        clickEditFirstStore();
-        fillEditStoreAddress(address);
-        confirmEditStore();
-    }
+    public void deleteStore(String store) {
+        Locator itemRow = itemRow(store);
+        Locator deleteButton = itemRow.getByTestId(DELETE_BUTTON);
 
-    public void deleteStore() {
-
-        int countBeforeDelete = getStoreCount();
-
-        page.getByTestId(DELETE_BUTTON).nth(1).click();
+        deleteButton.click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
-
-        page.waitForCondition(() -> getStoreCount() < countBeforeDelete);
     }
 
-    public int getStoreCount() {
-        return getCountByTestId(STORE_ROW);
+    private Locator itemRow(String store) {
+        return page.getByTestId(STORE_ROW)
+                .filter(new Locator.FilterOptions().setHasText(store));
     }
 
-    public Locator getTextLocator(String text) {
-        return page.getByText(text);
+    public boolean storeExists(String store) {
+        return page.getByTestId(STORE_ROW)
+                .filter(new Locator.FilterOptions().setHasText(store))
+                .count() > 0;
     }
 
-    public boolean storeExists(String storeName) {
-       return page.getByText(storeName).count() > 0;
-    }
+    public List<String> storesList() { return storeRows.allTextContents();}
 }

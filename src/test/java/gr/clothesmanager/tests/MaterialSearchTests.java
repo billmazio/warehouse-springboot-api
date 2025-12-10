@@ -4,22 +4,22 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
 import gr.clothesmanager.constants.TestConstants;
+import gr.clothesmanager.helpers.AuthenticationHelper;
 import gr.clothesmanager.pages.DashboardPage;
 import gr.clothesmanager.pages.MaterialsPage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
-
-
 @UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialSearchTests {
-    
+
+    //todo changes in Assertions
+
     @Test
     @DisplayName("Should search materials by product name")
     public void shouldSearchMaterialsByProductName(Page page) {
-        DashboardPage dashboardPage = loginAsAdmin(page);
+        DashboardPage dashboardPage = AuthenticationHelper.loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
         materialsPage.waitForLoad();
         
@@ -32,7 +32,7 @@ public class MaterialSearchTests {
     @Test
     @DisplayName("Should filter materials by size")
     public void shouldFilterMaterialsBySize(Page page) {
-        DashboardPage dashboardPage = loginAsAdmin(page);
+        DashboardPage dashboardPage = AuthenticationHelper.loginAsAdmin(page);
         MaterialsPage materialsPage = dashboardPage.navigateToMaterials();
         materialsPage.waitForLoad();
         

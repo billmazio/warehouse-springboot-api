@@ -1,8 +1,11 @@
 package gr.clothesmanager.pages;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
 import gr.clothesmanager.components.ConfirmationDialog;
+
+import java.util.List;
 
 /**
  * Page Object for Materials management page
@@ -37,10 +40,35 @@ public class MaterialsPage extends BasePage {
     private static final String FILTER_SIZE = "filter-size";
     
     private final ConfirmationDialog confirmationDialog;
+    private final Locator addMaterialButton;
+    private final Locator materialRows;
+    private final Locator materialTextInput;
+    private final Locator materialSizeInput;
+    private final Locator materialQuantityInput;
+    private final Locator materialStoreInput;
+    private final Locator materialSubmitInput;
+    private final Locator editButton;
+    private final Locator materialEditTextInput;
+    private final Locator materialEditSizeInput;
+    private final Locator materialEditQuantityInput;
+    private final Locator editMaterialSubmit;
+
     
     public MaterialsPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
+        this.materialRows = page.getByTestId(MATERIAL_ROW);
+        this.addMaterialButton = page.getByTestId(ADD_MATERIAL_BUTTON);
+        this.materialTextInput = page.getByTestId(ADD_MATERIAL_TEXT);
+        this.materialSizeInput = page.getByTestId(ADD_MATERIAL_SIZE);
+        this.materialQuantityInput = page.getByTestId(ADD_MATERIAL_QUANTITY);
+        this.materialStoreInput = page.getByTestId(ADD_MATERIAL_STORE);
+        this.materialSubmitInput = page.getByTestId(ADD_MATERIAL_SUBMIT);
+        this.editButton = page.getByTestId(EDIT_BUTTON);
+        this.materialEditTextInput = page.getByTestId(EDIT_TEXT);
+        this.materialEditSizeInput = page.getByTestId(EDIT_SIZE);
+        this.materialEditQuantityInput = page.getByTestId(EDIT_QUANTITY);
+        this.editMaterialSubmit = page.getByTestId(EDIT_CONFIRM);
     }
 
     public MaterialsPage waitForLoad() {
@@ -49,79 +77,39 @@ public class MaterialsPage extends BasePage {
         return this;
     }
 
-    private void clickAddMaterial() {
-        clickByTestId(ADD_MATERIAL_BUTTON);
-        waitForVisible(ADD_MATERIAL_MODAL);
-    }
-
-    private void fillMaterialName(String name) {
-        fillByTestId(ADD_MATERIAL_TEXT, name);
-    }
-
-    private void selectMaterialSize(String size) {
-        selectOptionByTestId(ADD_MATERIAL_SIZE, size);
-    }
-
-    private void fillMaterialQuantity(String quantity) {
-        fillByTestId(ADD_MATERIAL_QUANTITY, quantity);
-    }
-
-    private void selectMaterialStore(String store) {
-        selectOptionByTestId(ADD_MATERIAL_STORE, store);
-    }
-
-    private void submitAddMaterial() {
-        clickByTestId(ADD_MATERIAL_SUBMIT);
+    public void addMaterial(String text, String size, String quantity,String store) {
+        addMaterialButton.click();
+        materialTextInput.fill(text);
+        materialSizeInput.selectOption(size);
+        materialQuantityInput.fill(quantity);
+        materialStoreInput.selectOption(store);
+        materialSubmitInput.click();
         waitForHidden(ADD_MATERIAL_MODAL);
     }
 
-    public void addMaterial(String name, String size, String quantity, String store) {
-        clickAddMaterial();
-        fillMaterialName(name);
-        selectMaterialSize(size);
-        fillMaterialQuantity(quantity);
-        selectMaterialStore(store);
-        submitAddMaterial();
-    }
-
-    private void clickEditFirstMaterial() {
-        page.getByTestId(EDIT_BUTTON).first().click();
+    public void editMaterial(String text, String size, String quantity) {
+        editButton.first().click();
         waitForVisible(EDIT_MODAL);
-    }
-
-    private void fillEditMaterialName(String name) {
-        fillByTestId(EDIT_TEXT, name);
-    }
-
-    private void selectEditSize(String size) {
-        selectOptionByTestId(EDIT_SIZE, size);
-    }
-
-    private void fillEditQuantity(String quantity) {
-        fillByTestId(EDIT_QUANTITY, quantity);
-    }
-
-    private void confirmEdit() {
-        clickByTestId(EDIT_CONFIRM);
+        materialEditTextInput.fill(text);
+        materialEditSizeInput.selectOption(size);
+        materialEditQuantityInput.fill(quantity);
+        editMaterialSubmit.click();
         waitForHidden(EDIT_MODAL);
+        waitForNetworkIdle();
     }
 
-    public void editFirstMaterial(String name, String size, String quantity) {
-        clickEditFirstMaterial();
-        fillEditMaterialName(name);
-        selectEditSize(size);
-        fillEditQuantity(quantity);
-        confirmEdit();
-    }
+    public void deleteMaterial(String material) {
+        Locator itemRow = itemRow(material);
+        Locator deleteButton = itemRow.getByTestId(DELETE_BUTTON);
 
-    public void deleteFirstMaterial() {
-        int countBeforeDelete = getMaterialCount();
-
-        page.getByTestId(DELETE_BUTTON).first().click();
+        deleteButton.click();
         confirmationDialog.confirmDelete();
         waitForNetworkIdle();
+    }
 
-        page.waitForCondition(() -> getMaterialCount() < countBeforeDelete);
+    private Locator itemRow(String material) {
+        return page.getByTestId(MATERIAL_ROW)
+                .filter(new Locator.FilterOptions().setHasText(material));
     }
 
     public void searchByProductName(String productName) {
@@ -134,13 +122,11 @@ public class MaterialsPage extends BasePage {
         page.waitForLoadState(LoadState.NETWORKIDLE);
     }
 
-    public boolean isAddMaterialModalVisible() {
-        return isVisible(ADD_MATERIAL_MODAL);
-    }
+    public boolean isAddMaterialModalVisible() { return isVisible(ADD_MATERIAL_MODAL); }
 
-    public boolean isEditModalVisible() {
-        return isVisible(EDIT_MODAL);
-    }
+    public boolean isEditModalVisible() { return isVisible(EDIT_MODAL);}
+
+    public List<String> materialsList() { return materialRows.allTextContents();}
 
     public int getMaterialCount() {return getCountByTestId(MATERIAL_ROW);}
 }

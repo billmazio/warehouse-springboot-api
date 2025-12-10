@@ -3,13 +3,14 @@ package gr.clothesmanager.tests;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
 import gr.clothesmanager.config.HeadlessChromeOptions;
+import gr.clothesmanager.constants.TestConstants;
+import gr.clothesmanager.helpers.AuthenticationHelper;
 import gr.clothesmanager.pages.DashboardPage;
+import gr.clothesmanager.pages.StoresPage;
 import gr.clothesmanager.pages.UsersPage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static gr.clothesmanager.helpers.AuthenticationHelper.loginAsAdmin;
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class UserDeleteTests  {
@@ -17,15 +18,24 @@ public class UserDeleteTests  {
     @Test
     @DisplayName("Should delete user successfully")
     public void shouldDeleteUserSuccessfully(Page page) {
-        DashboardPage dashboardPage = loginAsAdmin(page);
+        DashboardPage dashboardPage = AuthenticationHelper.loginAsAdmin(page);
+
+        StoresPage storesPage = dashboardPage.navigateToStores();
+        storesPage.waitForLoad();
+
+        String uniqueStore = TestConstants.uniqueStoreName("ΑΝΑΤΟΛΙΚΑ");
+        storesPage.createStore(uniqueStore, "ΑΝΑΤΟΛΙΚΑ", TestConstants.STATUS_ACTIVE);
+
+        dashboardPage.goToDashboard();
+
         UsersPage usersPage = dashboardPage.navigateToUsers();
         usersPage.waitForLoad();
 
-        int initialCount = usersPage.getUserCount();
+        String uniqueUser = TestConstants.uniqueUserName("User95");
+        usersPage.createUser(uniqueUser, "Basil3263@", TestConstants.ROLE_LOCAL_ADMIN, TestConstants.STATUS_INACTIVE, uniqueStore);
 
-        usersPage.deleteUser();
+        usersPage.deleteUser(uniqueUser);
 
-        int finalCount = usersPage.getUserCount();
-        Assertions.assertThat(finalCount).isEqualTo(initialCount - 1);
+        Assertions.assertThat(usersPage.usersList()).doesNotContain(uniqueUser);
     }
 }
