@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test;
 @UsePlaywright(HeadlessChromeOptions.class)
 public class MaterialSearchTests {
 
-    //todo changes in Assertions
-
     @Test
     @DisplayName("Should search materials by product name")
     public void shouldSearchMaterialsByProductName(Page page) {
@@ -24,9 +22,8 @@ public class MaterialSearchTests {
         materialsPage.waitForLoad();
         
         materialsPage.searchByProductName("Μπλούζα");
-        
-        int count = materialsPage.getMaterialCount();
-        Assertions.assertThat(count).isGreaterThan(0);
+
+       Assertions.assertThat(materialsPage.currentProduct()).isEqualTo("Μπλούζα");
     }
     
     @Test
@@ -37,8 +34,7 @@ public class MaterialSearchTests {
         materialsPage.waitForLoad();
         
         materialsPage.filterBySize(TestConstants.SIZE_SMALL);
-        
-        int count = materialsPage.getMaterialCount();
-        Assertions.assertThat(count).isGreaterThanOrEqualTo(0);
+
+        Assertions.assertThat(materialsPage.currentFilter()).isEqualTo("SMALL");
     }
 }

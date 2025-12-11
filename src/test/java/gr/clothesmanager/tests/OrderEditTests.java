@@ -51,6 +51,6 @@ public class OrderEditTests {
         ordersPage.editOrder("1", TestConstants.STATUS_COMPLETED);
         ordersPage.waitForLoad();
 
-        Assertions.assertThat(ordersPage.orderExists(uniqueMaterial)).isTrue();
+        Assertions.assertThat(ordersPage.orderExists(uniqueMaterial));
     }
 }

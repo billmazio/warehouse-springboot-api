@@ -128,5 +128,14 @@ public class MaterialsPage extends BasePage {
 
     public List<String> materialsList() { return materialRows.allTextContents();}
 
-    public int getMaterialCount() {return getCountByTestId(MATERIAL_ROW);}
+    public String currentFilter() {
+        return page.getByTestId("filter-size")
+                .locator("option:checked")
+                .textContent();
+    }
+
+    public String currentProduct() {
+        return page.getByTestId("filter-product")
+                .getAttribute("value");
+    }
 }

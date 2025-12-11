@@ -106,10 +106,9 @@ public class OrdersPage extends BasePage {
                 .filter(new Locator.FilterOptions().setHasText(order));
     }
 
-    public boolean orderExists(String material) {
+    public Locator orderExists(String material) {
         return page.getByTestId(ORDER_ROW)
-                .filter(new Locator.FilterOptions().setHasText(material))
-                .count() > 0;
+                .filter(new Locator.FilterOptions().setHasText(material));
     }
 
     public List<String> ordersList() { return orderRows.allTextContents(); }

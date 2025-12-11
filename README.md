@@ -2,8 +2,8 @@
 
 [![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-green)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)](https://www.mysql.com/)
-[![Playwright](https://img.shields.io/badge/Playwright-1.40-green)](https://playwright.dev/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.2.0-blue)](https://www.mysql.com/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.48-green)](https://playwright.dev/)
 [![Tests](https://img.shields.io/badge/Tests-20%2B%20Passing-green)]()
 
 REST API for warehouse inventory management with comprehensive E2E test automation.
@@ -30,25 +30,29 @@ Full-stack warehouse management system for clothing inventory across multiple st
 
 **Testing:** Playwright • JUnit 5 • AssertJ • Maven • Page Object Model
 
+**DevOps:** GitHub Actions • MySQL • Allure Reports
+
 ---
 
 ## 🗄️ Database
 
-**Core Entities:** Store, User, Material, Order, Size, UserRole
+**Core Entities:** Users, Materials, Orders, Roles, Sizes, UserRoles, Stores
 
 **Key Relationships:**
-- Store contains Users, Materials, Orders
-- Order connects User + Material + Size + Store
-- Users have Roles (many-to-many with UserRole)
 
-**Dependency Order for Tests:** Store/Size/Role → User/Material → Order
+- Store → Users / Materials / Orders (One-to-Many)
+- Size → Materials (One-to-Many)
+- User → Orders (One-to-Many)
+- User ↔ Roles (Many-to-Many)
+- Material → Size / Store (Many-to-One)
+- Order → Material / Size / Store / User (Many-to-One)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Java 17+
 - Maven 3.8+
-- MySQL 8.0
+- MySQL 8.2
 
 ### Setup
 ```bash
@@ -66,7 +70,7 @@ mvn spring-boot:run
 
 ## 🧪 Testing
 
-Comprehensive E2E test suite with 24 automated tests using Playwright and Page Object Model.
+Comprehensive E2E test suite with 23 automated tests using Playwright and Page Object Model.
 
 ## Test Structure
 ```
@@ -96,33 +100,9 @@ src/test/java/gr/clothesmanager/
 
 ### Prerequisites
 - JDK 17+
-- Maven 3.6+
-- Node.js 18+
-- MySQL 8.0+
-
-### Setup
-```bash
-# Start MySQL
-docker run -d -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=warehouse_db \
-  mysql:8.0
-
-# Seed test data
-mysql -u root -proot warehouse_db < src/main/resources/data.sql
-
-# Build and run backend
-mvn clean package -DskipTests
-java -jar target/clothes-manager-*.jar
-
-# In new terminal: Start frontend
-cd frontend
-npm install
-REACT_APP_API_URL=http://localhost:8080 npm start
-
-# In new terminal: Run tests
-mvn test -Dtest=FullIntegrationTestSuite
-```
+- Maven 3.8+
+- Node.js 22+
+- MySQL 8.2
 
 ## Test Data
 
@@ -151,33 +131,49 @@ The test data is automatically loaded when the backend starts with:
 
 This ensures tests always have consistent data to work with.
 
-## CI/CD
+## 🔄 CI/CD Pipeline
 
-Tests run automatically on:
-- Push to `main` and `develop`
+Automated testing on every push using GitHub Actions.
+
+**Triggered on:**
+- Push to `main` and `develop` branches
 - Pull requests to `main` and `develop`
 
-**Test Results:** Download from Actions > Artifacts
-- `integration-test-results` - Test reports
-- `integration-test-screenshots` - Failure screenshots
+**Pipeline includes:**
+- Maven build and compilation
+- Playwright test execution (23 tests in ~29 seconds)
+- Allure Report generation
+- Auto-deployment to GitHub Pages
 
-## Troubleshooting
+**Artifacts:**
+- `integration-test-results` - Test reports
+- `integration-test-screenshots` - Failure screenshots for debugging
+- Live Allure Report - Published automatically to GitHub Pages
+
+---
+
+## 🛠️ Troubleshooting
 
 **Tests fail locally?**
-- Verify MySQL is running
-- Verify backend is running on http://localhost:8080
-- Verify frontend is running on http://localhost:3000
+1. Verify MySQL is running and database exists
+2. Verify backend is running on http://localhost:8080
+3. Verify frontend is running on http://localhost:3000
+4. Check that all services started correctly in console
 
-**Tests fail in CI?**
-1. Download `integration-test-results` artifact
-2. Check test failure details in HTML report
-3. Download `integration-test-screenshots` for visual debugging
-4. Run test locally to reproduce
-   
-## Allure Report
+**Tests fail in CI/CD?**
+1. Check GitHub Actions logs for error messages
+2. Download `integration-test-results` artifact for detailed reports
+3. Reproduce the issue locally to identify root cause
 
-![Allure Report](docs/images/allure-report.png)
+---
 
-- **23 test cases** executed
-- **100% pass rate**
-- **13 test suites** covering all modules   
+## 📊 Test Results & Allure Report
+
+**Live Allure Report:**
+https://billmazio.github.io/warehouse-springboot-api/
+
+**Report includes:**
+- 23 test cases with 100% pass rate
+- 13 test suites covering all modules
+- Complete execution timeline and statistics
+- Failure screenshots and detailed logs  

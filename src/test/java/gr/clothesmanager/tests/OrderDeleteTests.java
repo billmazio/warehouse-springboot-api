@@ -41,8 +41,8 @@ public class OrderDeleteTests {
                 TestConstants.STATUS_PENDING
         );
 
-        ordersPage.goToLastPage();
         ordersPage.waitForLoad();
+        ordersPage.goToLastPage();
         
         ordersPage.deleteOrder(uniqueName);
 

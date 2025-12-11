@@ -1,4 +1,5 @@
 package gr.clothesmanager.model;
+
 import gr.clothesmanager.core.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,15 +1,11 @@
 package gr.clothesmanager.model;
+
 import gr.clothesmanager.core.enums.OrderStatus;
-import gr.clothesmanager.dto.MaterialDTO;
-import gr.clothesmanager.dto.SizeDTO;
-import gr.clothesmanager.dto.StoreDTO;
-import gr.clothesmanager.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-
 import java.sql.Date;
+
 @Entity
 @RequiredArgsConstructor
 @AllArgsConstructor

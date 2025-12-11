@@ -50,42 +50,14 @@ public abstract class BasePage {
         );
     }
 
-    protected void waitForSelector(String selector) {
-        page.locator(selector).waitFor(
-                new Locator.WaitForOptions()
-                        .setState(WaitForSelectorState.VISIBLE)
-                        .setTimeout(TestConstants.DEFAULT_TIMEOUT)
-        );
-    }
-
-    protected void clickByTestId(String testId) {
-        page.getByTestId(testId).click();
-    }
-
     protected void fillByTestId(String testId, String text) { page.getByTestId(testId).fill(text);}
-
-    protected void clearByTestId(String testId) {
-        page.getByTestId(testId).clear();
-    }
 
     protected void selectOptionByTestId(String testId, String value) {
         page.getByTestId(testId).selectOption(value);
     }
 
-    protected void click(String selector) {
-        page.locator(selector).click();
-    }
-
-    protected Locator getByTestId(String testId) {
-        return page.getByTestId(testId);
-    }
-
     protected boolean isVisible(String testId) {
         return page.getByTestId(testId).isVisible();
-    }
-
-    protected int getCountByTestId(String testId) {
-        return page.getByTestId(testId).count();
     }
 
     protected String getTitle() {

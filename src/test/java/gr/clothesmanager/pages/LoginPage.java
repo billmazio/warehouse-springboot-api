@@ -1,9 +1,10 @@
 package gr.clothesmanager.pages;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.constants.TestConstants;
-import org.springframework.security.access.method.P;
+import lombok.Getter;
 
 /**
  * Page Object for Login page
@@ -11,6 +12,7 @@ import org.springframework.security.access.method.P;
  *
  * @author Bill Maziotis
  */
+
 public class LoginPage extends BasePage {
 
     private static final String USERNAME_INPUT = "username-input";
@@ -20,28 +22,50 @@ public class LoginPage extends BasePage {
     private static final String PASSWORD_ERROR = "password-error";
     private static final String LOGIN_ERROR = "login-error";
 
+    private final Locator usernameInput;
+    private final Locator passwordInput;
+    private final Locator signInButton;
+    @Getter
+    private final Locator usernameError;
+    @Getter
+    private final Locator passwordError;
+    @Getter
+    private final Locator loginError;
+
     public LoginPage(Page page) {
         super(page);
+        this.usernameInput = page.getByTestId(USERNAME_INPUT);
+        this.passwordInput = page.getByTestId(PASSWORD_INPUT);
+        this.signInButton = page.getByTestId(SIGN_IN_BUTTON);
+        this.usernameError = page.getByTestId(USERNAME_ERROR);
+        this.passwordError = page.getByTestId(PASSWORD_ERROR);
+        this.loginError = page.getByTestId(LOGIN_ERROR);
     }
 
-    public LoginPage open() { navigate(); waitForPageLoad();return this; }
+    public LoginPage open() {
+        navigate();
+        waitForPageLoad();
+        return this;
+    }
 
     public void enterUsername(String username) {
-        fillByTestId(USERNAME_INPUT, username);
+        usernameInput.fill(username);
     }
 
     public void enterPassword(String password) {
-        fillByTestId(PASSWORD_INPUT, password);
+        passwordInput.fill(password);
     }
 
-    public void clearUsername() {clearByTestId(USERNAME_INPUT);}
+    public void clearUsername() {
+        usernameInput.clear();
+    }
 
     public void clearPassword() {
-        clearByTestId(PASSWORD_INPUT);
+        passwordInput.clear();
     }
 
     public void clickSignIn() {
-        clickByTestId(SIGN_IN_BUTTON);
+        signInButton.click();
     }
 
     public DashboardPage loginAs(String username, String password) {
@@ -61,25 +85,13 @@ public class LoginPage extends BasePage {
         clickSignIn();
     }
 
-    public Locator getUsernameError() {
-        return getByTestId(USERNAME_ERROR);
-    }
-
-    public Locator getPasswordError() {
-        return getByTestId(PASSWORD_ERROR);
-    }
-
-    public Locator getLoginError() {
-        return getByTestId(LOGIN_ERROR);
-    }
-
     public String getPageTitle() {
         return getTitle();
     }
 
     private void waitForPageLoad() {
-        waitForVisible(USERNAME_INPUT);
-        waitForVisible(PASSWORD_INPUT);
+        usernameInput.isVisible();
+        passwordInput.isVisible();
         waitForNetworkIdle();
     }
 }

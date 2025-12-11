@@ -1,7 +1,6 @@
 package gr.clothesmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gr.clothesmanager.dto.UserRoleDTO;
 import jakarta.persistence.*;
 import lombok.*;
 

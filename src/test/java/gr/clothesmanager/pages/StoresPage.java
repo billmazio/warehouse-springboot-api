@@ -90,10 +90,9 @@ public class StoresPage extends BasePage {
                 .filter(new Locator.FilterOptions().setHasText(store));
     }
 
-    public boolean storeExists(String store) {
+    public Locator storeExists(String store) {
         return page.getByTestId(STORE_ROW)
-                .filter(new Locator.FilterOptions().setHasText(store))
-                .count() > 0;
+                .filter(new Locator.FilterOptions().setHasText(store));
     }
 
     public List<String> storesList() { return storeRows.allTextContents();}

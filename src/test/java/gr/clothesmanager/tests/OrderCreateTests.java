@@ -49,6 +49,6 @@ public class OrderCreateTests {
         ordersPage.goToLastPage();
         ordersPage.waitForLoad();
 
-        Assertions.assertThat(ordersPage.orderExists(uniqueMaterial)).isTrue();
+        Assertions.assertThat(ordersPage.orderExists(uniqueMaterial));
     }
 }

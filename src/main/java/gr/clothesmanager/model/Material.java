@@ -1,7 +1,7 @@
 package gr.clothesmanager.model;
+
 import jakarta.persistence.*;
 import lombok.*;
-
 
 @Entity
 @AllArgsConstructor

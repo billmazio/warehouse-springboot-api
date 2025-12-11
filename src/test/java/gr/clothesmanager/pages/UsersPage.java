@@ -3,7 +3,6 @@ package gr.clothesmanager.pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import gr.clothesmanager.components.ConfirmationDialog;
-import gr.clothesmanager.constants.TestConstants;
 
 import java.util.List;
 
@@ -30,11 +29,23 @@ public class UsersPage extends BasePage {
 
     private final ConfirmationDialog confirmationDialog;
     private final Locator userRows;
+    private final Locator userNameInput;
+    private final Locator passwordInput;
+    private final Locator roleInput;
+    private final Locator statusInput;
+    private final Locator storeInput;
+    private final Locator createUserButton;
 
     public UsersPage(Page page) {
         super(page);
         this.confirmationDialog = new ConfirmationDialog(page);
         this.userRows = page.getByTestId(USER_ROW);
+        this.userNameInput = page.getByTestId(USER_CREATE_USERNAME);
+        this.passwordInput = page.getByTestId(USER_CREATE_PASSWORD);
+        this.roleInput = page.getByTestId(USER_CREATE_ROLE);
+        this.statusInput = page.getByTestId(USER_CREATE_STATUS);
+        this.storeInput = page.getByTestId(USER_CREATE_STORE);
+        this.createUserButton = page.getByTestId(CREATE_USER_BUTTON);
     }
 
     public UsersPage waitForLoad() {
@@ -43,39 +54,13 @@ public class UsersPage extends BasePage {
         return this;
     }
 
-    private void fillUserUsername(String username) {
-        fillByTestId(USER_CREATE_USERNAME, username);
-    }
-
-    private void fillUserPassword(String password) {
-        fillByTestId(USER_CREATE_PASSWORD, password);
-    }
-
-    private void selectUserRole(String role) {
-        selectOptionByTestId(USER_CREATE_ROLE, role);
-    }
-
-    private void selectUserStatus(String status) {
-        selectOptionByTestId(USER_CREATE_STATUS, status);
-    }
-
-    private void selectUserStore(String store) {
-        selectOptionByTestId(USER_CREATE_STORE, store);
-    }
-
-    private void clickCreateUserButton() {
-        clickByTestId(CREATE_USER_BUTTON);
-        waitForNetworkIdle();
-        pause(TestConstants.WAIT_FOR_LOAD);
-    }
-
     public void createUser(String username, String password,String role,String status,String store) {
-        fillUserUsername(username);
-        fillUserPassword(password);
-        selectUserRole(role);
-        selectUserStatus(status);
-        selectUserStore(store);
-        clickCreateUserButton();
+        userNameInput.fill(username);
+        passwordInput.fill(password);
+        roleInput.selectOption(role);
+        statusInput.selectOption(status);
+        storeInput.selectOption(store);
+        createUserButton.click();
     }
 
     public void deleteUser(String username) {
@@ -92,7 +77,10 @@ public class UsersPage extends BasePage {
                 .filter(new Locator.FilterOptions().setHasText(username));
     }
 
-    public boolean userExists(String username) { return page.getByText(username).count() > 0; }
+    public Locator userExists(String username) {
+        return page.getByTestId(USER_ROW)
+                .filter(new Locator.FilterOptions().setHasText(username));
+    }
 
     public List<String> usersList() { return userRows.allTextContents(); }
 }

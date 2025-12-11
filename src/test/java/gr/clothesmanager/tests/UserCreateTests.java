@@ -41,6 +41,8 @@ public class UserCreateTests {
                 uniqueStore
         );
 
-        Assertions.assertThat(usersPage.userExists(uniqueUser)).isTrue();
+        usersPage.waitForLoad();
+
+        Assertions.assertThat(usersPage.userExists(uniqueUser));
     }
 }

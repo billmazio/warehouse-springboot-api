@@ -24,6 +24,6 @@ public class StoreEditTests {
         
         storesPage.editStore(updatedAddress);
 
-        Assertions.assertThat(storesPage.storeExists(updatedAddress)).isTrue();
+        Assertions.assertThat(storesPage.storeExists(updatedAddress));
     }
 }
