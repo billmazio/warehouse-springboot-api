@@ -1,0 +1,176 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: warehouse_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout backend
+        uses: actions/checkout@v4
+        with:
+          path: backend
+
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+        with:
+          repository: billmazio/warehouse-react-ui
+          path: frontend
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/frontend/package-lock.json
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install-deps
+          npx playwright install
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend/frontend
+          npm ci
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL is ready!"
+
+      - name: Build backend
+        run: |
+          cd backend
+          mvn clean package -DskipTests
+
+      - name: Start backend
+        run: |
+          cd backend
+          java -jar target/*.jar \
+            --spring.datasource.url=jdbc:mysql://127.0.0.1:3306/warehouse_db?useSSL=false\&allowPublicKeyRetrieval=true\&serverTimezone=UTC \
+            --spring.datasource.username=root \
+            --spring.datasource.password=root \
+            --spring.jpa.hibernate.ddl-auto=update \
+            --spring.sql.init.mode=always \
+            --spring.jpa.defer-datasource-initialization=true \
+            --application.security.jwt.secret-key=${{ secrets.JWT_SECRET_KEY }} \
+            --jwt.expiration=${{ secrets.JWT_EXPIRATION }} \
+            --cors.allowed-origins=http://localhost:3000,http://127.0.0.1:3000 \
+            > /tmp/backend.log 2>&1 &
+
+      - name: Wait for backend
+        run: |
+          echo "Waiting for backend to start..."
+          for i in {1..90}; do
+            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+              echo "Backend is ready!"
+              exit 0
+            fi
+            if [ $((i % 10)) -eq 0 ]; then
+              echo "Attempt $i: still waiting..."
+              tail -20 /tmp/backend.log 2>/dev/null || true
+            fi
+            sleep 2
+          done
+          echo "Backend failed to start!"
+          cat /tmp/backend.log
+          exit 1
+
+      - name: Seed test data
+        run: |
+          mysql -h 127.0.0.1 -u root -proot warehouse_db < backend/src/main/resources/data.sql
+
+      - name: Start frontend
+        run: |
+          cd frontend/frontend
+          REACT_APP_API_URL=http://localhost:8080 npm start > /tmp/frontend.log 2>&1 &
+
+      - name: Wait for frontend
+        run: |
+          echo "Waiting for frontend to start..."
+          for i in {1..60}; do
+            if curl -s http://localhost:3000 | grep -q "<!DOCTYPE"; then
+              echo "Frontend is ready!"
+              exit 0
+            fi
+            echo "Attempt $i: waiting..."
+            sleep 2
+          done
+          echo "Frontend failed to start!"
+          cat /tmp/frontend.log | tail -50
+          exit 1
+
+      - name: Run Integration Tests
+        run: |
+          cd backend
+          mvn test -Dtest=FullIntegrationTestSuite
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: backend/target/surefire-reports/
+          retention-days: 7
+
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-screenshots
+          path: backend/target/screenshots/
+          retention-days: 7
+
+      - name: Show Backend Logs
+        if: always()
+        run: |
+          echo "=== Backend Logs ==="
+          cat /tmp/backend.log | tail -100
+
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          cd backend
+          mvn allure:report
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: backend/target/site/allure-maven-plugin
