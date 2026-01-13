@@ -37,7 +37,6 @@ build/
 ### VS Code ###
 .vscode/
 application-dev.properties
-data.sql
 
 # Database cleanup script
 clean-db.sh
