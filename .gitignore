@@ -37,7 +37,6 @@ build/
 ### VS Code ###
 .vscode/
 application-dev.properties
-application-test.properties
 data.sql
 
 # Database cleanup script
