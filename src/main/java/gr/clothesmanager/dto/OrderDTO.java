@@ -14,7 +14,8 @@ public class OrderDTO {
     private Date dateOfOrder;
     private Integer quantity;
     private OrderStatus orderStatus;
-    private MaterialDTO material;
+    private Long materialId;
+    private String materialText;
     private SizeDTO size;
     private StoreDTO store;
     private UserDTO user;
@@ -29,11 +30,12 @@ public class OrderDTO {
                 .dateOfOrder(order.getDateOfOrder())
                 .quantity(order.getQuantity())
                 .orderStatus(order.getOrderStatus())
-                .material(order.getMaterial() != null ? MaterialDTO.fromModel(order.getMaterial()) : null)
+                .materialId(order.getMaterial() != null ? order.getMaterial().getId() : null)
+                .materialText(order.getMaterial() != null ? order.getMaterial().getText() : null)
                 .size(order.getSize() != null ? SizeDTO.fromModel(order.getSize()) : null)
                 .store(order.getStore() != null ? StoreDTO.fromModel(order.getStore()) : null)
                 .user(order.getUser() != null ? UserDTO.fromModel(order.getUser()) : null)
-                .stock(order.getMaterial().getQuantity())
+                .stock(order.getMaterial() != null ? order.getMaterial().getQuantity() : null)
                 .build();
     }
 
@@ -44,7 +46,7 @@ public class OrderDTO {
                 ", dateOfOrder=" + dateOfOrder +
                 ", quantity=" + quantity +
                 ", orderStatus=" + orderStatus +
-                ", material=" + material +
+                ", materialId=" + materialId +
                 ", size=" + size +
                 ", store=" + store +
                 ", user=" + user +

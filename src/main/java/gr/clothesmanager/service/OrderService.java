@@ -35,43 +35,36 @@ public class OrderService {
 
     @Transactional
     public OrderDTO save(OrderDTO dto) throws UserNotFoundException {
-        if (dto.getMaterial().getId() == null) throw new IllegalArgumentException("MATERIAL_ID_REQUIRED");
+        if (dto.getMaterialId() == null) throw new IllegalArgumentException("MATERIAL_ID_REQUIRED");
         if (dto.getQuantity() == null || dto.getQuantity() <= 0) throw new IllegalArgumentException("QUANTITY_REQUIRED");
 
-        // 1) lock & load material
-        Material material = materialRepository.findByIdForUpdate(dto.getMaterial().getId())
+        Material material = materialRepository.findByIdForUpdate(dto.getMaterialId())
                 .orElseThrow(() -> new RuntimeException("MATERIAL_NOT_FOUND"));
 
         int requested = dto.getQuantity();
         if (material.getQuantity() < requested) {
             throw new InsufficientStockException("INSUFFICIENT_STOCK");
         }
-
-        // 2) update stock (no need to call save(material) explicitly)
         material.setQuantity(material.getQuantity() - requested);
 
-        // 3) create order
-        Order order = new Order();
+        Order order = dto.toModel();
         order.setQuantity(requested);
         order.setDateOfOrder(dto.getDateOfOrder());
         order.setOrderStatus(dto.getOrderStatus() != null ? dto.getOrderStatus() : OrderStatus.PENDING);
 
-        // attach relations without extra lookups
         order.setMaterial(material);
         order.setStore(material.getStore());
         order.setSize(material.getSize());
 
-        // user from auth (recommended)
         UserDTO currentUser = userService.getAuthenticatedUserDetails();
         order.setUser(userRepository.getReferenceById(currentUser.getId()));
 
         Order saved = orderRepository.save(order);
 
-        OrderDTO response = OrderDTO.fromModel(saved);
-        response.setStock(material.getQuantity());
-        return response;
+        OrderDTO out = OrderDTO.fromModel(saved);
+        out.setStock(material.getQuantity());
+        return out;
     }
-
 
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO dto) throws OrderNotFoundException {
