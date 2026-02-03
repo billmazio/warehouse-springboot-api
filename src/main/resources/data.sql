@@ -6,8 +6,8 @@ INSERT IGNORE INTO sizes (id, name) VALUES (4, 'LARGE');
 INSERT IGNORE INTO sizes (id, name) VALUES (5, 'EXTRA LARGE');
 
 -- Insert stores
-INSERT IGNORE INTO stores (id, title, address, is_system_entity, status)
-VALUES (1, 'ΚΕΝΤΡΙΚΑ', 'Αθήνα', 1, 'ACTIVE');
+INSERT IGNORE INTO stores (id, title, address, status)
+VALUES (1, 'ΚΕΝΤΡΙΚΑ', 'Αθήνα', 'ACTIVE');
 
 -- Insert roles
 INSERT IGNORE INTO warehouse_db.roles (id, created_at, updated_at, name, tag)
