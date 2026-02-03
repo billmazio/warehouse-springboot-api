@@ -17,7 +17,7 @@ public class Size {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "size", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "size", fetch = FetchType.LAZY)
     private Set<Material> materials;
 
     public Size(String name) {

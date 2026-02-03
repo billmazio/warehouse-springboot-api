@@ -4,7 +4,6 @@ import gr.clothesmanager.dto.SizeDTO;
 import gr.clothesmanager.model.Size;
 import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.service.exceptions.SizeAlreadyExistsException;
-import gr.clothesmanager.interfaces.SizeService;
 import gr.clothesmanager.service.exceptions.SizeNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SizeServiceImpl implements SizeService {
+public class SizeService {
 
     private final SizeRepository sizeRepository;
 
