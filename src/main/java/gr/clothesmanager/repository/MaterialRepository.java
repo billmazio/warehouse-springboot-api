@@ -24,10 +24,10 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     Optional<Material> findByTextAndStoreTitle(@Param("text") String text, @Param("storeTitle") String storeTitle);
 
     @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")
-    List<Material> findByOptionalFilters(@org.springframework.lang.Nullable String text, @org.springframework.lang.Nullable Long sizeId);
+    List<Material> findByOptionalFilters(@Param("text") String text, @Param("sizeId") Long sizeId);
 
     @Query("SELECT COUNT(m) FROM Material m")
-    int countMaterials();
+    long countMaterials();
 
     @Query("SELECT m FROM Material m " +
             "WHERE (:text IS NULL OR LOWER(m.text) LIKE LOWER(CONCAT('%', :text, '%'))) " +
@@ -53,13 +53,15 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
                                     @Param("sizeId") Long sizeId,
                                     Pageable pageable);
 
-    boolean existsByTextAndStoreIdAndSize_Id(String text, Long storeId, Long sizeId);
+    boolean existsByTextAndStoreIdAndSizeId(String text, Long storeId, Long sizeId);
 
     boolean existsByStoreId(Long storeId);
 
     @Modifying
     @Query("DELETE FROM Material m WHERE m.id = :id")
     void deleteDirectlyById(@Param("id") Long id);
+
+    boolean existsByTextAndStoreIdAndSizeIdAndIdNot(String text, Long storeId, Long sizeId, Long id);
 }
 
 

@@ -4,7 +4,6 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.MaterialDistributionDTO;
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.MaterialService;
 import gr.clothesmanager.model.Material;
 import gr.clothesmanager.model.Size;
 import gr.clothesmanager.model.Store;
@@ -13,6 +12,7 @@ import gr.clothesmanager.repository.OrderRepository;
 import gr.clothesmanager.repository.SizeRepository;
 import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.service.exceptions.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,15 +28,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class MaterialServiceImpl implements MaterialService {
+public class MaterialService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialService.class);
 
     private final MaterialRepository materialRepository;
     private final StoreRepository storeRepository;
     private final SizeRepository sizeRepository;
     private final OrderRepository orderRepository;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final AuthorizationService authorizationService;
 
     @Transactional
@@ -44,27 +44,25 @@ public class MaterialServiceImpl implements MaterialService {
         LOGGER.info("Saving new material with text: {}", materialDTO.getText());
 
         // Duplicate (text + store + size) -> 409
-        if (materialRepository.existsByTextAndStoreIdAndSize_Id(
+        if (materialRepository.existsByTextAndStoreIdAndSizeId(
                 materialDTO.getText(), materialDTO.getStoreId(), materialDTO.getSizeId())) {
             throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
         }
 
-        // Proper not-found exceptions with codes
-        Size size = sizeRepository.findById(materialDTO.getSizeId())
-                .orElseThrow(() -> new SizeNotFoundException("SIZE_NOT_FOUND"));
+        Material material = materialDTO.toModel();
+        material.setText(materialDTO.getText());
+        material.setQuantity(materialDTO.getQuantity());
 
-        Store store = storeRepository.findById(materialDTO.getStoreId())
-                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+        material.setSize(sizeRepository.getReferenceById(materialDTO.getSizeId()));
+        material.setStore(storeRepository.getReferenceById(materialDTO.getStoreId()));
 
-        Material material = new Material(materialDTO.getText(), materialDTO.getQuantity(), size, store);
         material = materialRepository.save(material);
-
         return MaterialDTO.fromModel(material);
     }
 
     @Transactional
     public List<MaterialDTO> findMaterialsByStoreId(Long storeId) throws UserNotFoundException {
-        UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
+        UserDTO currentUser = userService.getAuthenticatedUserDetails();
 
         // LOCAL_ADMIN can only access their own store
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
@@ -108,62 +106,44 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Transactional
-    public MaterialDTO edit(Long id, MaterialDTO materialDTO) throws MaterialNotFoundException, SizeNotFoundException, MaterialAlreadyExistsException {
-        LOGGER.info("Editing material with ID: {}", id);
+    public MaterialDTO edit(Long id, MaterialDTO materialDTO)
+            throws MaterialNotFoundException, SizeNotFoundException, MaterialAlreadyExistsException {
 
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
 
-        material.setText(materialDTO.getText());
-        material.setQuantity(materialDTO.getQuantity() == null ? 0 : materialDTO.getQuantity());
+        String newText = materialDTO.getText();
+        int newQty = materialDTO.getQuantity() == null ? 0 : materialDTO.getQuantity();
+        Long newSizeId = materialDTO.getSizeId();
+        Long storeId = material.getStore().getId();
 
-        Size size = sizeRepository.findById(materialDTO.getSizeId())
-                .orElseThrow(() -> new SizeNotFoundException("SIZE_NOT_FOUND"));
-        material.setSize(size);
+        if (materialRepository.existsByTextAndStoreIdAndSizeIdAndIdNot(newText, storeId, newSizeId, id)) {
+            throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
+        }
 
-        // (προαιρετικό) Αν θέλεις να μπλοκάρεις διπλότυπο και στο edit:
-         if (materialRepository.existsByTextAndStoreIdAndSize_Id(materialDTO.getText(),
-                 material.getStore().getId(), materialDTO.getSizeId())
-             && !material.getText().equals(materialDTO.getText())
-             && !material.getSize().getId().equals(materialDTO.getSizeId())) {
-             throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
-         }
+        material.setText(newText);
+        material.setQuantity(newQty);
 
-        material = materialRepository.save(material);
+        material.setSize(sizeRepository.getReferenceById(newSizeId));
+
         return MaterialDTO.fromModel(material);
     }
 
     @Transactional
     public void delete(Long id) throws MaterialNotFoundException, UserNotFoundException {
-        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+        authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
         LOGGER.info("Authorization passed for deleting material ID: {}", id);
 
-        Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
-        LOGGER.info("Found material with ID: {} for deletion", id);
+        if (!materialRepository.existsById(id)) {
+            throw new MaterialNotFoundException("MATERIAL_NOT_FOUND");
+        }
 
-        // If there are associated orders -> 409
-        boolean hasOrders = orderRepository.existsByMaterial_Id(id);
-        LOGGER.info("Material has associated orders: {}", hasOrders);
+        boolean hasOrders = orderRepository.existsByMaterialId(id);
         if (hasOrders) {
             throw new IllegalStateException("MATERIAL_HAS_ORDERS");
         }
 
-        try {
-            LOGGER.info("Executing direct delete for material ID: {}", id);
-            materialRepository.deleteDirectlyById(id);
-            materialRepository.flush();
-            LOGGER.info("Material deletion completed for ID: {}", id);
-
-            // Verify deletion
-            if (materialRepository.existsById(id)) {
-                throw new RuntimeException("INTERNAL_DELETE_VERIFICATION_FAILED");
-            }
-        } catch (Exception ex) {
-            LOGGER.error("Error deleting material: {}", ex.getMessage(), ex);
-            // Άφησε το GlobalExceptionHandler να χαρτογραφήσει σε 500 με ελληνικό γενικό μήνυμα.
-            throw ex;
-        }
+        materialRepository.deleteDirectlyById(id);
     }
 
     private MaterialDTO convertToDTO(Material material) {
@@ -246,7 +226,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     public Page<MaterialDTO> findAllPaginatedWithFilters(Long storeId, String text, Long sizeId, Pageable pageable) throws UserNotFoundException {
-        UserDTO currentUser = userServiceImpl.getAuthenticatedUserDetails();
+        UserDTO currentUser = userService.getAuthenticatedUserDetails();
 
         if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
             storeId = currentUser.getStore().getId(); // force στο store του χρήστη

@@ -4,7 +4,7 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.MaterialDistributionDTO;
 import gr.clothesmanager.dto.PageResponse;
-import gr.clothesmanager.service.MaterialServiceImpl;
+import gr.clothesmanager.service.MaterialService;
 import gr.clothesmanager.service.exceptions.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MaterialController {
 
-    private final MaterialServiceImpl materialService;
+    private final MaterialService materialService;
     private final AuthorizationService authorizationService;
 
     @PostMapping
