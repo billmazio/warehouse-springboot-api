@@ -37,15 +37,15 @@ public class StoreService {
     private final UserRepository userRepository;
 
     @Transactional
-    public StoreDTO save(StoreDTO storeDTO) throws StoreAlreadyExistsException {
+    public StoreDTO save(StoreDTO dto) throws StoreAlreadyExistsException {
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
-        validateStore(storeDTO);
+        validateStore(dto);
 
-        Store store = storeDTO.toModel();
-        store.setTitle(storeDTO.getTitle());
-        store.setAddress(storeDTO.getAddress());
-        store.setStatus(storeDTO.getStatus());
+        Store store = dto.toModel();
+        store.setTitle(dto.getTitle());
+        store.setAddress(dto.getAddress());
+        store.setStatus(dto.getStatus());
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved store with ID: {}", savedStore.getId());
@@ -97,17 +97,17 @@ public class StoreService {
     }
 
     @Transactional
-    public void edit(Long id, StoreDTO storeDTO) throws StoreNotFoundException {
+    public void edit(Long id, StoreDTO dto) throws StoreNotFoundException {
         authorizationService.authorize(getAuthenticatedUsername(), "SUPER_ADMIN");
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
 
-        validateStore(storeDTO);
+        validateStore(dto);
 
-        store.setTitle(storeDTO.getTitle());
-        store.setAddress(storeDTO.getAddress());
-        store.setStatus(storeDTO.getStatus());
+        store.setTitle(dto.getTitle());
+        store.setAddress(dto.getAddress());
+        store.setStatus(dto.getStatus());
 
         storeRepository.save(store);
         LOGGER.info("Successfully edited store with ID: {}", id);
@@ -131,13 +131,13 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreDTO saveForSetup(StoreDTO storeDTO) {
-        validateStore(storeDTO);
+    public StoreDTO saveForSetup(StoreDTO dto) {
+        validateStore(dto);
 
         Store store = new Store();
-        store.setTitle(storeDTO.getTitle());
-        store.setAddress(storeDTO.getAddress());
-        store.setStatus(storeDTO.getStatus());
+        store.setTitle(dto.getTitle());
+        store.setAddress(dto.getAddress());
+        store.setStatus(dto.getStatus());
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved initial setup store with ID: {}", savedStore.getId());
@@ -163,14 +163,14 @@ public class StoreService {
         return StoreDTO.fromModel(savedStore);
     }
 
-    private void validateStore(StoreDTO storeDTO) {
-        if (storeDTO.getTitle() == null || storeDTO.getTitle().isEmpty()) {
+    private void validateStore(StoreDTO dto) {
+        if (dto.getTitle() == null || dto.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title is required.");
         }
-        if (storeDTO.getAddress() == null || storeDTO.getAddress().isEmpty()) {
+        if (dto.getAddress() == null || dto.getAddress().isEmpty()) {
             throw new IllegalArgumentException("Address is required.");
         }
-        if (storeDTO.getStatus() == null) {
+        if (dto.getStatus() == null) {
             throw new IllegalArgumentException("Status is required.");
         }
     }

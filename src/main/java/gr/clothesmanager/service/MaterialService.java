@@ -5,7 +5,6 @@ import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.MaterialDistributionDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.model.Material;
-import gr.clothesmanager.model.Size;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.OrderRepository;
@@ -40,21 +39,21 @@ public class MaterialService {
     private final AuthorizationService authorizationService;
 
     @Transactional
-    public MaterialDTO save(MaterialDTO materialDTO) throws MaterialAlreadyExistsException, SizeNotFoundException, StoreNotFoundException {
-        LOGGER.info("Saving new material with text: {}", materialDTO.getText());
+    public MaterialDTO save(MaterialDTO dto) throws MaterialAlreadyExistsException, SizeNotFoundException, StoreNotFoundException {
+        LOGGER.info("Saving new material with text: {}", dto.getText());
 
         // Duplicate (text + store + size) -> 409
         if (materialRepository.existsByTextAndStoreIdAndSizeId(
-                materialDTO.getText(), materialDTO.getStoreId(), materialDTO.getSizeId())) {
+                dto.getText(), dto.getStoreId(), dto.getSizeId())) {
             throw new MaterialAlreadyExistsException("MATERIAL_ALREADY_EXISTS");
         }
 
-        Material material = materialDTO.toModel();
-        material.setText(materialDTO.getText());
-        material.setQuantity(materialDTO.getQuantity());
+        Material material = dto.toModel();
+        material.setText(dto.getText());
+        material.setQuantity(dto.getQuantity());
 
-        material.setSize(sizeRepository.getReferenceById(materialDTO.getSizeId()));
-        material.setStore(storeRepository.getReferenceById(materialDTO.getStoreId()));
+        material.setSize(sizeRepository.getReferenceById(dto.getSizeId()));
+        material.setStore(storeRepository.getReferenceById(dto.getStoreId()));
 
         material = materialRepository.save(material);
         return MaterialDTO.fromModel(material);
@@ -106,15 +105,15 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialDTO edit(Long id, MaterialDTO materialDTO)
+    public MaterialDTO edit(Long id, MaterialDTO dto)
             throws MaterialNotFoundException, SizeNotFoundException, MaterialAlreadyExistsException {
 
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
 
-        String newText = materialDTO.getText();
-        int newQty = materialDTO.getQuantity() == null ? 0 : materialDTO.getQuantity();
-        Long newSizeId = materialDTO.getSizeId();
+        String newText = dto.getText();
+        int newQty = dto.getQuantity() == null ? 0 : dto.getQuantity();
+        Long newSizeId = dto.getSizeId();
         Long storeId = material.getStore().getId();
 
         if (materialRepository.existsByTextAndStoreIdAndSizeIdAndIdNot(newText, storeId, newSizeId, id)) {

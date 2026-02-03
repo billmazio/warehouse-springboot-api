@@ -15,8 +15,6 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
 
     boolean existsByName(String name);
 
-    Optional<Size> findByName(String name);
-
     @Query("SELECT COUNT(s) FROM Size s")
     long countSizes();
 }

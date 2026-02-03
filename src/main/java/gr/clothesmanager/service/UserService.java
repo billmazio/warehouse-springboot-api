@@ -38,19 +38,19 @@ public class UserService  {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserDTO saveUser(UserDTO userDTO, Store store) throws UserAlreadyExistsException {
-        if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
+    public UserDTO saveUser(UserDTO dto, Store store) throws UserAlreadyExistsException {
+        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("USER_ALREADY_EXISTS");
         }
 
-        Set<UserRole> roles = assignRoles(userDTO.getRoles());
+        Set<UserRole> roles = assignRoles(dto.getRoles());
         User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setUsername(dto.getUsername());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setStatus(Status.ACTIVE);
         user.setStore(store);
         user.setRoles(roles);
-        user.setIsSystemEntity(userDTO.getIsSystemEntity() != null ? userDTO.getIsSystemEntity() : false);
+        user.setIsSystemEntity(dto.getIsSystemEntity() != null ? dto.getIsSystemEntity() : false);
 
         userRepository.save(user);
         // Fetch with roles after save to populate them

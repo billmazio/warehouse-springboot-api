@@ -37,11 +37,11 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeDTO save(SizeDTO sizeDTO) throws SizeAlreadyExistsException {
-        if (sizeRepository.existsByName(sizeDTO.getName())) {
-            throw new SizeAlreadyExistsException("Size with name " + sizeDTO.getName() + " already exists.");
+    public SizeDTO save(SizeDTO dto) throws SizeAlreadyExistsException {
+        if (sizeRepository.existsByName(dto.getName())) {
+            throw new SizeAlreadyExistsException("Size with name " + dto.getName() + " already exists.");
         }
-        Size size = new Size(sizeDTO.getName());
+        Size size = new Size(dto.getName());
         size = sizeRepository.save(size);
 
         return SizeDTO.fromModel(size);

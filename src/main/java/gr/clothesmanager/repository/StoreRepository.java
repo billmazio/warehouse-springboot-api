@@ -19,8 +19,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query("SELECT COUNT(s) FROM Store s")
     long countStores();
 
-    Optional<Store> findByTitle(String title);
-
     @Modifying
     @Query("DELETE FROM Store s WHERE s.id = :id")
     int deleteDirectlyById(@Param("id") Long id);
