@@ -157,71 +157,55 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialDTO distributeMaterial(MaterialDistributionDTO distributionDTO)
+    public MaterialDTO distributeMaterial(MaterialDistributionDTO dto)
             throws MaterialNotFoundException, StoreNotFoundException, InsufficientQuantityException {
 
-        LOGGER.info("Distributing material ID: {} to store ID: {} with quantity: {}",
-                distributionDTO.getMaterialId(),
-                distributionDTO.getReceiverStoreId(),
-                distributionDTO.getQuantity());
-
-        Material sourceMaterial = materialRepository.findById(distributionDTO.getMaterialId())
+        Material source = materialRepository.findByIdForUpdate(dto.getMaterialId())
                 .orElseThrow(() -> new MaterialNotFoundException("MATERIAL_NOT_FOUND"));
 
-        if (sourceMaterial.getQuantity() < distributionDTO.getQuantity()) {
+        Integer qtyObj = dto.getQuantity();
+        if (qtyObj == null || qtyObj <= 0) {
+            throw new IllegalArgumentException("QUANTITY_REQUIRED");
+        }
+        int qty = qtyObj;
+
+        if (source.getQuantity() < qty) {
             throw new InsufficientQuantityException("INSUFFICIENT_QUANTITY");
         }
 
-        Store receiverStore = storeRepository.findById(distributionDTO.getReceiverStoreId())
-                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
-
-        Optional<Material> existingMaterialOpt = materialRepository
-                .findByTextAndSizeIdAndStoreId(
-                        sourceMaterial.getText(),
-                        sourceMaterial.getSize().getId(),
-                        receiverStore.getId()
-                );
-
-        Material targetMaterial;
-
-        if (existingMaterialOpt.isPresent()) {
-            targetMaterial = existingMaterialOpt.get();
-            int newQuantity = targetMaterial.getQuantity() + distributionDTO.getQuantity();
-            targetMaterial.setQuantity(newQuantity);
-
-            LOGGER.info("Adding {} units to existing material '{}' in store '{}'. New total: {}",
-                    distributionDTO.getQuantity(),
-                    sourceMaterial.getText(),
-                    receiverStore.getTitle(),
-                    newQuantity);
-        } else {
-
-            targetMaterial = new Material(
-                    sourceMaterial.getText(),
-                    distributionDTO.getQuantity(),
-                    sourceMaterial.getSize(),
-                    receiverStore
-            );
-
-            LOGGER.info("Creating new material '{}' in store '{}' with {} units",
-                    sourceMaterial.getText(),
-                    receiverStore.getTitle(),
-                    distributionDTO.getQuantity());
+        // receiver store: reference is enough if you only need id
+        Store receiverStore;
+        try {
+            receiverStore = storeRepository.getReferenceById(dto.getReceiverStoreId());
+        } catch (EntityNotFoundException ex) {
+            throw new StoreNotFoundException("STORE_NOT_FOUND");
         }
 
-        int newSourceQuantity = sourceMaterial.getQuantity() - distributionDTO.getQuantity();
-        sourceMaterial.setQuantity(newSourceQuantity);
+        // Find target material (same text + size + receiver store)
+        Optional<Material> targetOpt = materialRepository.findByTextAndSizeIdAndStoreId(
+                source.getText(),
+                source.getSize().getId(),
+                dto.getReceiverStoreId()
+        );
 
-        LOGGER.info("Reducing source material quantity from {} to {}",
-                sourceMaterial.getQuantity() + distributionDTO.getQuantity(),
-                newSourceQuantity);
+        Material target = targetOpt.orElseGet(() -> {
+            Material m = new Material();
+            m.setText(source.getText());
+            m.setSize(source.getSize());   // ok (same size entity)
+            m.setStore(receiverStore);
+            m.setQuantity(0);
+            return m;
+        });
 
-        // Save both materials
-        materialRepository.save(sourceMaterial);
-        targetMaterial = materialRepository.save(targetMaterial);
+        // Update quantities (managed entities inside TX)
+        source.setQuantity(source.getQuantity() - qty);
+        target.setQuantity((target.getQuantity() == null ? 0 : target.getQuantity()) + qty);
 
-        LOGGER.info("Material distribution completed successfully. Target material ID: {}", targetMaterial.getId());
-        return MaterialDTO.fromModel(targetMaterial);
+        // Save only target if new; source will be auto-flushed
+        // (save(source) not required, but ok if you keep it)
+        Material savedTarget = materialRepository.save(target);
+
+        return MaterialDTO.fromModel(savedTarget);
     }
 
     @Transactional
