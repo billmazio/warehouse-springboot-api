@@ -5,8 +5,8 @@ import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.dto.UserDTO;
 import gr.clothesmanager.model.Store;
-import gr.clothesmanager.service.StoreServiceImpl;
-import gr.clothesmanager.service.UserServiceImpl;
+import gr.clothesmanager.service.StoreService;
+import gr.clothesmanager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +23,8 @@ public class SetupController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SetupController.class);
 
-    private final UserServiceImpl userService;
-    private final StoreServiceImpl storeService;
+    private final UserService userService;
+    private final StoreService storeService;
 
     @GetMapping("/status")
     public ResponseEntity<Map<String, Boolean>> checkSetupStatus() {

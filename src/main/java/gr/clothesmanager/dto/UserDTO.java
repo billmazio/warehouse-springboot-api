@@ -22,10 +22,8 @@ public class UserDTO {
     private Status status;
     private Boolean isSystemEntity;
     private StoreDTO store;
-    private Set<UserRole> roles;
+    private List<UserRoleDTO> roles;
     private List<Long> orderIds;
-
-    public User toModel() {return new User(id, password, username, status, null , null, roles, null);}
 
     public static UserDTO fromModel(User user) {
         if (user == null) return null;
@@ -36,13 +34,9 @@ public class UserDTO {
                 .status(user.getStatus())
                 .isSystemEntity(user.getIsSystemEntity())
                 .store(user.getStore() != null ? StoreDTO.fromModel(user.getStore()) : null)
-                .roles(user.getRoles())
+                .roles(user.getRoles() != null ? user.getRoles().stream().map(UserRoleDTO::fromModel).collect(Collectors.toList()) : null)
                 .orderIds(user.getOrders() != null ? user.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .build();
-    }
-
-    public boolean hasRole(UserRole userRole) {
-        return roles != null && roles.contains(userRole.getName());
     }
 
     @Override

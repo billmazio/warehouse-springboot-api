@@ -1,6 +1,5 @@
 package gr.clothesmanager.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import gr.clothesmanager.core.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,19 +21,16 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    //private Integer enable;
-
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(name = "is_system_entity", nullable = false)
-    private Boolean isSystemEntity = false;
+    private Boolean isSystemEntity;
 
     @OneToMany(mappedBy = "user")
     private Set<Order> orders;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -42,7 +38,7 @@ public class User {
     )
     private Set<UserRole> roles;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;
 
@@ -54,17 +50,5 @@ public class User {
         this.orders = orders;
         this.roles = roles;
         this.store = store;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User user)) return false;
-        return id != null && id.equals(user.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }

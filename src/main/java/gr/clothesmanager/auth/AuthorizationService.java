@@ -1,8 +1,7 @@
 package gr.clothesmanager.auth;
 
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.UserService;
-import gr.clothesmanager.service.exceptions.UserNotFoundException;
+import gr.clothesmanager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -17,12 +16,8 @@ public class AuthorizationService {
 
     public void authorize(String username, String... allowedRoles) {
         UserDTO userDTO;
-        try {
-            userDTO = userService.findUserByUsername(username)
-                    .orElseThrow(() -> new AccessDeniedException("User not found"));
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        userDTO = userService.findUserByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
 
         boolean hasRole = userDTO.getRoles().stream()
                 .map(role -> role.getName().toUpperCase())

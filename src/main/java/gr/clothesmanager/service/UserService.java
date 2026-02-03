@@ -2,14 +2,12 @@ package gr.clothesmanager.service;
 
 import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.RoleService;
-import gr.clothesmanager.interfaces.UserService;
+import gr.clothesmanager.dto.UserRoleDTO;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.model.User;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.OrderRepository;
-import gr.clothesmanager.repository.StoreRepository;
 import gr.clothesmanager.repository.UserRepository;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -29,9 +27,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserService  {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
@@ -49,41 +47,49 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        user.setStatus(userDTO.getStatus());
-
+        user.setStatus(Status.ACTIVE);
         user.setStore(store);
         user.setRoles(roles);
         user.setIsSystemEntity(userDTO.getIsSystemEntity() != null ? userDTO.getIsSystemEntity() : false);
 
         userRepository.save(user);
-        return UserDTO.fromModel(user);
+        // Fetch with roles after save to populate them
+        User savedUser = userRepository.findByIdWithRoles(user.getId()).orElse(user);
+        return UserDTO.fromModel(savedUser);
     }
 
     @Transactional
     public Optional<UserDTO> findUserById(Long id) {
         if (id == null) return Optional.empty();
-        return userRepository.findById(id).map(UserDTO::fromModel);
+        return userRepository.findByIdWithRoles(id)
+                .map(UserDTO::fromModel);
     }
 
     @Transactional
     public Optional<UserDTO> findUserByUsername(String username) {
         if (username == null || username.isBlank()) return Optional.empty();
-        return userRepository.findByUsername(username).map(UserDTO::fromModel);
+        return userRepository.findByUsernameWithRoles(username)
+                .map(UserDTO::fromModel);
     }
 
     @Transactional
     public List<UserDTO> findAllUsers(String username) throws UserNotFoundException {
-        User loggedInUser = userRepository.findByUsername(username)
+        User loggedInUser = userRepository.findByUsernameWithRoles(username)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
-
 
         if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"))) {
             return userRepository.findAll().stream()
-                    .map(UserDTO::fromModel)
+                    .map(user -> {
+                        // Fetch each user with roles
+                        return userRepository.findByIdWithRoles(user.getId())
+                                .map(UserDTO::fromModel)
+                                .orElse(null);
+                    })
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } else if (loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("LOCAL_ADMIN"))) {
-            return userRepository.findByStoreId(loggedInUser.getStore().getId()).stream()
+            return userRepository.findByStoreIdWithRoles(loggedInUser.getStore().getId())
+                    .stream()
                     .map(UserDTO::fromModel)
                     .collect(Collectors.toList());
         } else {
@@ -93,26 +99,23 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public void deleteUserById(Long id) throws UserNotFoundException, AccessDeniedException, DataIntegrityViolationException {
-        User authenticatedUser = userRepository.findByUsername(getAuthenticatedUsername())
+        User authenticatedUser = userRepository.findByUsernameWithRoles(getAuthenticatedUsername())
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        User userToDelete = userRepository.findById(id)
+        User userToDelete = userRepository.findByIdWithRoles(id)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        // Check if it's a system entity
         if (userToDelete.getIsSystemEntity() != null && userToDelete.getIsSystemEntity()) {
             throw new IllegalStateException("SYSTEM_USER_PROTECTED");
         }
 
         if (authenticatedUser.getId().equals(userToDelete.getId())) {
-            // 403 -> CANNOT_DELETE_SELF
             throw new AccessDeniedException("CANNOT_DELETE_SELF");
         }
 
         boolean isSuperAdmin = userToDelete.getRoles().stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase("SUPER_ADMIN"));
         if (isSuperAdmin) {
-            // 403 -> CANNOT_DELETE_SUPER_ADMIN
             throw new AccessDeniedException("CANNOT_DELETE_SUPER_ADMIN");
         }
 
@@ -120,16 +123,11 @@ public class UserServiceImpl implements UserService {
             boolean hasMaterials = materialRepository.existsByStoreId(userToDelete.getStore().getId());
             boolean hasOrders = orderRepository.existsByStoreId(userToDelete.getStore().getId());
             if (hasMaterials || hasOrders) {
-                // 409 -> INTEGRITY_VIOLATION
                 throw new DataIntegrityViolationException("INTEGRITY_VIOLATION");
             }
         }
 
         userRepository.deleteById(id);
-    }
-
-    public boolean isSetupRequired() {
-        return userRepository.count() == 0;
     }
 
     @Transactional
@@ -146,26 +144,26 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-
         user.setStatus(Status.ACTIVE);
-
         user.setStore(store);
         user.setRoles(roles);
         user.setIsSystemEntity(true);
 
         User savedUser = userRepository.save(user);
+        // Fetch with roles after save
+        savedUser = userRepository.findByIdWithRoles(savedUser.getId()).orElse(savedUser);
         LOGGER.info("Successfully created SUPER_ADMIN user: {}", username);
         return UserDTO.fromModel(savedUser);
     }
 
-    private Set<UserRole> assignRoles(Set<UserRole> roleNames) {
+    private Set<UserRole> assignRoles(List<UserRoleDTO> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {
             throw new IllegalArgumentException("Roles cannot be null or empty");
         }
 
         return roleNames.stream()
                 .map(role -> {
-                    String roleName = role.getName().toUpperCase(); // Convert role name to upper case
+                    String roleName = role.getName().toUpperCase();
                     switch (roleName) {
                         case "SUPER_ADMIN":
                             return roleService.getOrCreateRole("SUPER_ADMIN", "Super Admin");
@@ -191,7 +189,7 @@ public class UserServiceImpl implements UserService {
             username = principal.toString();
         }
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameWithRoles(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         return UserDTO.fromModel(user);
@@ -200,13 +198,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDTO toggleUserStatus(Long userId, Status newStatus) throws UserNotFoundException, AccessDeniedException {
         String authenticatedUsername = getAuthenticatedUsername();
-        User authenticatedUser = userRepository.findByUsername(authenticatedUsername)
+        User authenticatedUser = userRepository.findByUsernameWithRoles(authenticatedUsername)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        User userToToggle = userRepository.findById(userId)
+        User userToToggle = userRepository.findByIdWithRoles(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
-        // Check if trying to deactivate own account
         if (authenticatedUser.getId().equals(userToToggle.getId()) && newStatus == Status.INACTIVE) {
             throw new AccessDeniedException("CANNOT_DISABLE_OWN_ACCOUNT");
         }
@@ -230,9 +227,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // Set the new status directly
         userToToggle.setStatus(newStatus);
-
         LOGGER.info("Changed user status for user ID {}: {}", userId, newStatus);
 
         User savedUser = userRepository.save(userToToggle);
@@ -248,8 +243,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
     public void assignRoleToUser(Long userId, String roleName) throws UserNotFoundException {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdWithRoles(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
         UserRole role = roleService.getRoleByTag(roleName);
@@ -260,5 +256,9 @@ public class UserServiceImpl implements UserService {
         user.getRoles().clear();
         user.getRoles().add(role);
         userRepository.save(user);
+    }
+
+    public boolean isSetupRequired() {
+        return userRepository.count() == 0;
     }
 }

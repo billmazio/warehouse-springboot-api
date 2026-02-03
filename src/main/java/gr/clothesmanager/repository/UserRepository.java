@@ -13,12 +13,19 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.status = :status")
-    int countActiveUsersForDashboard(@Param("status") Status status);
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username")
+    Optional<User> findByUsernameWithRoles(@Param("username") String username);
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
+    Optional<User> findByIdWithRoles(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.store.id = :storeId")
+    List<User> findByStoreIdWithRoles(@Param("storeId") Long storeId);
 
     Optional<User> findByUsername(String username);
 
-    List<User> findByStoreId(Long storeId);
-
     boolean existsByStoreId(Long storeId);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.status = :status")
+    long countActiveUsersForDashboard(@Param("status") Status status);
 }

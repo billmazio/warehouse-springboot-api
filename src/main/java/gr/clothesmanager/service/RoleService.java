@@ -1,6 +1,5 @@
 package gr.clothesmanager.service;
 
-import gr.clothesmanager.interfaces.RoleService;
 import gr.clothesmanager.model.UserRole;
 import gr.clothesmanager.repository.UserRoleRepository;
 import jakarta.transaction.Transactional;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RoleServiceImpl implements RoleService {
+public class RoleService {
 
     private final UserRoleRepository roleRepository;
 

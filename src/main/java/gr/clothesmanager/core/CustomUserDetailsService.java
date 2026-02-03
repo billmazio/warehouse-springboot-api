@@ -19,15 +19,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameWithRoles(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream()
-                        .map(UserRole::getName).toArray(String[]::new))
+                        .map(UserRole::getTag)  // Use getTag() instead of getName() for Spring Security
+                        .toArray(String[]::new))
                 .accountLocked(user.getStatus() != Status.ACTIVE)
                 .build();
     }
@@ -38,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
-            return userRepository.findByUsername(username)
+            return userRepository.findByUsernameWithRoles(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
         } else {
             throw new RuntimeException("No authenticated user found");

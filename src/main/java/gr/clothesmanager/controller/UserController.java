@@ -4,8 +4,8 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.auth.dto.ResponseMessageDTO;
 import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.service.UserServiceImpl;
-import gr.clothesmanager.service.StoreServiceImpl;
+import gr.clothesmanager.service.StoreService;
+import gr.clothesmanager.service.UserService;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -24,8 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserServiceImpl userService;
-    private final StoreServiceImpl storeService;
+    private final UserService userService;
+    private final StoreService storeService;
     private final AuthorizationService authorizationService;
 
     @GetMapping

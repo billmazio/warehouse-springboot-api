@@ -27,19 +27,18 @@ public class UserRole extends AbstractEntity{
     private String tag;
 
     @ManyToMany(mappedBy = "roles")
-    @JsonIgnore
     private Set<User> users;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         UserRole userRole = (UserRole) o;
-        return Objects.equals(id, userRole.id) && Objects.equals(name, userRole.name);
+        return Objects.equals(tag, userRole.tag) && Objects.equals(name, userRole.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tag);
+        return Objects.hash(tag, name);
     }
 
     @Override
