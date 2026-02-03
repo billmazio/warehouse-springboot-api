@@ -4,9 +4,9 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.MaterialDTO;
 import gr.clothesmanager.dto.StoreDTO;
-import gr.clothesmanager.service.MaterialServiceImpl;
-import gr.clothesmanager.service.StoreServiceImpl;
-import gr.clothesmanager.service.UserServiceImpl;
+import gr.clothesmanager.service.MaterialService;
+import gr.clothesmanager.service.StoreService;
+import gr.clothesmanager.service.UserService;
 import gr.clothesmanager.service.exceptions.StoreAlreadyExistsException;
 import gr.clothesmanager.service.exceptions.StoreNotFoundException;
 import gr.clothesmanager.service.exceptions.UserNotFoundException;
@@ -24,10 +24,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StoreController {
 
-    private final StoreServiceImpl storeService;
-    private final MaterialServiceImpl materialService;
+    private final StoreService storeService;
+    private final MaterialService materialService;
     private final AuthorizationService authorizationService;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<StoreDTO>> getAllStores() throws UserNotFoundException {
@@ -45,7 +45,7 @@ public class StoreController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO) throws StoreAlreadyExistsException, UserNotFoundException {
         authorizationService.authorize(
-                userServiceImpl.getAuthenticatedUserDetails().getUsername(),
+                userService.getAuthenticatedUserDetails().getUsername(),
                 "SUPER_ADMIN"
         );
 
@@ -62,7 +62,7 @@ public class StoreController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> editStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO) throws StoreNotFoundException, UserNotFoundException {
-        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+        authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
 
         storeService.edit(id, storeDTO);
         return ResponseEntity.noContent().build();

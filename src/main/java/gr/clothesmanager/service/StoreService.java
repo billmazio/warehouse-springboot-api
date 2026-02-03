@@ -5,7 +5,6 @@ import gr.clothesmanager.auth.AuthorizationService;
 import gr.clothesmanager.core.enums.Status;
 import gr.clothesmanager.dto.StoreDTO;
 import gr.clothesmanager.dto.UserDTO;
-import gr.clothesmanager.interfaces.StoreService;
 import gr.clothesmanager.model.Store;
 import gr.clothesmanager.repository.MaterialRepository;
 import gr.clothesmanager.repository.OrderRepository;
@@ -25,15 +24,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-public class StoreServiceImpl implements StoreService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceImpl.class);
+public class StoreService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreService.class);
     private final StoreRepository storeRepository;
     private final MaterialRepository materialRepository;
     private final OrderRepository orderRepository;
     private final AuthorizationService authorizationService;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -42,11 +42,10 @@ public class StoreServiceImpl implements StoreService {
 
         validateStore(storeDTO);
 
-        Store store = new Store();
+        Store store = storeDTO.toModel();
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
         store.setStatus(storeDTO.getStatus());
-        store.setIsSystemEntity(storeDTO.getIsSystemEntity() != null ? storeDTO.getIsSystemEntity() : false);
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved store with ID: {}", savedStore.getId());
@@ -66,7 +65,7 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public List<StoreDTO> findAll() throws UserNotFoundException {
         String username = getAuthenticatedUsername();
-        UserDTO userDTO = userServiceImpl.findUserByUsername(username)
+        UserDTO userDTO = userService.findUserByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
 
         boolean isSuperAdmin = userDTO.getRoles().stream()
@@ -110,43 +109,25 @@ public class StoreServiceImpl implements StoreService {
         store.setAddress(storeDTO.getAddress());
         store.setStatus(storeDTO.getStatus());
 
-        // Only update isSystemEntity if it's provided (to avoid accidentally changing it)
-        if (storeDTO.getIsSystemEntity() != null) {
-            store.setIsSystemEntity(storeDTO.getIsSystemEntity());
-        }
-
         storeRepository.save(store);
         LOGGER.info("Successfully edited store with ID: {}", id);
     }
 
     @Transactional
     public void deleteStoreById(Long id) throws StoreNotFoundException, UserNotFoundException {
-        authorizationService.authorize(userServiceImpl.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
+        authorizationService.authorize(userService.getAuthenticatedUserDetails().getUsername(), "SUPER_ADMIN");
         LOGGER.info("Attempting to delete store with ID: {}", id);
 
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new StoreNotFoundException("STORE_NOT_FOUND"));
+        if (materialRepository.existsByStoreId(id)) throw new IllegalStateException("STORE_DELETE_HAS_MATERIALS");
+        if (orderRepository.existsByStoreId(id)) throw new IllegalStateException("STORE_DELETE_HAS_ORDERS");
+        if (userRepository.existsByStoreId(id)) throw new IllegalStateException("STORE_DELETE_HAS_USERS");
 
-        // Check if it's a system entity
-        if (store.getIsSystemEntity() != null && store.getIsSystemEntity()) {
-            throw new IllegalStateException("SYSTEM_STORE_PROTECTED");
+        int deleted = storeRepository.deleteDirectlyById(id);
+        if (deleted == 0) {
+            throw new StoreNotFoundException("STORE_NOT_FOUND");
         }
 
-        boolean hasMaterials = materialRepository.existsByStoreId(id);
-        boolean hasOrders = orderRepository.existsByStoreId(id);
-        boolean hasUsers = userRepository.existsByStoreId(id);
-
-        if (hasMaterials) throw new IllegalStateException("STORE_DELETE_HAS_MATERIALS");
-        if (hasOrders)   throw new IllegalStateException("STORE_DELETE_HAS_ORDERS");
-        if (hasUsers) throw new IllegalStateException("STORE_DELETE_HAS_USERS");
-
-        try {
-            storeRepository.deleteById(id);
-            LOGGER.info("Successfully deleted store with ID: {}", id);
-        } catch (Exception ex) {
-            LOGGER.error("Error deleting store: {}", ex.getMessage());
-            throw new RuntimeException("Παρουσιάστηκε σφάλμα κατά τη διαγραφή της αποθήκης.", ex);
-        }
+        LOGGER.info("Successfully deleted store with ID: {}", id);
     }
 
     @Transactional
@@ -157,7 +138,6 @@ public class StoreServiceImpl implements StoreService {
         store.setTitle(storeDTO.getTitle());
         store.setAddress(storeDTO.getAddress());
         store.setStatus(storeDTO.getStatus());
-        store.setIsSystemEntity(true); // Mark as system entity for setup
 
         Store savedStore = storeRepository.save(store);
         LOGGER.info("Successfully saved initial setup store with ID: {}", savedStore.getId());

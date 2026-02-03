@@ -17,13 +17,12 @@ public class StoreDTO {
     private String title;
     private String address;
     private Status status;
-    private Boolean isSystemEntity;
     private List<Long> orderIds;
     private List<Long> userIds;
     private List<Long> materialIds;
     private List<Long> materialDescriptionIds;
 
-    public Store toModel() {return new Store(id, title, address, status, null, null, null,null);}
+    public Store toModel() {return new Store(id, title, address, status, null, null,null);}
 
     public static StoreDTO fromModel(Store store) {
         if (store == null) return null;
@@ -33,7 +32,6 @@ public class StoreDTO {
                 .title(store.getTitle())
                 .address(store.getAddress())
                 .status(store.getStatus())
-                .isSystemEntity(store.getIsSystemEntity())
                 .orderIds(store.getOrders() != null ? store.getOrders().stream().map(Order::getId).collect(Collectors.toList()) : null)
                 .userIds(store.getUsers() != null ? store.getUsers().stream().map(User::getId).collect(Collectors.toList()) : null)
                 .materialIds(store.getMaterials() != null ? store.getMaterials().stream().map(Material::getId).collect(Collectors.toList()) : null)
@@ -47,7 +45,6 @@ public class StoreDTO {
                 ", title='" + title + '\'' +
                 ", address='" + address + '\'' +
                 ", status=" + status +
-                ", isSystemEntity=" + isSystemEntity +
                 ", orderIds=" + orderIds +
                 ", userIds=" + userIds +
                 ", materialIds=" + materialIds +
