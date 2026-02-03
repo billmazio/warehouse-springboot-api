@@ -15,7 +15,7 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT COUNT(o) FROM Order o")
-    int countOrders();
+    long countOrders();
 
     @Query("SELECT o FROM Order o " +
             "WHERE (:storeId IS NULL OR o.store.id = :storeId) " +
@@ -33,5 +33,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByStoreId(Long storeId);
 
-    boolean existsByMaterial_Id(Long materialId);
+    boolean existsByMaterialId(Long materialId);
 }

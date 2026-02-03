@@ -20,8 +20,8 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     @Query("SELECT m FROM Material m WHERE m.store.id = :storeId")
     List<Material> findByStoreId(@Param("storeId") Long storeId);
 
-    @Query("SELECT m FROM Material m WHERE m.text = :text AND m.store.title = :storeTitle")
-    Optional<Material> findByTextAndStoreTitle(@Param("text") String text, @Param("storeTitle") String storeTitle);
+    @Query("select m from Material m where m.id = :id")
+    Optional<Material> findByIdForUpdate(@Param("id") Long id);
 
     @Query("SELECT m FROM Material m WHERE (:text IS NULL OR m.text = :text) AND (:sizeId IS NULL OR m.size.id = :sizeId)")
     List<Material> findByOptionalFilters(@Param("text") String text, @Param("sizeId") Long sizeId);

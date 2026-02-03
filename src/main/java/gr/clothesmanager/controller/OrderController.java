@@ -2,8 +2,9 @@ package gr.clothesmanager.controller;
 
 import gr.clothesmanager.dto.OrderDTO;
 import gr.clothesmanager.dto.PageResponse;
-import gr.clothesmanager.service.OrderServiceImpl;
+import gr.clothesmanager.service.OrderService;
 import gr.clothesmanager.service.exceptions.OrderNotFoundException;
+import gr.clothesmanager.service.exceptions.UserNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,10 +21,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderServiceImpl orderService;
+    private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> save(@Valid @RequestBody OrderDTO orderDTO) throws UserNotFoundException {
         OrderDTO savedOrder = orderService.save(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
     }
