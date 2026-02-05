@@ -2,6 +2,8 @@ package gr.clothesmanager.dto;
 
 import gr.clothesmanager.model.UserRole;
 import lombok.*;
+
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -29,6 +31,18 @@ public class UserRoleDTO {
                 .name(model.getName())
                 .tag(model.getTag())
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        UserRoleDTO that = (UserRoleDTO) o;
+        return Objects.equals(tag, that.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tag);
     }
 
     @Override
