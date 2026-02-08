@@ -10,7 +10,7 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UserRoleDTO {
     private Long id;

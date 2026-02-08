@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public class MaterialDistributionDTO {
     @NotNull(message = "Material ID is required")

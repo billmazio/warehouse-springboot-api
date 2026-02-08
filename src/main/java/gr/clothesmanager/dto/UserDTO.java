@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UserDTO {
     private Long id;

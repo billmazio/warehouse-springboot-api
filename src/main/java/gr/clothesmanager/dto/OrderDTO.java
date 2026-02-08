@@ -4,10 +4,11 @@ import gr.clothesmanager.model.Order;
 import lombok.*;
 
 import java.sql.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public class OrderDTO {
     private Long id;
