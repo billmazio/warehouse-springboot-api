@@ -189,6 +189,13 @@ jobs:
           # Allure → site root
           cp -R backend/target/site/allure-maven-plugin/* site/
           
-          # Swagger → /swagger
-          cp docs/swagger/index.html site/swagger/index.html
+          # Swagger → /swagger  (NOTE: repo is checked out under "backend/")
+          cp backend/docs/swagger/index.html site/swagger/index.html
           cp api-docs.json site/swagger/api-docs.json
+
+      - name: Deploy Allure + Swagger to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
