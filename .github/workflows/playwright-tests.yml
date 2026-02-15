@@ -173,4 +173,22 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: backend/target/site/allure-maven-plugin
+          publish_dir: site
+
+      - name: Export OpenAPI spec
+        if: always()
+        run: |
+          curl -s http://localhost:8080/api-docs > api-docs.json
+
+      - name: Build GitHub Pages site (Allure + Swagger)
+        if: always()
+        run: |
+          rm -rf site
+          mkdir -p site/swagger
+          
+          # Allure → site root
+          cp -R backend/target/site/allure-maven-plugin/* site/
+          
+          # Swagger → /swagger
+          cp docs/swagger/index.html site/swagger/index.html
+          cp api-docs.json site/swagger/api-docs.json
