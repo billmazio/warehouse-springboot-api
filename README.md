@@ -104,6 +104,17 @@ src/test/java/gr/clothesmanager/
 - Node.js 22+
 - MySQL 8.2
 
+## REST API Docs (OpenAPI / Swagger)
+
+Live Swagger UI: https://billmazio.github.io/warehouse-api-docs/
+
+Docs include:
+- JWT authentication endpoints (login/logout/change-password)
+- Users & role management
+- Stores, materials/inventory, and orders (CRUD + pagination)
+- Request/response schemas and validation errors
+
+
 ## Test Data
 
 The `data.sql` file automatically seeds the database with:
