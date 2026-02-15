@@ -57,6 +57,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/setup/status").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/setup").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**").permitAll()
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -89,7 +90,10 @@ public class SecurityConfiguration {
                         path.equals("/") ||
                         path.equals("/index.html") ||
                         path.equals("/api/auth/login") ||
-                        path.startsWith("/api/setup")) {
+                        path.startsWith("/api/setup") ||
+                        path.startsWith("/swagger-ui") ||
+                        path.startsWith("/api-docs") ||
+                        path.startsWith("/swagger-ui.html")) {
 
                     filterChain.doFilter(request, response);
                     return;
