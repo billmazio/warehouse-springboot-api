@@ -106,7 +106,7 @@ src/test/java/gr/clothesmanager/
 
 ## REST API Docs (OpenAPI / Swagger)
 
-Live Swagger UI: https://billmazio.github.io/warehouse-api-docs/
+Live Swagger UI: https://billmazio.github.io/warehouse-springboot-api/swagger/
 
 Docs include:
 - JWT authentication endpoints (login/logout/change-password)
