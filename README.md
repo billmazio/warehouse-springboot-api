@@ -106,7 +106,7 @@ src/test/java/gr/clothesmanager/
 
 ## REST API Docs (OpenAPI / Swagger)
 
-Live Swagger UI: https://billmazio.github.io/warehouse-springboot-api/swagger/
+[Live Swagger UI](https://billmazio.github.io/warehouse-springboot-api/swagger/)
 
 Docs include:
 - JWT authentication endpoints (login/logout/change-password)
@@ -180,8 +180,7 @@ Automated testing on every push using GitHub Actions.
 
 ## 📊 Test Results & Allure Report
 
-**Live Allure Report:**
-https://billmazio.github.io/warehouse-springboot-api/
+[Live Allure Report](https://billmazio.github.io/warehouse-springboot-api/)
 
 **Report includes:**
 - 23 test cases with 100% pass rate
