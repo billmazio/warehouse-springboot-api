@@ -175,11 +175,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: site
 
-      - name: Export OpenAPI spec
-        if: always()
-        run: |
-          curl -s http://localhost:8080/api-docs > api-docs.json
-
       - name: Build GitHub Pages site (Allure + Swagger)
         if: always()
         run: |
@@ -189,9 +184,9 @@ jobs:
           # Allure → site root
           cp -R backend/target/site/allure-maven-plugin/* site/
           
-          # Swagger → /swagger  (NOTE: repo is checked out under "backend/")
+          # Swagger → /swagger (χρησιμοποίησε τα αρχεία από το repo)
           cp backend/docs/swagger/index.html site/swagger/index.html
-          cp api-docs.json site/swagger/api-docs.json
+          cp backend/docs/swagger/api-docs.json site/swagger/api-docs.json
 
       - name: Deploy Allure + Swagger to GitHub Pages
         if: always()
