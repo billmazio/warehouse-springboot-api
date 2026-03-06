@@ -19,6 +19,7 @@ public class Order {
     private Long id;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "date_of_order")
     private Date dateOfOrder;
     private Integer quantity;
 
