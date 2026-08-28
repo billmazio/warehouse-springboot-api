@@ -70,18 +70,19 @@ mvn spring-boot:run
 
 ## 🧪 Testing
 
-Comprehensive E2E test suite with 23 automated tests using Playwright and Page Object Model.
+Comprehensive UI and API test suites using Playwright, JUnit 5, Page Objects, and fluent builders.
 
 ## Test Structure
 ```
 src/test/java/gr/clothesmanager/
+├── builders/        # Fluent request builders
 ├── components/      # Reusable UI components
 ├── config/          # Browser configuration
 ├── constants/       # Test constants (URLs, credentials)
 ├── helpers/         # Reusable test utilities
-├── pages/           # 7 Page Objects (POM pattern)
-├── suites/          # TestSuites
-└── tests/           # 13 test classes
+├── pages/           # UI and API Page Objects (POM pattern)
+├── suites/          # UI and API test suites
+└── tests/           # UI and API test classes
 ```
 
 ## Test Coverage
@@ -90,6 +91,7 @@ src/test/java/gr/clothesmanager/
 - **Dashboard** (1 test) Layout and navigation verification
 - **Login** (6 tests) Page title, validation, empty fields (2), invalid credentials, logout
 - **Materials** (9 tests) - Create with different sizes (5), delete, edit, search, filter
+- **Materials API** - Authentication, CRUD, filtering, pagination, and distribution
 - **Orders** (3 tests) - Create (includes material creation), delete, edit
 - **Stores** (2 tests) - Delete, edit
 - **Users** (2 tests) - Create (includes store creation), delete

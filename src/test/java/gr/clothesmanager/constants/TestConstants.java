@@ -3,6 +3,7 @@ package gr.clothesmanager.constants;
 public class TestConstants {
 
     public static final String BASE_URL = "http://localhost:3000";
+    public static final String API_BASE_URL = "http://localhost:8080/api";
     public static final String LOGIN_URL = BASE_URL + "/login";
     public static final String DASHBOARD_URL = BASE_URL + "/dashboard";
 
