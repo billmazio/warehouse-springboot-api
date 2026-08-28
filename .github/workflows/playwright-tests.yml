@@ -138,7 +138,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd backend
-          mvn test -Dtest=FullIntegrationTestSuite
+          mvn test -Dtest=FullIntegrationTestSuite,ApiIntegrationTestSuite
 
       - name: Upload Test Results
         if: always()
@@ -171,19 +171,23 @@ jobs:
       - name: Build GitHub Pages site (Allure + Swagger)
         if: always()
         run: |
+          set -e
           rm -rf site
           mkdir -p site/swagger
           
           # Allure → site root
+          test -d backend/target/site/allure-maven-plugin
           cp -R backend/target/site/allure-maven-plugin/* site/
           
           # Swagger → /swagger (χρησιμοποίησε τα αρχεία από το repo)
+          test -f backend/docs/swagger/index.html
+          test -f backend/docs/swagger/api-docs.json
           cp backend/docs/swagger/index.html site/swagger/index.html
           cp backend/docs/swagger/api-docs.json site/swagger/api-docs.json
 
       - name: Deploy Allure + Swagger to GitHub Pages
-        if: always()
+        if: ${{ always() && hashFiles('site/index.html') != '' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: site
+          publish_dir: ./site
